@@ -11,7 +11,7 @@ qmake
 Description:
 
 	Read this if you want to know how to build things 
-	using TrollTech's qmake.
+	using Qt qmake.
 
 	Why have qmake enter the picture? Frankly; I find the
 	GNU auto tools to be a great idea - if you never have
@@ -30,7 +30,7 @@ Requirements:
 	Guess what? You are going to need qmake. If you have
 	Qt -dev installed then you probably already have qmake
 	installed. If not then get it from your distro or directly
-	from www.trolltech.com. You need Qt version 4 or better.
+	from www.qt.io. You need Qt version 4 or better.
 
 Make & Install:
 

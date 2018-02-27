@@ -48,23 +48,44 @@ TEMPLATE	= subdirs
 # WIN32
 # #########################################################
 win32 {
-	SUBDIRS	= \
-		gtrtstQ4 \
-		ODBCTestQ4
-}
+    equals( QT_MAJOR_VERSION, 4 ) {
+       SUBDIRS	= \
+           gtrtstQ4 \
+           ODBCTestQ4
+    }
 
+    equals( QT_MAJOR_VERSION, 5 ) {
+    	SUBDIRS	= \
+    		gtrtstQ5 \
+    		ODBCTestQ5
+    }
+}
 # #########################################################
 # MAC/UNIX shared
 # #########################################################
 unix {
-	SUBDIRS	= \
-		ini \
-		odbcinstQ4 \
-		gtrtstQ4 \
-		Wrappers \
-		ODBCCreateDataSourceQ4 \
-		ODBCManageDataSourcesQ4 \
-		ODBCTestQ4
+    equals( QT_MAJOR_VERSION, 4 ) {
+    	SUBDIRS	= \
+    		ini \
+    		odbcinstQ4 \
+    		gtrtstQ4 \
+    		Wrappers \
+    		ODBCCreateDataSourceQ4 \
+    		ODBCManageDataSourcesQ4 \
+    		ODBCTestQ4
+    }
+
+    equals( QT_MAJOR_VERSION, 5 ) {
+        SUBDIRS	= \
+            ini \
+            odbcinstQ5 \
+#            gtrtstQ5 \
+            Wrappers \
+            ODBCCreateDataSourceQ5 \
+            ODBCManageDataSourcesQ5 \
+            ODBCDataManagerQ5
+#            ODBCTestQ5
+    }
 }
 
 # #########################################################
