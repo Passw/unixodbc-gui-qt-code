@@ -1,0 +1,134 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+    Version="10.0"
+    VendorName="SlickEdit"
+    WorkingDir=".">
+    <Config
+        Name="Release"
+        OutputFile=""
+        CompilerConfigName="Latest Version">
+        <Menu>
+            <Target
+                Name="Compile"
+                MenuCaption="&amp;Compile"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveCurrent"
+                RunFromDir="%rw">
+                <Exec/>
+            </Target>
+            <Target
+                Name="Build"
+                MenuCaption="&amp;Build"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine="nmake"/>
+            </Target>
+            <Target
+                Name="Rebuild"
+                MenuCaption="&amp;Rebuild"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec/>
+            </Target>
+            <Target
+                Name="Debug"
+                MenuCaption="&amp;Debug"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec/>
+            </Target>
+            <Target
+                Name="Execute"
+                MenuCaption="E&amp;xecute"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec CmdLine='"odbctest.exe"'/>
+            </Target>
+        </Menu>
+    </Config>
+    <Files>
+        <Folder
+            Name="Source Files"
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl"
+            GUID="{75EE3485-A3BF-443E-9AB9-578B9B6E6EB4}">
+            <F N="attr.cpp"/>
+            <F N="catalog.cpp"/>
+            <F N="conn.cpp"/>
+            <F N="desc.cpp"/>
+            <F N="diag.cpp"/>
+            <F N="DlgDbcConnect.cpp"/>
+            <F N="DlgEnvAllocEnv.cpp"/>
+            <F N="DlgEnvAllocHandle.cpp"/>
+            <F N="DlgEnvDataSources.cpp"/>
+            <F N="DlgEnvDrivers.cpp"/>
+            <F N="DlgEnvEndTran.cpp"/>
+            <F N="DlgEnvFreeEnv.cpp"/>
+            <F N="DlgEnvFreeHandle.cpp"/>
+            <F N="DlgEnvTransact.cpp"/>
+            <F N="DlgToolsManageAutoTest.cpp"/>
+            <F N="DlgToolsManageTest.cpp"/>
+            <F N="DlgToolsManageTestGroup.cpp"/>
+            <F N="DlgToolsNewGroup.cpp"/>
+            <F N="DlgToolsNewSource.cpp"/>
+            <F N="DlgToolsRunAutoTests.cpp"/>
+            <F N="edit.cpp"/>
+            <F N="env.cpp"/>
+            <F N="installer.cpp"/>
+            <F N="main.cpp"/>
+            <F N="OdbcHandle.cpp"/>
+            <F N="OdbcTest.cpp"/>
+            <F N="open.cpp"/>
+            <F N="results.cpp"/>
+            <F N="stmt.cpp"/>
+        </Folder>
+        <Folder
+            Name="Header Files"
+            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if"
+            GUID="{653B87A9-04CF-4C2B-4BEB-BD8F392BFCAE}">
+            <F N="attr.h"/>
+            <F N="catalog.h"/>
+            <F N="conn.h"/>
+            <F N="desc.h"/>
+            <F N="diag.h"/>
+            <F N="DlgDbcConnect.h"/>
+            <F N="DlgEnvAllocEnv.h"/>
+            <F N="DlgEnvAllocHandle.h"/>
+            <F N="DlgEnvDataSources.h"/>
+            <F N="DlgEnvDrivers.h"/>
+            <F N="DlgEnvEndTran.h"/>
+            <F N="DlgEnvFreeEnv.h"/>
+            <F N="DlgEnvFreeHandle.h"/>
+            <F N="DlgEnvTransact.h"/>
+            <F N="DlgToolsManageAutoTest.h"/>
+            <F N="DlgToolsManageTest.h"/>
+            <F N="DlgToolsManageTestGroup.h"/>
+            <F N="DlgToolsNewGroup.h"/>
+            <F N="DlgToolsNewSource.h"/>
+            <F N="DlgToolsRunAutoTests.h"/>
+            <F N="env.h"/>
+            <F N="OdbcHandle.h"/>
+            <F N="OdbcTest.h"/>
+            <F N="results.h"/>
+            <F N="stmt.h"/>
+        </Folder>
+        <Folder
+            Name="Resource Files"
+            Filters="*.ico;*.cur;*.dlg"
+            GUID="{B144ADA7-46B2-47C1-A14E-8832E6841892}"/>
+        <Folder
+            Name="Bitmaps"
+            Filters="*.bmp"
+            GUID="{38BD7F97-6AE7-41EB-E1FD-EFCC8F2F989C}"/>
+        <Folder
+            Name="Other Files"
+            Filters=""
+            GUID="{30EEFE4B-C990-4147-52DD-D1846F8C6087}">
+            <F N="Makefile.am"/>
+            <F N="ODBCTestQ5-48.xpm"/>
+            <F N="ODBCTestQ5.pro"/>
+            <F N="README"/>
+        </Folder>
+    </Files>
+</Project>

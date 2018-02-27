@@ -1,0 +1,5 @@
+SUBDIRS = \
+	Library \
+	Application \
+	include 
+
