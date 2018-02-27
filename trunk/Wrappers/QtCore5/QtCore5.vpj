@@ -1,0 +1,102 @@
+<!DOCTYPE Project SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpj.dtd">
+<Project
+    Version="10.0"
+    VendorName="SlickEdit"
+    WorkingDir=".">
+    <Config
+        Name="Release"
+        OutputFile=""
+        CompilerConfigName="Latest Version">
+        <Menu>
+            <Target
+                Name="Compile"
+                MenuCaption="&amp;Compile"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveCurrent"
+                RunFromDir="%rw">
+                <Exec/>
+            </Target>
+            <Target
+                Name="Build"
+                MenuCaption="&amp;Build"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec CmdLine="make"/>
+            </Target>
+            <Target
+                Name="Rebuild"
+                MenuCaption="&amp;Rebuild"
+                CaptureOutputWith="ProcessBuffer"
+                SaveOption="SaveWorkspaceFiles"
+                RunFromDir="%rw">
+                <Exec/>
+            </Target>
+            <Target
+                Name="Debug"
+                MenuCaption="&amp;Debug"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec/>
+            </Target>
+            <Target
+                Name="Execute"
+                MenuCaption="E&amp;xecute"
+                SaveOption="SaveNone"
+                RunFromDir="%rw">
+                <Exec CmdLine='"Qt5.exe"'/>
+            </Target>
+        </Menu>
+    </Config>
+    <Files>
+        <Folder
+            Name="Source Files"
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl"
+            GUID="{974B5CF0-8C66-4D43-95B8-E6674CC88ED0}">
+            <F N="Application/main.cpp"/>
+            <F N="Library/OQConnection.cpp"/>
+            <F N="Library/OQConsole.cpp"/>
+            <F N="Library/OQDiagnostic.cpp"/>
+            <F N="Library/OQEnvironment.cpp"/>
+            <F N="Library/OQHandle.cpp"/>
+            <F N="Library/OQMessage.cpp"/>
+            <F N="Library/OQStatement.cpp"/>
+            <F N="Library/OQSystem.cpp"/>
+        </Folder>
+        <Folder
+            Name="Header Files"
+            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if"
+            GUID="{E9175C01-3D74-4B07-A35C-D563E451F2AB}">
+            <F N="include/OQ.h"/>
+            <F N="include/OQConnection.h"/>
+            <F N="include/OQConsole.h"/>
+            <F N="include/OQDiagnostic.h"/>
+            <F N="include/OQEnvironment.h"/>
+            <F N="include/OQHandle.h"/>
+            <F N="include/OQMessage.h"/>
+            <F N="include/OQStatement.h"/>
+            <F N="include/OQSystem.h"/>
+        </Folder>
+        <Folder
+            Name="Resource Files"
+            Filters="*.ico;*.cur;*.dlg"
+            GUID="{DA6C69C5-78CF-4585-A139-0E337BA2D0BC}"/>
+        <Folder
+            Name="Bitmaps"
+            Filters="*.bmp"
+            GUID="{3DF7A733-58F3-4068-89C6-D70A093AC7D6}"/>
+        <Folder
+            Name="Other Files"
+            Filters=""
+            GUID="{DCDD50D3-1BD0-45A2-8DDA-2B88120375A3}">
+            <F N="Application/Application.pro"/>
+            <F N="Library/Library.pro"/>
+            <F N="Makefile.am"/>
+            <F N="Application/Makefile.am"/>
+            <F N="include/Makefile.am"/>
+            <F N="Library/Makefile.am"/>
+            <F N="QtCore5.pro"/>
+            <F N="../Wrappers.pro"/>
+        </Folder>
+    </Files>
+</Project>
