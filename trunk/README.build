@@ -20,9 +20,9 @@ These are notable requirements for building the source;
     - GNU auto-tools such as autoconf
     - unixODBC-Core v2.3
     - unixODBC-Dev  v2.3
-    - Qt v4
-    - Qt dev v4
-    - Qt doc v4
+    - Qt v4+
+    - Qt dev v4+
+    - Qt doc v4+
 
 NOTE: 	iODBC may not work because it lacks (at the this time) 
 	support for the UI plugin mechanism.
