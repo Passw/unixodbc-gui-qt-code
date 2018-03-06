@@ -46,6 +46,7 @@ void DEditStatement::slotSubmit()
     SQLHSTMT            hStmt           = pNodeStatement->getStatement();
     QString             stringText      = pTextEdit->toPlainText();
 #ifdef UNICODE
+    stringText.toWCharArray()
     SQLRETURN nReturn = SQLExecDirect( hStmt, (SQLWCHAR*)stringText.unicode(), (SQLINTEGER)stringText.length() );
 #else
     QByteArray bytearrayText = stringText.toLocal8Bit();

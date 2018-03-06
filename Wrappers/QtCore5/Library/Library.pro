@@ -1,6 +1,6 @@
 TEMPLATE        = lib
 VERSION 	= %V_MAJOUR%.%V_MINOR%.%V_RELEASE%
-TARGET          = OQ4 
+TARGET          = OQ5 
 DESTDIR         = ../../../lib
 include( ../../../common.pri )
 include( ../../../config.pri )

@@ -4,153 +4,131 @@
  * \author  Peter Harvey <pharvey@peterharvey.org>
  * \author  \sa AUTHORS file
  * \version 1
- * \date    2008
- * \license Copyright unixODBC-CPP Project 2003-2009, LGPL
+ * \date    2018
+ * \license Copyright unixODBC-GUI-Qt Project 2003-2018, LGPL
  */
-#ifndef ODBC_H
-#define ODBC_H
+#ifndef OQ_H
+#define OQ_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <string>
-
-using namespace std;
-
-/*
- * This comment is for unixODBC.
+/* 
+ * Characters/Strings 
+ *  
+ * Microsoft 
+ *  
+ * The platform wide-char is 16bit and encoded for UTF-16 (variable width char). 
+ * ODBC assumes wide-char is 16bit and encoded for UTF-16. 
+ * We can build for 8bit char (legacy) or define UNICODE to build for wide-char (default).
+ * SQLTCHAR maps to platform char or wchar_t and things pretty much just work.
+ *  
+ * UNIX/Linux 
+ *  
+ * The platform wide-char is often 32bit and encoded for UCS-4 (fixed width char) but can be 16bit and encoded for UTF-16. 
+ * unixODBC assumes wide-char is 16bit and encoded for UTF-16 (by default). Drivers *should* do the same.
+ * Applications can build for 8bit char (legacy) or define UNICODE to build for wide-char.
+ * SQLTCHAR (for wide-char on unixODBC) does not necessarily map to platform wchar_t - it always maps to 16bit. unixODBC 
+ * can be built to map to platform wchar_t by defining SQL_WCHART_CONVERT but this is never done for standard binary 
+ * distributions of unixODBC. 
+ *  
+ * Drivers/Databases 
+ *  
+ * The SQL will go to the Driver as SQLTCHAR (either 8bit (ASCII) or 16bit (UTF-16)). 
+ * The char data (ie for catalog functions and such) will go to the Driver as either 8bit (ASCII) or 16bit (UTF-16) 
+ * and will be expected to be returned in the same. 
+ * The char data (ie from database char data) is subject to configured character-set and collation etc. UTF-16 can 
+ * handle all. If any layer (app, driver manager, driver, support libraries for driver) is built for 8bit - the char
+ * data may be stripped of the non-ASCII chars. So its best if all layers are built with UNICODE and use 16bit char 
+ * with UTF-16 encoding.
+ *  
+ * Qt 
+ *  
+ * QString stores a string of 16bit QChars, where each QChar corresponds one Unicode 4.0 character. 
+ * Unicode characters with code values above 65535 are stored using surrogate pairs, i.e., two consecutive QChars. 
+ * QString converts the const char * data into Unicode using the fromUtf8() function.
  *
- * unixODBC will use a 2-byte wide char (unsigned short) for unicode - by default. We want it to use the 
- * system defined default (wchar_t). So we build unixODBC with the SQL_WCHART_CONVERT flag and then build
- * our code with the flag as well. This allows us to use C wide-char functions and C++ basic_string 
- * without having to dumb the string down to 16 bit.
+ * Some Qt string operations and QChar itself seem restricted to fixed-width usage even if variable-width is supported ?? 
+ *  
+ * We use QString for convenience functions but also so we do not have to worry about discrepancies between the platform 
+ * implementation of a char (MOB, char size, encoding). QString will accept literals as UTF-8. All else goes into a 
+ * QString using QString::fromUtf16() and comes out of a QString using QString::utf16(). 
+ *  
+ * The following build options can change the default behaviour of QString; 
+ *  
+ * - QT_NO_CAST_FROM_ASCII (we use this)
+ * - QT_RESTRICTED_CAST_FROM_ASCII 
+ * - QT_NO_CAST_TO_ASCII (we use this) 
+ *  
+ * ODBC 
+ *  
+ * A few ODBC functions are called differently with UNICODE (ie byte counts become char counts etc). 
+ * A UNICODE built Driver Manager (should be all of them) can interoperate with 8bit char applications and 
+ * 8bit char Drivers - but any non-ASCII chars may be lost in such a scenario.
+ *  
+ * SQLWCHAR
  *
- * We define SQL_WCHART_CONVERT on the compile-line. We do not define UNICODE on the compile-line for unixODBC 
- * - we define it in the code that needs it.
+ * This is a char for UNICODE in unixODBC/MS ODBC. This should be equivalent to the following; ushort, unsigned short, WCHAR, char16_t
+ * all of which are guaranteed to be 2 bytes. SQLTCHAR will map to SQLWCHAR for UNICODE so it can be used as well. However; wchar_t is 
+ * NOT guaranteed to be 2 bytes so its best to ignore it.
+ *
+ * UTF-8 
+ *  
+ * This is a very common encoding for code editors, web documents, etc. As mentioned above - QString converts 
+ * 'const char *' into UNICODE using fromUtf8() by default. Like UTF-16 - its a variable width character but is better 
+ * than UTF-16 when the characters are more likley to just be ASCII. UTF-8 is NOT used for string encoding for 
+ * us. We are built for either ASCII or UNICODE using UTF-16.
+ *  
+ * unixODBC-GUI-Qt
+ *
+ * It was decided, during the 2018 effort to make everything build for Qt 5, that unixODBC-GUI-Qt should only be
+ * built for UNICODE (and to use UTF-16 encoding as per unixODBC-Core). 
+ *
+ * !!! this code WILL NOT WORK for an ANSII only 8bit char build !!!
+ *
  */
-#ifdef SQL_WCHART_CONVERT
-    #define UNICODE
-#endif
-
-/*
- * Use ODBCString as our C++ version of a TCHAR. Hopefully we can get rid of all the plain 
- * C string calls and just use ODBCString.
- */
-#ifdef UNICODE
-    typedef basic_string<wchar_t> ODBCString;
-#else
-    typedef basic_string<char> ODBCString;
-#endif
 
 #ifdef WIN32
-    /*
-     * With MS'ism UNICODE is passed in as a compiler option but _UNICODE is defined otherwise? I define
-     * here. Its probably not used on other platforms.
-     */
-    #ifdef UNICODE
-        #define _UNICODE
-        #define ODBCEof WEOF
-    #else
-        #define ODBCEof EOF
-    #endif
-    
+    /* build against MS ODBC */
     #include <windows.h>
     #include <tchar.h>
     #include <sqlext.h>
     #include <odbcinst.h>
 
-    /*
-     * With MS'ism we use SQLTCHAR and things pretty much just work. We can build for ASCII or define
-     * UNICODE to build for wide-char (a 16bit char for MS'ism).
-     */
-    #define ODBCCHAR SQLTCHAR 
-    #define ODBCCPTR LPWSTR
-
-    #define ODBCStrNCpy(sDest,nDestMaxChars,sSource,nSourceMaxChars) _tcsncpy_s(sDest,nDestMaxChars,sSource,nSourceMaxChars)
-    #define ODBCStrDup(sSource) _tcsdup(sSource)
-    #define ODBCStrCpy(sDest,sSource) _tcscpy_s(sDest,sSource)
-    #define ODBCStrLen(s) _tcslen(s)
-    #define ODBCToI(s) _tstoi(s)
-    #define ODBCToL(s,a,b) _tcstol(s,a,b)
-    #define ODBCFGetC(f) _fgettc(f)
-    #define ODBCFGetS(a,b,c) _fgetts(a,b,c)
-    #define ODBCIsSpace(a) _istspace(a)
-    #define ODBCStrNCmp(a,b,c) _tcsnccmp(a,b,c)
-    #define ODBCStrCaseCmp _tcsicmp
-    #define ODBCPutS(a,b) _fputts(a,b)
-    #define ODBCPrintF _tprintf_s
-    #define ODBCFPutS _fputts
-    #define ODBCPutChar _puttchar
-    #define ODBCStrCat _tcscat_s
-    #define ODBCFPrintF _ftprintf_s
-    #define ODBCSPrintF _stprintf
 #else
-
+    /* build against a default build of unixODBC-Core */
     #include <sqlext.h>
-
-    /*
-     * With UNIX'ism (and gcc) we do not have a fully baked SQLTCHAR (just the teaser unixODBC has to offer) so we
-     * do our own version of it here.
-     */
-    #ifdef UNICODE
-        #include <sqlucode.h>
-
-        #define ODBCCPTR LPWSTR
-        #define ODBCCHAR SQLWCHAR
-
-        #define TEXT(a) (const ODBCCHAR*)(L##a)
-        #define ODBCStrNCpy(sDest,nDestMaxChars,sSource,nSourceChars) wcsncpy(sDest,sSource,nDestMaxChars); 
-        #define ODBCStrDup(sSource) wcsdup(sSource)
-        #define ODBCStrCpy(sDest,sSource) wcscpy(sDest,sSource)
-        #define ODBCStrLen(s) wcslen(s)
-        #define ODBCToI(s) aoti(s) 
-        #define ODBCToL(s,a,b) atol(s)
-        #define ODBCFGetC(f) fgetwc(f)
-        #define ODBCEof WEOF
-        #define ODBCFGetS(a,b,c) fgetws(a,b,c)
-        #define ODBCIsSpace(a) iswspace(a)
-        #define ODBCStrNCmp(a,b,c) wcsncmp(a,b,c)
-        #define ODBCPutS(a,b) fputws(a,b)
-        #define ODBCPrintF wprintf
-        #define ODBCFPutS fputws
-        #define ODBCPutChar putwchar
-        #define ODBCStrCat(a,b,c) strcat(a,c)
-        #define ODBCFPrintF wfprintf
-    #else
-        #define ODBCCPTR LPSTR
-        #define ODBCCHAR SQLCHAR
-
-        /* it totally sucks to put the casts in these but we do <sigh> */
-        #define TEXT(a) (const ODBCCHAR*)a
-        #define ODBCStrNCpy(sDest,nDestMaxChars,sSource,nSourceChars) strncpy((char*)sDest,(char*)sSource,nDestMaxChars); 
-        #define ODBCStrDup(sSource) strdup((const char*)sSource)
-        #define ODBCStrCpy(sDest,sSource) strcpy((char*)sDest,(char*)sSource)
-        #define ODBCStrLen(s) strlen((const char*)s)
-        #define ODBCToI(s) atoi((const char*)s)
-        #define ODBCToL(s,a,b) atol((const char*)s)
-        #define ODBCFGetC(f) fgetc(f)
-        #define ODBCEof EOF
-        #define ODBCFGetS(a,b,c) (ODBCCHAR*)fgets((char*)a,b,c)
-        #define ODBCIsSpace(a) isspace(a)
-        #define ODBCStrNCmp(a,b,c) strncmp((const char*)a,(const char*)b,c)
-        #define ODBCStrCmp(a,b) strcmp((const char*)a,(const char*)b)
-        #define ODBCStrCaseCmp(a,b) strcasecmp((const char*)a,(const char*)b)
-        #define ODBCPutS(a,b) fputs((const char*)a,b)
-        #define ODBCPrintF printf
-        #define ODBCFPutS(a,b) fputs((const char*)a,b)
-        #define ODBCPutChar putchar
-        #define ODBCStrCat(a,b,c) strcat((char*)a,(const char*)c)
-        #define ODBCFPrintF fprintf
-        #define ODBCSPrintF sprintf
-    #endif
-
-    /*
-     * An MS'ism which we ignore with UNIX'ism - compiler still needs to see something.
-     */
+    #include <sqlucode.h>
+    /* An MS'ism which we ignore with UNIX'ism - compiler still needs to see something. */
     #define _TRUNCATE 0
+#endif
+
+/*! 
+ * \brief Get QString data. 
+ *  
+ * Returns a references to the string data. This is only 
+ * valid while the QString remains unaltered. 
+ *  
+ * \param a QString
+ * \return const ushort* (should be same as 'const SQLWCHAR*')
+ *  
+ */
+#define OQFromQString(a) a.utf16();
+
+/*! 
+ * \brief Set QString data.
+ *  
+ * Returns a QString with the given string data. 
+ * Uses fromUtf16() as setUtf16() does not consider BOMs and 
+ * possibly differing byte ordering. 
+ *  
+ * \param a Pointer to a UTF-16 encoded string ('const SQLWCHAR*' should do as that maps to 'const ushort*'). 
+ * \param b Number of chars (-1 if \0 terminated)
+ * \return QString 
+ *  
+ */
+#define OQToQString(a,b) QString::fromUtf16( a, b ) 
 
 #endif
 
-
-#endif
