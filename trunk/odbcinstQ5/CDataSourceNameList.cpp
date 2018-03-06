@@ -116,7 +116,12 @@ void CDataSourceNameList::slotAdd()
             }
         }
 
-        // GET PROPERTY LIST FROM DRIVER
+        /* Get properties from Driver.
+         *  
+         * ODBCINSTConstructProperties will load the Driver Setup library and call its ODBCINSTGetProperties 
+         * to get the properties. 
+         * 
+         */
         if ( ODBCINSTConstructProperties( stringDataSourceDriver.toLatin1().data(), &hFirstProperty ) != ODBCINST_SUCCESS )
         {
             QMessageBox::information( this, tr( "ODBC Administrator" ), QString( tr( "Could not construct a property list for (%1)" ) ).arg( stringDataSourceDriver ) );
@@ -200,10 +205,14 @@ void CDataSourceNameList::slotEdit()
         return;
     }
 
-    //
-    // can we call SQLConfigDataSource ?
-    //
-
+    /*
+     * Try calling SQLConfigDataSource? 
+     *  
+     * SQLConfigDataSource will try to call ConfigDSN in the Driver Setup (or Driver). In 
+     * this case we do not need to provide GUI stuff - the Driver handles it. 
+     *  
+     * This is unlikely to succeed on UNIX/Linux other than OSX. Not sure on OSX.  
+     */
     {
         char attr[ 128 ];
         int mode;
@@ -228,8 +237,10 @@ void CDataSourceNameList::slotEdit()
             mode = ODBC_CONFIG_SYS_DSN;
         }
 
-        if ( SQLConfigDataSource(( HWND ) 1, mode,
-            stringDataSourceDriver.toLatin1().data(), attr ))
+        if ( SQLConfigDataSource( (HWND)1,      // no dialogs on MS for a NULL but passing a '1' ... odd        
+                                  mode, 
+                                  stringDataSourceDriver.toLatin1().data(), 
+                                  attr ) )
         {
 			SQLSetConfigMode( ODBC_BOTH_DSN );
             slotLoad();
@@ -238,14 +249,25 @@ void CDataSourceNameList::slotEdit()
         SQLSetConfigMode( ODBC_BOTH_DSN );
     }
 
-	// GET PROPERTY LIST FROM DRIVER
+    /* Try the GUI abstracted method (get properties from Driver).
+     *  
+     * ODBCINSTConstructProperties will load the Driver Setup library and call its ODBCINSTGetProperties 
+     * to get the properties. The properties will have default values. 
+     * 
+     */
 	if ( ODBCINSTConstructProperties( (char*) stringDataSourceDriver.toLatin1().data(), &hFirstProperty ) != ODBCINST_SUCCESS )
 	{
         CODBCInst::showErrors( this, QString( tr( "Could not construct a property list for (%1)" ) ).arg( stringDataSourceDriver ) );
 		return;
 	}
 
-	// COPY EXISTING VALUES INTO PROPERTIES LIST
+	/* Merge properties.
+     *
+     * The existing list (loaded from ODBC system information) may not match property list given
+     * by Driver as it could have been added manually (by text editor). We keep any extra and add
+     * any missing.
+     *
+     */
 	SQLSetConfigMode( nSource );
     ODBCINSTSetProperty( hFirstProperty, QString( tr( "Name" ) ).toLocal8Bit().data(), stringDataSourceName.toLocal8Bit().data() );
     memset( szEntryNames, 0, sizeof( szEntryNames ));
@@ -261,7 +283,10 @@ void CDataSourceNameList::slotEdit()
 	}
 	SQLSetConfigMode( ODBC_BOTH_DSN );
 
-	// ALLOW USER TO EDIT
+    /* Edit 
+     *  
+     * Invoke the generic properties editor dialog to allow the User to edit. 
+     */
 	pProperties = new CPropertiesDialog( this, hFirstProperty );
 	pProperties->setWindowTitle( tr( "Data Source Properties (edit)" ) );
 	if ( pProperties->exec() )
@@ -292,7 +317,8 @@ void CDataSourceNameList::slotEdit()
 	delete pProperties;
 	ODBCINSTDestructProperties( &hFirstProperty );
 
-	// RELOAD (slow but safe)
+	/* Reload the data source name list... just to be safe.
+     */
 	slotLoad();
 }
 

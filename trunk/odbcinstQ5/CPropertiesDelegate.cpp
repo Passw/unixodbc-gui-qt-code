@@ -62,7 +62,25 @@ QWidget *CPropertiesDelegate::createEditor( QWidget *pwidgetParent, const QStyle
 
         case ODBCINST_PROMPTTYPE_FILENAME:
             {
-                CFileSelector *pFileSelector = new CFileSelector( CFileSelector::Driver, QString::null, true, true, pwidgetParent );
+                CFileSelector *pFileSelector;
+
+                /* Guess the type of file.
+                 * 
+                 * We do not have enough information here to do anything more then guess the 
+                 * file type by the property name. Failing that - fall back to Generic. 
+                 */
+                if ( QString::fromLocal8Bit( pProperty->szName ) == QString::fromLocal8Bit( "Database" ) )
+                    pFileSelector = new CFileSelector( CFileSelector::Database, QString::null, true, true, pwidgetParent );
+                else if ( QString::fromLocal8Bit( pProperty->szName ).left( 6 ) == QString::fromLocal8Bit( "Driver" ) )
+                    pFileSelector = new CFileSelector( CFileSelector::Driver, QString::null, true, true, pwidgetParent );
+                else if ( QString::fromLocal8Bit( pProperty->szName ).left( 5 ) == QString::fromLocal8Bit( "Setup" ) )
+                    pFileSelector = new CFileSelector( CFileSelector::Setup, QString::null, true, true, pwidgetParent );
+                else if ( QString::fromLocal8Bit( pProperty->szName ) == QString::fromLocal8Bit( "TraceFile" ) )
+                    pFileSelector = new CFileSelector( CFileSelector::TraceFile, QString::null, true, true, pwidgetParent );
+                else if ( QString::fromLocal8Bit( pProperty->szName ) == QString::fromLocal8Bit( "TraceLibrary" ) )
+                    pFileSelector = new CFileSelector( CFileSelector::TraceLibrary, QString::null, true, true, pwidgetParent );
+                else
+                    pFileSelector = new CFileSelector( CFileSelector::Generic, QString::null, true, true, pwidgetParent );
                 return pFileSelector;
             }
             break;

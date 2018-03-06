@@ -35,7 +35,9 @@ public:
         TraceLibrary,
         FileDSNDirectory,
         Driver,
-        Setup
+        Setup,
+        Database,
+        Generic
     };
 
     CFileSelector( CFileSelectorMode nMode, const QString &stringLabel = QString::null, bool bCompact = true, bool bButton = true, QWidget* pwidgetParent = NULL );
