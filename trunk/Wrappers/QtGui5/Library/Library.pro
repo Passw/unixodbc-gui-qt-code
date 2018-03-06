@@ -1,6 +1,6 @@
 TEMPLATE        = lib
 VERSION 	= %V_MAJOUR%.%V_MINOR%.%V_RELEASE%
-TARGET          = OQG4 
+TARGET          = OQG5 
 DESTDIR         = ../../../lib
 include( ../../../common.pri )
 include( ../../../config.pri )
@@ -8,7 +8,7 @@ include( ../../../defines.pri )
 include( ../../../odbc.pri )
 CONFIG          += staticlib
 
-INCLUDEPATH     += ../include  ../../QtCore4/include
+INCLUDEPATH     += ../include  ../../QtCore5/include
 
 HEADERS =       ../include/OQGConnection.h \
 		../include/OQGEnvironment.h \

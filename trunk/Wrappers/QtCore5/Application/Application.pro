@@ -1,5 +1,5 @@
 TEMPLATE         = app 
-TARGET           = OQConsole4
+TARGET           = OQConsole5
 DESTDIR          = ../../../bin
 include( ../../../common.pri )
 include( ../../../config.pri )
@@ -9,7 +9,7 @@ CONFIG          += console
 CONFIG          -= qt
 INCLUDEPATH     += ../include
 
-LIBS += -L../../../lib -lOQ4
+LIBS += -L../../../lib -lOQ5
 
 HEADERS		=
 SOURCES 	= main.cpp

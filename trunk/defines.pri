@@ -8,7 +8,17 @@
 # \sa		*.pri *.pro 
 #
 
-DEFINES = V_MAJOUR=1 V_MINOR=0 V_RELEASE=1
+DEFINES += V_MAJOUR=1 V_MINOR=0 V_RELEASE=1
+
+#
+# Define for UNICODE, but do not map calls to A/W versions as we will call W versions
+# explicitly. Also; lets not have Qt silently convert to/from ASCII for us... lets do
+# that explicitly as well.
+#
+DEFINES += UNICODE \
+	   SQL_NOUNICODEMAP \
+           QT_NO_CAST_FROM_ASCII \
+           QT_NO_CAST_TO_ASCII
 
 # #########################################################
 # WIN32

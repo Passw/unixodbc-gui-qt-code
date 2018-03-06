@@ -21,8 +21,6 @@ int _tmain( int argc, SQLTCHAR *argv[] )
     return 0;
 }
 #else
-#ifdef UNICODE
-#else
 int main( int argc, char *argv[] )
 {
     QCoreApplication    theApplication( argc, argv ); 
@@ -34,6 +32,4 @@ int main( int argc, char *argv[] )
     return 0;
 }
 #endif
-#endif
-
 

@@ -82,8 +82,8 @@ unix {
 #            gtrtstQ5 \
             Wrappers \
             ODBCCreateDataSourceQ5 \
-            ODBCManageDataSourcesQ5 \
-            ODBCDataManagerQ5
+            ODBCManageDataSourcesQ5
+#            ODBCDataManagerQ5
 #            ODBCTestQ5
     }
 }

@@ -52,6 +52,7 @@
 # endif
 #endif
 
+
 /* this will bring in the ODBC 'test' stuff we need (and then some) */
 #include <autotest.h>
 
