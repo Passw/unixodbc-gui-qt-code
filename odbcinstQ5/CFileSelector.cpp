@@ -112,6 +112,15 @@ void CFileSelector::slotInvokeDialog()
                 stringText = QFileDialog::getOpenFileName( this, tr( "Select Driver Setup..." ), getText(), stringFilter, &stringSelectedFilter );
             }
             break;
+
+    case Database:
+        stringText = QFileDialog::getSaveFileName( this, tr( "Select database file..." ), getText(), tr( "Database File (*.db *.mdb);;All Files (*.*)" ), &stringSelectedFilter, QFileDialog::DontConfirmOverwrite );
+        break;
+
+    case Generic:
+        stringText = QFileDialog::getSaveFileName( this, tr( "Select file..." ), getText(), tr( "All Files (*.*)" ), &stringSelectedFilter, QFileDialog::DontConfirmOverwrite );
+        break;
+
     }
 
     if ( stringText.isNull() )

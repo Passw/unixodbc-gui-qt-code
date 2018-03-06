@@ -45,7 +45,8 @@ class CAbout;
  *          This is the main dialog/window for the ODBCConfig application and is also used
  *          to support a call to SQLManageDataSources.
  *
- * \sa      ODBCManageDataSources
+ * \sa      SQLManageDataSources
+ *          ODBCManageDataSources
  *          ODBCCreateDataSource
  */
 class CODBCConfig : public QDialog
