@@ -80,11 +80,11 @@ unix {
             ini \
             odbcinstQ5 \
 #            gtrtstQ5 \
-            Wrappers \
             ODBCCreateDataSourceQ5 \
-            ODBCManageDataSourcesQ5
-#            ODBCDataManagerQ5
-#            ODBCTestQ5
+            ODBCManageDataSourcesQ5 \
+            Wrappers \
+            ODBCDataManagerQ5 \
+            ODBCTestQ5
     }
 }
 

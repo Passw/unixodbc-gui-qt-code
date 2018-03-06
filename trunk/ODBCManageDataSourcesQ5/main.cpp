@@ -39,9 +39,9 @@ int main( int argc, char **argv )
 {
     // init Qt application...
     QApplication oApplication( argc, argv );
-    QCoreApplication::setOrganizationName("unixODBC-GUI-Qt");
-    QCoreApplication::setOrganizationDomain("unixodbc-gui-qt.sourceforge.net");
-    QCoreApplication::setApplicationName("ODBC Administrator");
+    QCoreApplication::setOrganizationName( QString::fromLocal8Bit( "unixODBC-GUI-Qt" ) );
+    QCoreApplication::setOrganizationDomain( QString::fromLocal8Bit( "unixodbc-gui-qt.sourceforge.net" ) );
+    QCoreApplication::setApplicationName( QString::fromLocal8Bit( "ODBC Administrator" ) );
 
     // specify Qt5 UI plugin explicitly...
     ODBCINSTWND odbcinstwnd;
@@ -62,7 +62,7 @@ int main( int argc, char **argv )
             QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  QObject::tr( "failed: no more errors to report" ) );
             break;
         }
-        QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  szErrorMsg );
+        QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  QString::fromLocal8Bit( szErrorMsg ) );
     }
 
     // exit with error
