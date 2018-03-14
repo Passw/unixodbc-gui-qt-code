@@ -6,9 +6,9 @@
 #
 
 # unixODBC-Test sources must be available so we can access 
-# autotest.h. This is needed for, at least, ODBCTestQ4.
+# autotest.h. This is needed for, at least, ODBCTestQx.
 
-INCLUDEPATH	+= $(UNIXODBC_TEST_SRC)/include
+INCLUDEPATH	+= $(UNIXODBC_TEST_SRC)/AutoTests/include
 
 # #########################################################
 # WIN32
@@ -35,6 +35,7 @@ mac {
 } else:unix {
 #
 #       unixODBC-Core and unixODBC-Dev must be installed. Here we bring them into our build.
+#       A simple binary install of these two will do fine.
 #
 	INCLUDEPATH	+= $(UNIXODBC_DIR)/include 
 	LIBS		+= -L$(UNIXODBC_LIBDIR)

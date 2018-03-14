@@ -37,7 +37,7 @@ public:
     CManageDrivers( QWidget* pwidgetParent = NULL );
     virtual ~CManageDrivers();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_DRIVERS ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_DRIVERS ); }
     bool saveData() { return true; }
 
 signals:

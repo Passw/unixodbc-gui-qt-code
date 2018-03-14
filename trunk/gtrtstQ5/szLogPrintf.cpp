@@ -11,6 +11,11 @@
 
 #include <QtWidgets>
 
+#ifndef FALSE
+ #define TRUE 1
+ #define FALSE 0
+#endif
+
 /*!
  * \brief   szLogPrintf.
  *
@@ -18,7 +23,7 @@
  *          is declared in unixODBC::autotest.h.
  * 
  *          AutoTest libraries link to this when they want to be run from
- *          ODBCTestQ4.
+ *          ODBCTestQ5.
  */
 BOOL EXTFUNCDECL FAR szLogPrintf_( lpSERVERINFO pServerInfo )
 {
@@ -30,7 +35,7 @@ BOOL EXTFUNCDECL FAR szLogPrintf_( lpSERVERINFO pServerInfo )
     {
         // the app (ie ODBCTestQ5) should have provided a QTextEdit for window handle...
         QTextEdit *pTextEdit = (QTextEdit*)pServerInfo->hwnd;
-        pTextEdit->append( pServerInfo -> szBuff );
+        pTextEdit->append( QString::fromLocal8Bit( pServerInfo->szBuff ) );
     }
 
     // to file...
@@ -63,7 +68,7 @@ BOOL EXTFUNCDECL FAR szLogPrintf( lpSERVERINFO pServerInfo, BOOL bForce, LPTSTR 
 
     /* format the message... */
     va_start( VariableArguments, szFormat );
-    vsprintf( szFormatted, szFormat, VariableArguments );
+    vsprintf( szFormatted, (LPTSTR)szFormat, VariableArguments );
     va_end( VariableArguments );
 
 

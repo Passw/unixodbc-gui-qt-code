@@ -14,9 +14,9 @@ OQDiagnosticRecord::OQDiagnosticRecord( OQDiagnostic *pDiagnostic, SQLINTEGER nR
     this->nRecord       = nRecord;
 }
 
-ODBCCHAR *OQDiagnosticRecord::getClassOrigin( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
+SQLWCHAR *OQDiagnosticRecord::getClassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(ODBCCHAR) )
+    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
         *psz = '\0';
 
     SQLRETURN nReturn = getDiagField( ClassOrigin, psz, nMaxBytes, pnRequiredBytes );
@@ -38,9 +38,9 @@ SQLINTEGER OQDiagnosticRecord::getColumnNumber( SQLRETURN *pn )
     return n;
 }
 
-ODBCCHAR *OQDiagnosticRecord::getConnectionName( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
+SQLWCHAR *OQDiagnosticRecord::getConnectionName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(ODBCCHAR) )
+    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
         *psz = '\0';
 
     SQLRETURN nReturn = getDiagField( ConnectionName, psz, nMaxBytes, pnRequiredBytes );
@@ -51,9 +51,9 @@ ODBCCHAR *OQDiagnosticRecord::getConnectionName( ODBCCHAR *psz, SQLSMALLINT nMax
     return psz;
 }
 
-ODBCCHAR *OQDiagnosticRecord::getMessageText( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
+SQLWCHAR *OQDiagnosticRecord::getMessageText( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(ODBCCHAR) )
+    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
         *psz = '\0';
 
     SQLRETURN nReturn = getDiagField( MessageText, psz, nMaxBytes, pnRequiredBytes );
@@ -86,9 +86,9 @@ SQLLEN OQDiagnosticRecord::getRowNumber( SQLRETURN *pn )
     return n;
 }
 
-ODBCCHAR *OQDiagnosticRecord::getServerName( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
+SQLWCHAR *OQDiagnosticRecord::getServerName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(ODBCCHAR) )
+    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
         *psz = '\0';
 
     SQLRETURN nReturn = getDiagField( ServerName, psz, nMaxBytes, pnRequiredBytes );
@@ -99,7 +99,7 @@ ODBCCHAR *OQDiagnosticRecord::getServerName( ODBCCHAR *psz, SQLSMALLINT nMaxByte
     return psz;
 }
 
-ODBCCHAR *OQDiagnosticRecord::getSqlstate( ODBCCHAR *psz /* better be 5 chars */, SQLRETURN *pnReturn )
+SQLWCHAR *OQDiagnosticRecord::getSqlstate( SQLWCHAR *psz /* better be 5 chars */, SQLRETURN *pnReturn )
 {
     if ( psz )
         *psz = '\0';
@@ -125,9 +125,9 @@ ODBCString  OQDiagnosticRecord::getSqlstate( SQLRETURN *pnReturn )
     return s;
 }
 
-ODBCCHAR *OQDiagnosticRecord::getSubclassOrigin( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
+SQLWCHAR *OQDiagnosticRecord::getSubclassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(ODBCCHAR) )
+    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
         *psz = '\0';
 
     SQLRETURN nReturn = getDiagField( SubclassOrigin, psz, nMaxBytes, pnRequiredBytes );
@@ -187,9 +187,9 @@ SQLLEN OQDiagnostic::getCursorRowCount( SQLRETURN *pn )
     return n;
 }
 
-ODBCCHAR *OQDiagnostic::getDynamicFunction( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
+SQLWCHAR *OQDiagnostic::getDynamicFunction( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(ODBCCHAR) )
+    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
         *psz = '\0';
 
     SQLRETURN nReturn = getDiagField( DynamicFunction, psz, nMaxBytes, pnRequiredBytes );

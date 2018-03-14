@@ -23,7 +23,7 @@ class OQStatement;
  *          \li provides several Qt signals
  *          \li inherits QObject to assist in parent/child relationships using rtti and using signals/slots
  *
- *          This class does not provide any User Interface code - see QtGui4 layer for those bits.
+ *          This class does not provide any User Interface code - see QtGui5 layer for those bits.
  */
 class OQConnection : public OQHandle
 {
@@ -128,9 +128,9 @@ public:
     virtual OQStatement *getExecute( const QString &stringStatement );
     virtual OQStatement *getCatalogs();
     virtual OQStatement *getSchemas( const QString &stringCatalog = QString::null );
-    virtual OQStatement *getTables( const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null, const QString &stringType = "TABLE" );
-    virtual OQStatement *getViews( const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null, const QString &stringType = "VIEW" );
-    virtual OQStatement *getColumns( const QString &stringTable = QString::null, const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null, const QString &stringType = "TABLE" );
+    virtual OQStatement *getTables( const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null, const QString &stringType = QString::fromLocal8Bit( "TABLE" ) );
+    virtual OQStatement *getViews( const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null, const QString &stringType = QString::fromLocal8Bit( "VIEW" ) );
+    virtual OQStatement *getColumns( const QString &stringTable = QString::null, const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null, const QString &stringType = QString::fromLocal8Bit( "TABLE" ) );
     virtual OQStatement *getIndexs( const QString &stringTable = QString::null, const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null );
     virtual OQStatement *getPrimaryKeys( const QString &stringTable = QString::null, const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null );
     virtual OQStatement *getForeignKeys( const QString &stringTable = QString::null, const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null );
@@ -174,15 +174,33 @@ protected:
     QString             stringPWD;
     QString             stringConnectString;
 
-    virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLPOINTER pValue );
+    // 2 arg calls for setting attributes (they call the 3 arg version)
+    // these have extra validation to check data type for attribute
+    virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLUINTEGER n );
+    virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLINTEGER n );
     virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, const QString &stringValue );
+    virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, QByteArray d );
 
-    virtual SQLRETURN  getConnectAttr( SQLINTEGER nAttribute, SQLPOINTER pValue );
-    virtual SQLRETURN  getConnectAttr( SQLINTEGER nAttribute, QString *pValue );
+    // 3 arg call for setting attributes
+    // does not check data type for attribute
+    // some calls, such as SQL_ATTR_ENLIST_IN_DTC/SQL_ATTR_QUIET_MODE, can not be done by the 2 arg version
+    virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLPOINTER p, SQLINTEGER n );
 
-    virtual SQLRETURN doConnect( const SQLTCHAR *pszServerName = NULL, SQLSMALLINT nLength1 = SQL_NTS, const SQLTCHAR *pszUserName = NULL, SQLSMALLINT nLength2 = SQL_NTS, const SQLTCHAR *pszAuthentication = NULL, SQLSMALLINT nLength3 = SQL_NTS );
-    virtual SQLRETURN doDriverConnect( SQLHWND hWnd, SQLTCHAR *pszIn, SQLSMALLINT nLengthIn, SQLTCHAR *pszOut, SQLSMALLINT nLengthOut, SQLSMALLINT *pnLengthOut, SQLUSMALLINT nPrompt );
-    virtual SQLRETURN doBrowseConnect( SQLTCHAR *szInConnectionString, SQLSMALLINT nStringLength1, SQLTCHAR *szOutConnectionString, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength2Ptr );
+    // 2 arg calls for getting attribute (they call the 3 arg version)
+    // these have extra validation to check data type for attribute
+    virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, SQLUINTEGER *pn );
+    virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, SQLINTEGER *pn );
+    virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, QString *pValue );
+    virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, QByteArray *pd );
+
+    // 4 arg call for getting attribute
+    // does not check data type for attribute
+    // some calls, such as SQL_ATTR_ENLIST_IN_DTC/SQL_ATTR_QUIET_MODE, can not be done by the 2 arg version
+    virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, SQLPOINTER pValue, SQLINTEGER nBufferLength, SQLINTEGER *pnStringLength );
+
+    virtual SQLRETURN doConnect( SQLWCHAR *pszServerName = NULL, SQLSMALLINT nLength1 = SQL_NTS, SQLWCHAR *pszUserName = NULL, SQLSMALLINT nLength2 = SQL_NTS, SQLWCHAR *pszAuthentication = NULL, SQLSMALLINT nLength3 = SQL_NTS );
+    virtual SQLRETURN doDriverConnect( SQLHWND hWnd, SQLWCHAR *pszIn, SQLSMALLINT nLengthIn, SQLWCHAR *pszOut, SQLSMALLINT nLengthOut, SQLSMALLINT *pnLengthOut, SQLUSMALLINT nPrompt );
+    virtual SQLRETURN doBrowseConnect( const SQLWCHAR *szInConnectionString, SQLSMALLINT nStringLength1, SQLWCHAR *szOutConnectionString, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength2Ptr );
     virtual SQLRETURN doGetInfo( SQLUSMALLINT nInfoType, SQLPOINTER pInfoValue, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength );
 };
 

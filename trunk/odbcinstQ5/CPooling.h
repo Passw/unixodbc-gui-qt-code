@@ -21,7 +21,7 @@ public:
 	CPooling( QWidget* pwidgetParent = NULL );
 	virtual ~CPooling();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_POOLING ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_POOLING ); }
     bool loadData();
     bool saveData();
 

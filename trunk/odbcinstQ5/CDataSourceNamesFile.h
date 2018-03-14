@@ -45,7 +45,7 @@ public:
 
     QString getDataSourceName();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_DATASOURCES_FILE ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_DATASOURCES_FILE ); }
 
 public slots:
     void slotLoad();

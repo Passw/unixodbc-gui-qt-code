@@ -12,7 +12,7 @@
 
 #include "CODBCInst.h"
 
-#define ODBC_HELP_MONITOR "unixODBC is unique in that it provides a rich means of monitoring ODBC activity."
+#define ODBC_HELP_MONITOR "unixODBC is unique in that it provides a rich means of monitoring ODBC activity. This is enabled (or not) when building unixODBC-Core."
 
 class CMonitorHandleCounts;
 class CMonitorProcesses;
@@ -33,7 +33,7 @@ public:
 	CMonitor( QWidget* pwidgetParent = NULL );
 	virtual ~CMonitor();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_MONITOR ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_MONITOR ); }
     bool saveData() { return true; }
 
 protected:

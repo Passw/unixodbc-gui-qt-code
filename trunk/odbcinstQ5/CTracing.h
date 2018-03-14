@@ -39,7 +39,7 @@ public:
 	CTracing( QWidget* pwidgetParent = NULL );
 	virtual ~CTracing();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_TRACING ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_TRACING ); }
     bool loadData();
     bool saveData();
 
