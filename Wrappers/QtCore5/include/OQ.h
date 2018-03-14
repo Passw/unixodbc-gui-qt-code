@@ -33,15 +33,17 @@
  * can be built to map to platform wchar_t by defining SQL_WCHART_CONVERT but this is never done for standard binary 
  * distributions of unixODBC. 
  *  
- * Drivers/Databases 
+ * Apps/Driver Manager/Driver/Database
  *  
- * The SQL will go to the Driver as SQLTCHAR (either 8bit (ASCII) or 16bit (UTF-16)). 
- * The char data (ie for catalog functions and such) will go to the Driver as either 8bit (ASCII) or 16bit (UTF-16) 
- * and will be expected to be returned in the same. 
- * The char data (ie from database char data) is subject to configured character-set and collation etc. UTF-16 can 
- * handle all. If any layer (app, driver manager, driver, support libraries for driver) is built for 8bit - the char
- * data may be stripped of the non-ASCII chars. So its best if all layers are built with UNICODE and use 16bit char 
- * with UTF-16 encoding.
+ * The Driver Manager (DM) can work with an App and Driver of any combination of 8Bit ASCII and 16bit (UTF-16). The DM will
+ * try to convert strings as needed. This will lead to character loss when 16bits is needed to hold a char that is 
+ * destined for a 8Bit space. If the DM detects SQLConnectW (or other wide-char) function in Driver it will assume it
+ * supports wide-char calls. The DM will prefer this over 8bit char calls. When needed - it will also assume UTF-16 encoding. 
+ *
+ * The char data in the database is subject to its configured character-set and collation etc. The DM will not get involved 
+ * in this.... its left to the App and the Driver to understand the database configuration.
+ *
+ * So its best if the App and the Driver are built with UNICODE and use 16bit char with UTF-16 encoding.
  *  
  * Qt 
  *  
@@ -71,7 +73,7 @@
  *
  * This is a char for UNICODE in unixODBC/MS ODBC. This should be equivalent to the following; ushort, unsigned short, WCHAR, char16_t
  * all of which are guaranteed to be 2 bytes. SQLTCHAR will map to SQLWCHAR for UNICODE so it can be used as well. However; wchar_t is 
- * NOT guaranteed to be 2 bytes so its best to ignore it.
+ * NOT guaranteed to be 2 bytes in all cases so its best to ignore it.
  *
  * UTF-8 
  *  
@@ -100,35 +102,14 @@
     /* build against a default build of unixODBC-Core */
     #include <sqlext.h>
     #include <sqlucode.h>
+    #include <odbcinst.h>
     /* An MS'ism which we ignore with UNIX'ism - compiler still needs to see something. */
     #define _TRUNCATE 0
 #endif
 
-/*! 
- * \brief Get QString data. 
- *  
- * Returns a references to the string data. This is only 
- * valid while the QString remains unaltered. 
- *  
- * \param a QString
- * \return const ushort* (should be same as 'const SQLWCHAR*')
- *  
- */
-#define OQFromQString(a) a.utf16();
-
-/*! 
- * \brief Set QString data.
- *  
- * Returns a QString with the given string data. 
- * Uses fromUtf16() as setUtf16() does not consider BOMs and 
- * possibly differing byte ordering. 
- *  
- * \param a Pointer to a UTF-16 encoded string ('const SQLWCHAR*' should do as that maps to 'const ushort*'). 
- * \param b Number of chars (-1 if \0 terminated)
- * \return QString 
- *  
- */
-#define OQToQString(a,b) QString::fromUtf16( a, b ) 
+#include <QObject>
+#include <QString>
+#include <QMap>
 
 #endif
 

@@ -18,7 +18,7 @@
  *          is declared in unixODBC::autotest.h.
  * 
  *          AutoTest libraries link to this when they want to be run from
- *          ODBCTestQ4.
+ *          ODBCTestQ5.
  */
 int EXTFUNCDECL FAR szMessageBox( HWND hwnd, UINT nStyle, LPTSTR szTitle, LPTSTR szFormat, ... )
 {

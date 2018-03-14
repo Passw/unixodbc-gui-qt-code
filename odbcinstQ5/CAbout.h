@@ -30,7 +30,7 @@ public:
     CAbout( QWidget* pParent = NULL );
     virtual ~CAbout();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_ABOUT ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_ABOUT ); }
     bool saveData() { return true; }
 };
 

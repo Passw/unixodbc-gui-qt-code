@@ -79,11 +79,13 @@ unix {
         SUBDIRS	= \
             ini \
             odbcinstQ5 \
+# Deferred because some challenges building for UNICODE.
+# Resolve when we get to building ODBCTestQ5.
 #            gtrtstQ5 \
             ODBCCreateDataSourceQ5 \
-            ODBCManageDataSourcesQ5
-#            Wrappers \
-#            ODBCDataManagerQ5 \
+            ODBCManageDataSourcesQ5 \
+            Wrappers \
+            ODBCDataManagerQ5
 #            ODBCTestQ5
     }
 }

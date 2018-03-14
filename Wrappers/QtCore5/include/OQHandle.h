@@ -25,9 +25,11 @@
  *     OQConnection
  *     OQStatement
  */
-class OQHandle
+class OQHandle : public QObject
 {
+    Q_OBJECT
 public:
+
     enum Types
     {
         Env = SQL_HANDLE_ENV,

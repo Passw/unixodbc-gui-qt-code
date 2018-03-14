@@ -15,32 +15,32 @@
  *
  *          This copies and stores the given message information.
  *  
- * \param   nType       Input. One of OQMessage::MessageTypes.
- * \param   pszRequest  Input. Usually function ie "SQLAllocHandle".
- * \param   pszText     Input. Message text. Can be NULL - pref. not.
+ * \param   nType           Input. One of OQMessage::MessageTypes.
+ * \param   stringRequest  Input. Usually function ie "SQLAllocHandle".
+ * \param   stringText     Input. Message text. Can be NULL - pref. not.
  * \param   nNumeric    Input. Numeric value dependent upon message.
  *
  */
-OQMessage::OQMessage( Types nType, const ODBCCHAR *pszRequest, const ODBCCHAR *pszText, SQLINTEGER nNumeric )
+OQMessage::OQMessage( Types nType, const QString &stringRequest, const QString &stringText, SQLINTEGER nNumeric )
 {
     //
     this->nType = nType;
 
     //
-    if ( pszRequest )
+    if ( stringRequest )
     {
-        this->pszRequest = (ODBCCHAR*)ODBCStrDup( pszRequest );
+        this->stringRequest = stringRequest;
     }
     else
-        this->pszRequest = 0;
+        this->stringRequest = 0;
 
     //
-    if ( pszText )
+    if ( stringText )
     {
-        this->pszText = (ODBCCHAR*)ODBCStrDup( pszText );
+        this->stringText = stringText;
     }
     else
-        this->pszText = 0;
+        this->stringText = 0;
 
     //
     this->nNumeric = nNumeric;
@@ -49,23 +49,23 @@ OQMessage::OQMessage( Types nType, const ODBCCHAR *pszRequest, const ODBCCHAR *p
 OQMessage::OQMessage( const OQMessage &Message )
 {
     nType = Message.nType;
-    if ( Message.pszRequest )
-        pszRequest = (ODBCCHAR*)ODBCStrDup( Message.pszRequest );
+    if ( Message.stringRequest )
+        stringRequest = Message.stringRequest;
     else
-        pszRequest = NULL;
-    if ( Message.pszText )
-        pszText = (ODBCCHAR*)ODBCStrDup( Message.pszText );
+        stringRequest = NULL;
+    if ( Message.stringText )
+        stringText = Message.stringText;
     else
-        pszText = NULL;
+        stringText = NULL;
     nNumeric = Message.nNumeric;
 }
 
 OQMessage::~OQMessage()
 {
-    if ( pszRequest )
-        free( pszRequest );
-    if ( pszText )
-        free( pszText );
+    if ( stringRequest )
+        free( stringRequest );
+    if ( stringText )
+        free( stringText );
 }
 
 /*! 
@@ -91,19 +91,19 @@ OQMessage::Types OQMessage::getType()
  *
  * \sa      getType
  */
-const ODBCCHAR * OQMessage::getTypeText()
+QString OQMessage::getTypeText()
 {
     switch( nType )
     {
         case Info:
-            return TEXT("INFO");
+            return tr("INFO");
         case Warning:
-            return TEXT("WARNING");
+            return tr("WARNING");
         case Error:
-            return TEXT("ERROR");
+            return tr("ERROR");
     }
 
-    return TEXT("UNKNOWN");
+    return tr("UNKNOWN");
 }
 
 /*! 
@@ -113,9 +113,9 @@ const ODBCCHAR * OQMessage::getTypeText()
  * 
  * \return  const ODBCCHAR*
  */
-const ODBCCHAR *OQMessage::getRequest() 
+QString OQMessage::getRequest() 
 { 
-    return pszRequest; 
+    return stringRequest; 
 }
 
 /*! 
@@ -127,9 +127,9 @@ const ODBCCHAR *OQMessage::getRequest()
  * 
  * \return  const ODBCCHAR*
  */
-const ODBCCHAR *OQMessage::getText() 
+QString OQMessage::getText() 
 { 
-    return pszText; 
+    return stringText; 
 }
 
 /*! 

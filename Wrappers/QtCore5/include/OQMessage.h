@@ -34,21 +34,21 @@ public:
         Error       /*!< the application should pay attention to this message       */ 
     };
 
-    OQMessage( Types nType, const ODBCCHAR *pszRequest = 0, const ODBCCHAR *pszText = 0, SQLINTEGER nNumeric = 0 );
+    OQMessage( Types nType, const QString &stringRequest = QString::null, const QString &stringText = QString::null, SQLINTEGER nNumeric = 0 );
     OQMessage( const OQMessage &Message );
     ~OQMessage();
 
-    Types               getType();
-    const ODBCCHAR *    getRequest();
-    const ODBCCHAR *    getText();
-    SQLINTEGER          getNumeric();
-    const ODBCCHAR *    getTypeText();
+    Types           getType();
+    const QString   getRequest();
+    const QString   getText();
+    SQLINTEGER      getNumeric();
+    const QString   getTypeText();
 
 protected:
-    Types       nType;       /*!< message type \sa Types                                */
-    ODBCCHAR *  pszRequest;  /*!< usually function ie SQLAllocHandle                    */
-    ODBCCHAR *  pszText;     /*!< message text                                          */
-    SQLINTEGER  nNumeric;    /*!< numeric value dependent upon message                  */
+    Types       nType;          /*!< message type \sa Types                                */
+    QString     stringRequest;  /*!< usually function ie SQLAllocHandle                    */
+    QString     stringText;     /*!< message text                                          */
+    SQLINTEGER  nNumeric;       /*!< numeric value dependent upon message                  */
 };
 
 #endif

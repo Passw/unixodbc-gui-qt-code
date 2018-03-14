@@ -42,7 +42,7 @@ public:
     CManageDataSourceNames( QWidget *pwidgetParent = 0 );
     virtual ~CManageDataSourceNames();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_DATASOURCES ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_DATASOURCES ); }
     bool saveData() { return true; }
 
 public slots:

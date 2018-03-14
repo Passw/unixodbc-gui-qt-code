@@ -39,7 +39,7 @@ public:
     CAdvanced( QWidget* pwidgetParent = NULL );
     virtual ~CAdvanced();
 
-    QString windowHelp() { return QString( tr( ODBC_HELP_ADVANCED ) ); }
+    QString windowHelp() { return tr( ODBC_HELP_ADVANCED ); }
     bool saveData();
 
 signals:
