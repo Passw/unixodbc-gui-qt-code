@@ -634,13 +634,22 @@ OQStatement *OQConnection::getDataTypes()
 SQLRETURN OQConnection::doBrowseConnect( const QString &stringIn, QString *pstringOut )
 {
     SQLWCHAR        szOut[4096];
-    SQLSMALLINT     nCharsIn        = SQL_NTS;
     SQLSMALLINT     nCharsOutMax    = 4096;
     SQLSMALLINT     nCharsAvailable = 0;
-    SQLRETURN       nReturn         = doBrowseConnect( stringIn.utf16(), nCharsIn, szOut, nCharsOutMax, &nCharsAvailable );
+    // we cast away const for arg1 as spec says its input only
+    SQLRETURN       nReturn         = doBrowseConnect( (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable );
 
     if ( SQL_SUCCEEDED( nReturn ) || nReturn == SQL_NEED_DATA )
-        *pstringOut = QString::fromUtf16( szOut, nCharsAvailable );
+    {
+        // check for truncation
+        if ( nCharsAvailable > nCharsOutMax )
+        {
+            *pstringOut = QString::fromUtf16( szOut, nCharsOutMax );
+            eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit( __FUNCTION__ ), tr( "String truncated." ) ) );
+        }
+        else
+            *pstringOut = QString::fromUtf16( szOut, nCharsAvailable );
+    }
 
     return nReturn;
 }
@@ -652,7 +661,8 @@ SQLRETURN OQConnection::doBrowseConnect( const QString &stringIn, QString *pstri
 */
 SQLRETURN OQConnection::doConnect( const QString &stringServerName, const QString &stringUserName, const QString &stringAuthentication )
 {
-    return doConnect( stringServerName.utf16(), SQL_NTS, stringUserName.utf16(), SQL_NTS, stringAuthentication.utf16(), SQL_NTS );
+    // we cast away the const as spec says they are input only
+    return doConnect( (SQLWCHAR*)(stringServerName.utf16()), SQL_NTS, (SQLWCHAR*)(stringUserName.utf16()), SQL_NTS, (SQLWCHAR*)(stringAuthentication.utf16()), SQL_NTS );
 }
 
 /*!
@@ -663,13 +673,22 @@ SQLRETURN OQConnection::doConnect( const QString &stringServerName, const QStrin
 SQLRETURN OQConnection::doDriverConnect( SQLHWND hWnd, const QString &stringIn, QString *pstringOut, SQLUSMALLINT nPrompt )
 {
     SQLWCHAR        szOut[4096];
-    SQLSMALLINT     nCharsIn        = SQL_NTS;
     SQLSMALLINT     nCharsOutMax    = 4096;
     SQLSMALLINT     nCharsAvailable = 0;
-    SQLRETURN       nReturn         = doDriverConnect( hWnd, stringIn.utf16(), nCharsIn, szOut, nCharsOutMax, &nCharsAvailable, nPrompt );
+    // we cast away the const in arg2 as spec says its input only
+    SQLRETURN       nReturn         = doDriverConnect( hWnd, (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable, nPrompt );
 
     if ( SQL_SUCCEEDED( nReturn ) )
-        *pstringOut = QString::fromUtf16( szOut, nCharsAvailable );
+    {
+        // check for truncation
+        if ( nCharsAvailable > nCharsOutMax )
+        {
+            *pstringOut = QString::fromUtf16( szOut, nCharsOutMax );
+            eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit( __FUNCTION__ ), tr( "String truncated." ) ) );
+        }
+        else
+            *pstringOut = QString::fromUtf16( szOut, nCharsAvailable );
+    }
 
     return nReturn;
 }
@@ -683,12 +702,12 @@ SQLRETURN OQConnection::doDisconnect()
 {
     if ( !isAlloc( false ) )
     {
-        eventMessage( OQMessage( OQMessage::Error, __FUNCTION__, "Not allocated." ) );
+        eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Not allocated.") ) );
         return SQL_ERROR;
     }
     if ( !isConnected() )
     {
-        eventMessage( OQMessage( OQMessage::Error, __FUNCTION__, tr( "Not connected." ) ) );
+        eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr( "Not connected." ) ) );
         return SQL_ERROR;
     }
 
@@ -785,7 +804,7 @@ SQLRETURN OQConnection::setConnectAttr( SQLINTEGER nAttribute, SQLUINTEGER n )
     case SQL_ATTR_TRACE:
     case SQL_ATTR_TRANSLATE_OPTION:     // 32bit flag
     case SQL_ATTR_TXN_ISOLATION:        // 32bit mask
-        return setConnectAttr( nAttribute, n, SQL_IS_UINTEGER );
+        return setConnectAttr( nAttribute, (SQLPOINTER)n, SQL_IS_UINTEGER );
     }
 
     eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Data type incorrect for attribute.") ) );
@@ -797,7 +816,7 @@ SQLRETURN OQConnection::setConnectAttr( SQLINTEGER nAttribute, SQLINTEGER n )
     switch ( nAttribute )
     {
         break; // no Attributes match data type
-        return setConnectAttr( nAttribute, n, SQL_IS_INTEGER );
+        return setConnectAttr( nAttribute, (SQLPOINTER)n, SQL_IS_INTEGER );
     }
 
     eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Data type incorrect for attribute.") ) );
@@ -811,7 +830,7 @@ SQLRETURN OQConnection::setConnectAttr( SQLINTEGER nAttribute, const QString &st
     case SQL_ATTR_CURRENT_CATALOG:
     case SQL_ATTR_TRACEFILE:
     case SQL_ATTR_TRANSLATE_LIB:
-        return setConnectAttr( nAttribute, stringValue.utf16(), SQL_NTS );
+        return setConnectAttr( nAttribute, (SQLPOINTER)(stringValue.utf16()), SQL_NTS );
     }
 
     eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Data type incorrect for attribute.") ) );
@@ -888,7 +907,7 @@ SQLRETURN OQConnection::getConnectAttr( SQLINTEGER nAttribute, SQLINTEGER *pn )
         return getConnectAttr( nAttribute, (SQLPOINTER)pn, 0, 0  );
     }
 
-    eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), QString("Data type incorrect for attribute.") ) );
+    eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Data type incorrect for attribute.") ) );
     return SQL_ERROR;
 }
 
@@ -917,7 +936,7 @@ SQLRETURN OQConnection::getConnectAttr( SQLINTEGER nAttribute, QString *pValue )
         }
     }
 
-    eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), QString("Data type incorrect for attribute.") ) );
+    eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Data type incorrect for attribute.") ) );
     return SQL_ERROR;
 }
 
@@ -929,7 +948,7 @@ SQLRETURN OQConnection::getConnectAttr( SQLINTEGER nAttribute, QByteArray *pd )
         {
             SQLINTEGER  nRetSize;
 
-            return getConnectAttr( nAttribute, (SQLPOINTER)(pd.data()), pd.size(), nRetSize );
+            return getConnectAttr( nAttribute, (SQLPOINTER)(pd->data()), pd->size(), &nRetSize );
         }
     }
 
@@ -1028,9 +1047,10 @@ SQLRETURN OQConnection::doConnect( SQLWCHAR *pszDSN, SQLSMALLINT nLength1, SQLWC
 
     if ( isConnected() )
     {
-        stringDSN = OQToQString( pszDSN );
-        stringUID = OQToQString( pszUID );
-        stringPWD = OQToQString( pszPWD );
+        // cache it - perhaps not needed???
+        stringDSN = QString::fromUtf16( pszDSN );
+        stringUID = QString::fromUtf16( pszUID );
+        stringPWD = QString::fromUtf16( pszPWD );
         emit signalConnected();
     }
 
