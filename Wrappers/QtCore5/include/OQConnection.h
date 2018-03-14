@@ -200,7 +200,7 @@ protected:
 
     virtual SQLRETURN doConnect( SQLWCHAR *pszServerName = NULL, SQLSMALLINT nLength1 = SQL_NTS, SQLWCHAR *pszUserName = NULL, SQLSMALLINT nLength2 = SQL_NTS, SQLWCHAR *pszAuthentication = NULL, SQLSMALLINT nLength3 = SQL_NTS );
     virtual SQLRETURN doDriverConnect( SQLHWND hWnd, SQLWCHAR *pszIn, SQLSMALLINT nLengthIn, SQLWCHAR *pszOut, SQLSMALLINT nLengthOut, SQLSMALLINT *pnLengthOut, SQLUSMALLINT nPrompt );
-    virtual SQLRETURN doBrowseConnect( const SQLWCHAR *szInConnectionString, SQLSMALLINT nStringLength1, SQLWCHAR *szOutConnectionString, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength2Ptr );
+    virtual SQLRETURN doBrowseConnect( SQLWCHAR *szInConnectionString, SQLSMALLINT nStringLength1, SQLWCHAR *szOutConnectionString, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength2Ptr );
     virtual SQLRETURN doGetInfo( SQLUSMALLINT nInfoType, SQLPOINTER pInfoValue, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength );
 };
 
