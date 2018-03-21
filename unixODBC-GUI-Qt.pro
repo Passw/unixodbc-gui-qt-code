@@ -8,7 +8,9 @@
 # --------
 #
 # NOTE: The gnu auto-tools method is the preferred method 
-# to build on UNIX. But, if you want, you can...
+# to build on UNIX. This changed with the Qt5 version. The
+# auto-tools build has not been tested on the Qt5 version
+# at least not yet.
 #
 # Install unixODBC-Core and unixODBC-Dev. Set the following
 # environment variables to tell us where unixODBC was
@@ -83,9 +85,9 @@ unix {
 # Resolve when we get to building ODBCTestQ5.
 #            gtrtstQ5 \
             ODBCCreateDataSourceQ5 \
-            ODBCManageDataSourcesQ5 \
-            Wrappers \
-            ODBCDataManagerQ5
+            ODBCManageDataSourcesQ5
+#            Wrappers \
+#            ODBCDataManagerQ5
 #            ODBCTestQ5
     }
 }
