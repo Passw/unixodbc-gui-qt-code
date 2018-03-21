@@ -11,6 +11,9 @@ interest to those on MS platforms. Those interested in the
 qmake method should read README.qmake - the following is for
 those interested in the GNU auto-tools method.
 
+NOTE: The Qt5 version is currently only built with qmake. The
+GNU auto-build files have been copied but have not been tried.
+
 Requirements
 ------------
 
