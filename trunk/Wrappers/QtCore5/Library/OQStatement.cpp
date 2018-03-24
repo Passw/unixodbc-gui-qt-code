@@ -543,8 +543,19 @@ SQLRETURN OQStatement::doNumResultCols( SQLSMALLINT *pnColumnCountPtr )
     bool        bCancelled  = false;
     SQLRETURN   nReturn;
     
-    if ( !isAlloc() )
+    if ( !pnColumnCountPtr ) 
+    {
+        eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), tr("Invalid argument.") ) );
         return SQL_ERROR;
+    }
+
+    *pnColumnCountPtr = 0;
+
+    if (!isAlloc())
+    {
+        eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), tr("Handle not allocated.") ) );
+        return SQL_ERROR;
+    }
 
     // do it
     nReturn = SQL_STILL_EXECUTING;

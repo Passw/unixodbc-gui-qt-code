@@ -51,7 +51,7 @@ SQLRETURN OQHandle::doAlloc()
 {
     if ( isAlloc( false ) )
     {
-        eventMessage( OQMessage( OQMessage::Warning, TEXT(__FUNCTION__), TEXT("Already allocated.") ) );
+        eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Already allocated.") ) );
         return SQL_ERROR;
     }
 
@@ -64,15 +64,15 @@ SQLRETURN OQHandle::doAlloc()
             eventDiagnostic();
             break;
         case SQL_ERROR:
-            eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("SQL_ERROR") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_ERROR") ) );
             hHandle = NULL;
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             hHandle = NULL;
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             hHandle = NULL;
             break;
     }
@@ -103,7 +103,7 @@ SQLRETURN OQHandle::doFree()
 {
     if ( !isAlloc( false ) )
     {
-        eventMessage( OQMessage( OQMessage::Warning, TEXT(__FUNCTION__), TEXT("Already free.") ) );
+        eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Already free.") ) );
         return SQL_ERROR;
     }
 
@@ -114,17 +114,17 @@ SQLRETURN OQHandle::doFree()
             hHandle = NULL;
             break;
         case SQL_SUCCESS_WITH_INFO:
-            eventMessage( OQMessage( OQMessage::Warning, TEXT(__FUNCTION__), TEXT("SQL_SUCCESS_WITH_INFO") ) );
+            eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_SUCCESS_WITH_INFO") ) );
             hHandle = NULL;
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         case SQL_ERROR:
             eventDiagnostic();
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 

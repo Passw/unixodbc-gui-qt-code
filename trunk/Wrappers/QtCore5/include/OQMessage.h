@@ -39,10 +39,10 @@ public:
     ~OQMessage();
 
     Types           getType();
-    const QString   getRequest();
-    const QString   getText();
+    QString   getRequest();
+    QString   getText();
     SQLINTEGER      getNumeric();
-    const QString   getTypeText();
+    QString   getTypeText();
 
 protected:
     Types       nType;          /*!< message type \sa Types                                */

@@ -14,10 +14,140 @@ OQDiagnosticRecord::OQDiagnosticRecord( OQDiagnostic *pDiagnostic, SQLINTEGER nR
     this->nRecord       = nRecord;
 }
 
+QString OQDiagnosticRecord::getClassOrigin( SQLRETURN *pnReturn )
+{
+    SQLWCHAR *  psz;
+    SQLSMALLINT nMaxBytes;
+    SQLSMALLINT nRequiredBytes;
+    SQLRETURN   nReturn;
+    QString     s;
+
+    // how many bytes do we need?
+    nReturn = getDiagField( ClassOrigin, NULL, 0, &nRequiredBytes );
+    if ( !SQL_SUCCEEDED( nReturn ) )
+        return s;
+    // allocate for bytes..
+    nMaxBytes = nRequiredBytes + sizeof(SQLWCHAR);
+    psz = (SQLWCHAR*)malloc( nMaxBytes );
+    // get the bytes...
+    nReturn = getDiagField( ClassOrigin, psz, nMaxBytes, &nRequiredBytes );
+    if ( SQL_SUCCEEDED( nReturn ) )
+        s = QString::fromUtf16( psz );
+    free( psz );
+
+    if ( pnReturn ) *pnReturn = nReturn;
+
+    return s;
+}
+
+QString OQDiagnosticRecord::getConnectionName( SQLRETURN *pnReturn )
+{
+    SQLWCHAR *  psz;
+    SQLSMALLINT nMaxBytes;
+    SQLSMALLINT nRequiredBytes;
+    SQLRETURN   nReturn;
+    QString     s;
+
+    // how many bytes do we need?
+    nReturn = getDiagField( ConnectionName, NULL, 0, &nRequiredBytes );
+    if ( !SQL_SUCCEEDED( nReturn ) )
+        return s;
+    // allocate for bytes..
+    nMaxBytes = nRequiredBytes + sizeof(SQLWCHAR);
+    psz = (SQLWCHAR*)malloc( nMaxBytes );
+    // get the bytes...
+    nReturn = getDiagField( ConnectionName, psz, nMaxBytes, &nRequiredBytes );
+    if ( SQL_SUCCEEDED( nReturn ) )
+        s = QString::fromUtf16( psz );
+    free( psz );
+
+    if ( pnReturn ) *pnReturn = nReturn;
+
+    return s;
+}
+
+QString OQDiagnosticRecord::getMessageText( SQLRETURN *pnReturn )
+{
+    SQLWCHAR *  psz;
+    SQLSMALLINT nMaxBytes;
+    SQLSMALLINT nRequiredBytes;
+    SQLRETURN   nReturn;
+    QString     s;
+
+    // how many bytes do we need?
+    nReturn = getDiagField( MessageText, NULL, 0, &nRequiredBytes );
+    if ( !SQL_SUCCEEDED( nReturn ) )
+        return s;
+    // allocate for bytes..
+    nMaxBytes = nRequiredBytes + sizeof(SQLWCHAR);
+    psz = (SQLWCHAR*)malloc( nMaxBytes );
+    // get the bytes...
+    nReturn = getDiagField( MessageText, psz, nMaxBytes, &nRequiredBytes );
+    if ( SQL_SUCCEEDED( nReturn ) )
+        s = QString::fromUtf16( psz );
+    free( psz );
+
+    if ( pnReturn ) *pnReturn = nReturn;
+
+    return s;
+}
+
+QString OQDiagnosticRecord::getServerName( SQLRETURN *pnReturn )
+{
+    SQLWCHAR *  psz;
+    SQLSMALLINT nMaxBytes;
+    SQLSMALLINT nRequiredBytes;
+    SQLRETURN   nReturn;
+    QString     s;
+
+    // how many bytes do we need?
+    nReturn = getDiagField( ServerName, NULL, 0, &nRequiredBytes );
+    if ( !SQL_SUCCEEDED( nReturn ) )
+        return s;
+    // allocate for bytes..
+    nMaxBytes = nRequiredBytes + sizeof(SQLWCHAR);
+    psz = (SQLWCHAR*)malloc( nMaxBytes );
+    // get the bytes...
+    nReturn = getDiagField( ServerName, psz, nMaxBytes, &nRequiredBytes );
+    if ( SQL_SUCCEEDED( nReturn ) )
+        s = QString::fromUtf16( psz );
+    free( psz );
+
+    if ( pnReturn ) *pnReturn = nReturn;
+
+    return s;
+}
+
+QString OQDiagnosticRecord::getSubclassOrigin( SQLRETURN *pnReturn )
+{
+    SQLWCHAR *  psz;
+    SQLSMALLINT nMaxBytes;
+    SQLSMALLINT nRequiredBytes;
+    SQLRETURN   nReturn;
+    QString     s;
+
+    // how many bytes do we need?
+    nReturn = getDiagField( SubclassOrigin, NULL, 0, &nRequiredBytes );
+    if ( !SQL_SUCCEEDED( nReturn ) )
+        return s;
+    // allocate for bytes..
+    nMaxBytes = nRequiredBytes + sizeof(SQLWCHAR);
+    psz = (SQLWCHAR*)malloc( nMaxBytes );
+    // get the bytes...
+    nReturn = getDiagField( SubclassOrigin, psz, nMaxBytes, &nRequiredBytes );
+    if ( SQL_SUCCEEDED( nReturn ) )
+        s = QString::fromUtf16( psz );
+    free( psz );
+
+    if ( pnReturn ) *pnReturn = nReturn;
+
+    return s;
+}
+
 SQLWCHAR *OQDiagnosticRecord::getClassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
-        *psz = '\0';
+    if ( psz && nMaxBytes >= (SQLSMALLINT)sizeof(SQLWCHAR) )
+        memset( psz, nMaxBytes, '\0' );
 
     SQLRETURN nReturn = getDiagField( ClassOrigin, psz, nMaxBytes, pnRequiredBytes );
 
@@ -40,8 +170,8 @@ SQLINTEGER OQDiagnosticRecord::getColumnNumber( SQLRETURN *pn )
 
 SQLWCHAR *OQDiagnosticRecord::getConnectionName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
-        *psz = '\0';
+    if ( psz && nMaxBytes >= (SQLSMALLINT)sizeof(SQLWCHAR) )
+        memset( psz, nMaxBytes, '\0' );
 
     SQLRETURN nReturn = getDiagField( ConnectionName, psz, nMaxBytes, pnRequiredBytes );
 
@@ -53,8 +183,8 @@ SQLWCHAR *OQDiagnosticRecord::getConnectionName( SQLWCHAR *psz, SQLSMALLINT nMax
 
 SQLWCHAR *OQDiagnosticRecord::getMessageText( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
-        *psz = '\0';
+    if ( psz && nMaxBytes >= (SQLSMALLINT)sizeof(SQLWCHAR) )
+        memset( psz, nMaxBytes, '\0' );
 
     SQLRETURN nReturn = getDiagField( MessageText, psz, nMaxBytes, pnRequiredBytes );
 
@@ -88,8 +218,8 @@ SQLLEN OQDiagnosticRecord::getRowNumber( SQLRETURN *pn )
 
 SQLWCHAR *OQDiagnosticRecord::getServerName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
-        *psz = '\0';
+    if ( psz && nMaxBytes >= (SQLSMALLINT)sizeof(SQLWCHAR) )
+        memset( psz, nMaxBytes, '\0' );
 
     SQLRETURN nReturn = getDiagField( ServerName, psz, nMaxBytes, pnRequiredBytes );
 
@@ -102,7 +232,7 @@ SQLWCHAR *OQDiagnosticRecord::getServerName( SQLWCHAR *psz, SQLSMALLINT nMaxByte
 SQLWCHAR *OQDiagnosticRecord::getSqlstate( SQLWCHAR *psz /* better be 5 chars */, SQLRETURN *pnReturn )
 {
     if ( psz )
-        *psz = '\0';
+        memset( psz, 5 * sizeof(SQLWCHAR), '\0' );
 
     SQLRETURN nReturn = getDiagField( Sqlstate, psz, 5, NULL );
 
@@ -112,23 +242,24 @@ SQLWCHAR *OQDiagnosticRecord::getSqlstate( SQLWCHAR *psz /* better be 5 chars */
     return psz;
 }
 
-ODBCString  OQDiagnosticRecord::getSqlstate( SQLRETURN *pnReturn )
+QString OQDiagnosticRecord::getSqlstate( SQLRETURN *pnReturn )
 {
-    ODBCString s;
+    SQLWCHAR p[5];
 
-    s.resize( 6, '\0' );
-    SQLRETURN nReturn = getDiagField( Sqlstate, (ODBCCPTR)s.c_str(), 5, NULL );
+    memset( p, 5 * sizeof(SQLWCHAR), '\0' );
+
+    SQLRETURN nReturn = getDiagField( Sqlstate, p, 5, NULL );
 
     if ( pnReturn )
         *pnReturn = nReturn;
 
-    return s;
+    return QString::fromUtf16( p );
 }
 
 SQLWCHAR *OQDiagnosticRecord::getSubclassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
-        *psz = '\0';
+    if ( psz && nMaxBytes >= (SQLSMALLINT)sizeof(SQLWCHAR) )
+        memset( psz, nMaxBytes, '\0' );
 
     SQLRETURN nReturn = getDiagField( SubclassOrigin, psz, nMaxBytes, pnRequiredBytes );
 
@@ -155,16 +286,16 @@ SQLRETURN OQDiagnosticRecord::getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOIN
         case SQL_NO_DATA:
             break;
         case SQL_SUCCESS_WITH_INFO:
-            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Warning, TEXT(__FUNCTION__), TEXT("SQL_SUCCESS_WITH_INFO") ) );
+            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_SUCCESS_WITH_INFO") ) );
             break;
         case SQL_ERROR:
-            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("SQL_ERROR") ) );
+            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_ERROR") ) );
             break;
         case SQL_INVALID_HANDLE:
-            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("SQL_INVALID_HANDLE") ) );
+            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("Unexpected SQLRETURN value."), nReturn ) );
+            pDiagnostic->pHandle->eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -189,8 +320,8 @@ SQLLEN OQDiagnostic::getCursorRowCount( SQLRETURN *pn )
 
 SQLWCHAR *OQDiagnostic::getDynamicFunction( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes, SQLRETURN *pnReturn )
 {
-    if ( psz && nMaxBytes >= sizeof(SQLWCHAR) )
-        *psz = '\0';
+    if ( psz && nMaxBytes >= (SQLSMALLINT)sizeof(SQLWCHAR) )
+        memset( psz, nMaxBytes, '\0' );
 
     SQLRETURN nReturn = getDiagField( DynamicFunction, psz, nMaxBytes, pnRequiredBytes );
 
@@ -261,16 +392,16 @@ SQLRETURN OQDiagnostic::getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pn
         case SQL_NO_DATA:
             break;
         case SQL_SUCCESS_WITH_INFO:
-            pHandle->eventMessage( OQMessage( OQMessage::Warning, TEXT(__FUNCTION__), TEXT("SQL_SUCCESS_WITH_INFO") ) );
+            pHandle->eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_SUCCESS_WITH_INFO") ) );
             break;
         case SQL_ERROR:
-            pHandle->eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("SQL_ERROR") ) );
+            pHandle->eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_ERROR") ) );
             break;
         case SQL_INVALID_HANDLE:
-            pHandle->eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("SQL_INVALID_HANDLE") ) );
+            pHandle->eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            pHandle->eventMessage( OQMessage( OQMessage::Error, TEXT(__FUNCTION__), TEXT("Unexpected SQLRETURN value."), nReturn ) );
+            pHandle->eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
