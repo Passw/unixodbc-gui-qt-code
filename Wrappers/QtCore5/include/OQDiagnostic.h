@@ -40,22 +40,28 @@ public:
 
     explicit OQDiagnosticRecord( OQDiagnostic *pDiagnostic, SQLINTEGER nRecord );
 
-    ODBCCHAR *  getClassOrigin( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    QString     getClassOrigin( SQLRETURN *pnReturn = NULL );
     SQLINTEGER  getColumnNumber( SQLRETURN *pn = NULL );
-    ODBCCHAR *  getConnectionName( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    ODBCCHAR *  getMessageText( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    QString     getConnectionName( SQLRETURN *pnReturn = NULL );
+    QString     getMessageText( SQLRETURN *pnReturn = NULL );
     SQLINTEGER  getNative( SQLRETURN *pn = NULL );
     SQLLEN      getRowNumber( SQLRETURN *pn = NULL );
-    ODBCCHAR *  getServerName( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    ODBCCHAR *  getSqlstate( ODBCCHAR *psz /* better be 5 chars */, SQLRETURN *pnReturn = NULL );
-    ODBCString  getSqlstate( SQLRETURN *pnReturn = NULL );
-    ODBCCHAR *  getSubclassOrigin( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    SQLRETURN   getDiagField( Fields nField, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
-    SQLRETURN   getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
+    QString     getServerName( SQLRETURN *pnReturn = NULL );
+    QString     getSqlstate( SQLRETURN *pnReturn = NULL );
+    QString     getSubclassOrigin( SQLRETURN *pnReturn = NULL );
 
 protected:
     OQDiagnostic *pDiagnostic;
     SQLINTEGER      nRecord;
+
+    SQLWCHAR *  getClassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    SQLWCHAR *  getConnectionName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    SQLWCHAR *  getMessageText( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    SQLWCHAR *  getServerName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    SQLWCHAR *  getSqlstate( SQLWCHAR *psz /* better be 5 chars */, SQLRETURN *pnReturn = NULL );
+    SQLWCHAR *  getSubclassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    SQLRETURN   getDiagField( Fields nField, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
+    SQLRETURN   getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
 };
 
 /*! 
@@ -88,7 +94,7 @@ public:
     explicit OQDiagnostic( OQHandle *pHandle );
 
     SQLLEN      getCursorRowCount( SQLRETURN *pn = NULL );
-    ODBCCHAR *  getDynamicFunction( ODBCCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    SQLWCHAR *  getDynamicFunction( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
     SQLINTEGER  getDynamicFunctionCode( SQLRETURN *pn = NULL );
     SQLINTEGER  getNumber( SQLRETURN *pn = NULL );
     SQLRETURN   getReturncode( SQLRETURN *pn = NULL );

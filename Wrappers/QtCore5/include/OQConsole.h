@@ -14,6 +14,9 @@
 #include <OQEnvironment.h>
 #include <OQConnection.h>
 #include <OQStatement.h>
+#include <OQDiagnostic.h>
+#include <QVector>
+#include <QTextStream>
 
 #define MAX_DATA_WIDTH 300
 
@@ -67,7 +70,7 @@ class OQConsole : public QObject
 {
     Q_OBJECT
 public:
-    explicit OQConsole( const QStringList &stringlistArguments );
+    explicit OQConsole( const QStringList &stringlistArguments, QTextStream *pstreamInCommands, QTextStream *pstreamOutData, QTextStream *pstreamOutErrors );
     virtual ~OQConsole();
 
     virtual bool exec();
@@ -103,10 +106,9 @@ protected:
     QString         stringQuoteToUse;
     QChar           cStatementTerminator;
 
-    // I/O - do not set the streams - just where they point to
-//    QTextStream *   pstreamInCommands;
-//    QTextStream *   pstreamOutData;
-//    QTextStream *   pstreamOutErrors;
+    QTextStream *pstreamInCommands;
+    QTextStream *pstreamOutData;
+    QTextStream *pstreamOutErrors;
 
     // handles
     OQSystem *          pSystem;

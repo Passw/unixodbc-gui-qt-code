@@ -27,20 +27,8 @@ OQMessage::OQMessage( Types nType, const QString &stringRequest, const QString &
     this->nType = nType;
 
     //
-    if ( stringRequest )
-    {
-        this->stringRequest = stringRequest;
-    }
-    else
-        this->stringRequest = 0;
-
-    //
-    if ( stringText )
-    {
-        this->stringText = stringText;
-    }
-    else
-        this->stringText = 0;
+    this->stringRequest = stringRequest;
+    this->stringText = stringText;
 
     //
     this->nNumeric = nNumeric;
@@ -49,23 +37,13 @@ OQMessage::OQMessage( Types nType, const QString &stringRequest, const QString &
 OQMessage::OQMessage( const OQMessage &Message )
 {
     nType = Message.nType;
-    if ( Message.stringRequest )
-        stringRequest = Message.stringRequest;
-    else
-        stringRequest = NULL;
-    if ( Message.stringText )
-        stringText = Message.stringText;
-    else
-        stringText = NULL;
+    stringRequest = Message.stringRequest;
+    stringText = Message.stringText;
     nNumeric = Message.nNumeric;
 }
 
 OQMessage::~OQMessage()
 {
-    if ( stringRequest )
-        free( stringRequest );
-    if ( stringText )
-        free( stringText );
 }
 
 /*! 

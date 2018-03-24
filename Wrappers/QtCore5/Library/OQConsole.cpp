@@ -9,6 +9,7 @@
  */
 #include "OQConsole.h"
 #include "OQDiagnostic.h"
+#include <QVariant>
 
 #define MAX_LINE_IN_CHARS 4096
 #define MAX_LINE_OUT_CHARS 32001
@@ -122,7 +123,7 @@ const char *szHelpDisconnect =
 "\n\n";
 
 
-OQConsole::OQConsole( const QStringList &stringlistArguments )
+OQConsole::OQConsole( const QStringList &stringlistArguments, QTextStream *pstreamInCommands, QTextStream *pstreamOutData, QTextStream *pstreamOutErrors )
 {
     nInteraction            = InteractionUndefined; // try to figure it out based upon call order
     nResultFormat           = Boxed;
@@ -130,10 +131,14 @@ OQConsole::OQConsole( const QStringList &stringlistArguments )
     bAsynch                 = false;
     bVerbose                = false;
     nUserWidth              = 0; // 0=not applicable
-    cDelimiter              = '|';
+    cDelimiter              = QLatin1Char('|');
     bColumnNames            = false;
-    stringQuoteToUse        = "\"";
-    cStatementTerminator    = ';';
+    stringQuoteToUse        = QString::fromLocal8Bit( "\"" );
+    cStatementTerminator    = QLatin1Char(';');
+
+    this->pstreamInCommands  = pstreamInCommands;
+    this->pstreamOutData     = pstreamOutData;
+    this->pstreamOutErrors   = pstreamOutErrors;
 
     pSystem         = new OQSystem();
     pEnvironment    = new OQEnvironment( pSystem );
@@ -173,12 +178,12 @@ bool OQConsole::doParseArgs( const QStringList &stringlistArguments )
     {
         QString stringArgument = stringlistArguments.at( n );
 
-        if ( stringArgument == "-b" )
+        if ( stringArgument == QString::fromLocal8Bit( "-b" ) )
         {
             continue;
         }
 
-        if ( stringArgument == "-e" )
+        if ( stringArgument == QString::fromLocal8Bit( "-e" ) )
         {
         }
     }
@@ -193,7 +198,7 @@ bool OQConsole::doConnect( const QString &stringDSN, const QString &stringUID, c
 
     if ( !SQL_SUCCEEDED( pConnection->doConnect( stringDSN, stringUID, stringPWD ) ) )
     {
-        *pstreamOutErrors << "[OQConsole]ERROR: Failed to connect\n";
+        *pstreamOutErrors << tr( "[OQConsole]ERROR: Failed to connect\n" );
         return false;
     }
 
@@ -209,7 +214,7 @@ bool OQConsole::doDisconnect()
 
     if ( !SQL_SUCCEEDED( pConnection->doDisconnect() ) )
     {
-        *pstreamOutErrors << "[OQConsole]ERROR: Failed to properly disconnect\n";
+        *pstreamOutErrors << tr("[OQConsole]ERROR: Failed to properly disconnect\n");
         return false;
     }
 
@@ -230,7 +235,7 @@ bool OQConsole::doProcess()
     {
         if ( !SQL_SUCCEEDED( pStatement->setAttrAsyncEnable( OQStatement::AsyncEnableOn ) ) )
         {
-            *pstreamOutErrors << "[OQConsole]ERROR: Failed to turn asynch on\n";
+            *pstreamOutErrors << tr("[OQConsole]ERROR: Failed to turn asynch on\n");
             return false;
         }
     }
@@ -294,7 +299,7 @@ bool OQConsole::doProcessBatch()
                     }
 
                     // cleanup
-                    stringCommand == "";
+                    stringCommand == QString::fromLocal8Bit("");
                 }
             }
             else
@@ -309,7 +314,7 @@ bool OQConsole::doProcessBatch()
                 }
                 else
                 {
-                    if ( stringLine[n] == '\'' || stringLine[n] == '\"' )
+                    if ( stringLine[n] == QLatin1Char( '\'' ) || stringLine[n] == QLatin1Char( '\"' ) )
                         cQuote = stringLine[n];
                 }
 
@@ -335,15 +340,15 @@ bool OQConsole::doProcessInteractive()
     QChar       cQuote          = 0;    // contains quote if we are in quote
 
     // display some help
-    *pstreamOutData << szHelp;
+    *pstreamOutData << tr(szHelp);
 
     // 
     do 
     {
         if ( cQuote != 0 )
-            *pstreamOutData << "OQConsole (text currently in quotes)> ";
+            *pstreamOutData << tr("OQConsole (text currently in quotes)> ");
         else
-            *pstreamOutData << "OQConsole> ";
+            *pstreamOutData << QString::fromLocal8Bit( "OQConsole> " );
 
         stringLine = pstreamInCommands->readLine();
 
@@ -364,7 +369,7 @@ bool OQConsole::doProcessInteractive()
                     }
 
                     // cleanup
-                    stringCommand == "";
+                    stringCommand == QString::fromLocal8Bit( "" );
                 }
             }
             else
@@ -379,7 +384,7 @@ bool OQConsole::doProcessInteractive()
                 }
                 else
                 {
-                    if ( stringLine[n] == '\'' || stringLine[n] == '\"' )
+                    if ( stringLine[n] == QLatin1Char('\'') || stringLine[n] == QLatin1Char( '\"' ) )
                         cQuote = stringLine[n];
                 }
 
@@ -407,13 +412,13 @@ bool OQConsole::doProcessCommand( const QString &stringCommand )
         return 1;
 
     //
-    if ( stringCommandTrimmed.left( 4 ) == "quit" )
+    if ( stringCommandTrimmed.left( 4 ) == QString::fromLocal8Bit("quit") )
         return 0;
-    else if ( stringCommandTrimmed.left( 5 ) == "show " )            // process the given 'show' command
+    else if ( stringCommandTrimmed.left( 5 ) == QString::fromLocal8Bit("show ") )            // process the given 'show' command
         doExecuteShow( stringCommandTrimmed.mid( 6 ) );
-    else if ( stringCommandTrimmed.left( 4 ) == "show" )             // display the 'show' commands
+    else if ( stringCommandTrimmed.left( 4 ) == QString::fromLocal8Bit("show") )             // display the 'show' commands
         doExecuteShow();
-    else if ( stringCommandTrimmed.left( 4 ) == "help" )             // display some help
+    else if ( stringCommandTrimmed.left( 4 ) == QString::fromLocal8Bit("help") )             // display some help
     {
         *pstreamOutData << szHelp;
         *pstreamOutData << "OQConsole> ";
@@ -434,14 +439,14 @@ bool OQConsole::doExecuteSQL( const QString &stringSQL )
     if ( !SQL_SUCCEEDED( pStatement->doPrepare( stringSQL ) ) )
     {
 //        pStatement->doFree();
-        *pstreamOutErrors << "[OQConsole]ERROR: While preparing statement\n";
+        *pstreamOutErrors << tr("[OQConsole]ERROR: While preparing statement\n");
         return false;
     }
 
     if ( !SQL_SUCCEEDED( pStatement->doExecute() ) )
     {
 //        pStatement->doFree();
-        *pstreamOutErrors << "[OQConsole]ERROR: While executing statement\n";
+        *pstreamOutErrors << tr("[OQConsole]ERROR: While executing statement\n");
         return false;
     }
 
@@ -457,110 +462,107 @@ bool OQConsole::doExecuteSQL( const QString &stringSQL )
 */
 bool OQConsole::doExecuteShow( const QString &stringShow )
 {
-    QTextStream streamOut( stdout );
-    QTextStream streamErr( stderr );
-
     if ( !stringShow.isEmpty() )
     {
-        streamOut << szShow;
+        *pstreamOutData << szShow;
         return true;
     }
 
     // config
-    if ( stringShow.left( 6 ) == "config" )
+    if ( stringShow.left( 6 ) == QString::fromLocal8Bit("config") )
     {
         return doExecuteShowConfig();
     }
     // driver details
-    else if ( stringShow.left( 7 ) == "driver " )
+    else if ( stringShow.left( 7 ) == QString::fromLocal8Bit("driver ") )
     {
         return doExecuteShowDriver( stringShow.mid( 8 ) );
     }
     // driver list
-    else if ( stringShow.left( 6 ) == "driver" )
+    else if ( stringShow.left( 6 ) == QString::fromLocal8Bit("driver") )
     {
         return doExecuteShowDrivers();
     }
     // show dsn
-    else if ( stringShow.left( 4 ) ==  "dsn " )
+    else if ( stringShow.left( 4 ) ==  QString::fromLocal8Bit("dsn ") )
     {
         return doExecuteShowDataSourceName( stringShow.mid( 5 ) );
     }
-    else if ( stringShow.left( 3 ) ==  "dsn" )
+    else if ( stringShow.left( 3 ) ==  QString::fromLocal8Bit("dsn") )
     {
         return doExecuteShowDataSourceNames();
     }
     // show catalog
-    else if ( stringShow.left( 7 ) == "catalog" )
+    else if ( stringShow.left( 7 ) == QString::fromLocal8Bit("catalog") )
     {
         SQLRETURN nReturn;
 
-        if ( stringShow.at( 7 ) == ' ' )
+        if ( stringShow.at( 7 ) == QLatin1Char(' ') )
             nReturn = pStatement->doTables( stringShow.mid( 8 ) );
         else
-            nReturn = pStatement->doTables( SQL_ALL_CATALOGS );
+            nReturn = pStatement->doTables( QString::fromLocal8Bit(SQL_ALL_CATALOGS) );
 
         if ( !SQL_SUCCEEDED( nReturn ) )
         {
-            streamErr << "[OQConsole]ERROR: Failed to get catalogs\n";
+            *pstreamOutErrors << tr("[OQConsole]ERROR: Failed to get catalogs\n");
             return false;
         }
     }
     // show schema
-    else if ( stringShow.left( 6 ) == "schema" )
+    else if ( stringShow.left( 6 ) == QString::fromLocal8Bit("schema") )
     {
         SQLRETURN nReturn;
 
-        if ( stringShow.at( 6 ) == ' ' )
+        if ( stringShow.at( 6 ) == QLatin1Char(' ') )
             nReturn = pStatement->doTables( QString::null, stringShow.mid( 7 ) );
         else
-            nReturn = pStatement->doTables( QString::null, SQL_ALL_SCHEMAS );
+            nReturn = pStatement->doTables( QString::null, QString::fromLocal8Bit(SQL_ALL_SCHEMAS) );
 
         if ( !SQL_SUCCEEDED( nReturn ) )
         {
-            streamErr << "[OQConsole]ERROR: Failed to get schemas\n";
+            *pstreamOutErrors << tr( "[OQConsole]ERROR: Failed to get schemas\n" );
             return false;
         }
     }
     // show table
-    else if ( stringShow.left( 5 ) == "table" )
+    else if ( stringShow.left( 5 ) == QString::fromLocal8Bit("table") )
     {
         SQLRETURN nReturn;
 
-        if ( stringShow.at( 5 ) == ' ' )
+        if ( stringShow.at( 5 ) == QLatin1Char(' ') )
         {
             nReturn = pStatement->doColumns( QString::null, QString::null, stringShow.mid( 6 ), QString::null );
         }
         else
         {
-            nReturn = pStatement->doTables( QString::null, QString::null, QString::null, "TABLE" );
+            nReturn = pStatement->doTables( QString::null, QString::null, QString::null, QString::fromLocal8Bit("TABLE") );
         }
 
         if ( !SQL_SUCCEEDED( nReturn ) )
         {
-            streamErr << "[OQConsole]ERROR: Failed to get tables\n";
+            *pstreamOutErrors << tr("[OQConsole]ERROR: Failed to get tables\n");
             return false;
         }
     }
     // show column
-    else if ( stringShow.left( 6 ) == "column" )
+    else if ( stringShow.left( 6 ) == QString::fromLocal8Bit("column") )
     {
         /*! 
          * \note    1. MS Access needs Catalog = NULL. Catalog = "" does not work.
          *  
          */
-        if ( !SQL_SUCCEEDED( pStatement->doColumns( QString::null, QString::null, stringShow.mid( 7 ), "%" ) ) )
+        if ( !SQL_SUCCEEDED( pStatement->doColumns( QString::null, QString::null, stringShow.mid( 7 ), QString::fromLocal8Bit("%") ) ) )
         {
-            streamErr << "[OQConsole]ERROR: While requesting column listing\n";
+            *pstreamOutErrors << tr("[OQConsole]ERROR: While requesting column listing\n");
             return false;
         }
     }
     // show types
-    else if ( stringShow.left( 5 ) == "types" )
+    else if ( stringShow.left( 5 ) == QString::fromLocal8Bit("types") )
     {
         if ( !SQL_SUCCEEDED( pStatement->doTypeInfo() ) )
         {
-            streamErr << "[OQConsole]ERROR: Failed to get type info\n";
+            *pstreamOutErrors << tr("[OQConsole]ERROR: Failed to get type info\n");
             return false;
         }
     }
@@ -572,7 +574,6 @@ bool OQConsole::doExecuteShow( const QString &stringShow )
 
 bool OQConsole::doExecuteShowConfig()
 {
-    QTextStream  streamOut( stdout );
     OQAttributes Attributes = pSystem->getAttributes();
 
     // get col widths
@@ -589,9 +590,9 @@ bool OQConsole::doExecuteShowConfig()
     }
 
     // header
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << ""    << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << ""      << qSetFieldWidth( 1 ) << "+" << endl;
-    streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nKeyMaxChars ) << "Key" << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nValueMaxChars ) << "Value" << qSetFieldWidth( 1 ) << "|" << endl;
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << ""    << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << ""      << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("")    << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("|") << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("Key") << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("|") << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("Value") << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("|") << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << endl;
 
     // body
     {
@@ -599,19 +600,18 @@ bool OQConsole::doExecuteShowConfig()
         while ( i.hasNext() ) 
         {
             i.next();
-            streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nKeyMaxChars ) << i.key() << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nValueMaxChars ) << i.value() << qSetFieldWidth( 1 ) << "|" << endl;
+            *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("|") << qSetFieldWidth( nKeyMaxChars ) << i.key() << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("|") << qSetFieldWidth( nValueMaxChars ) << i.value() << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("|") << endl;
         }
     }
 
     // footer
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QString::fromLocal8Bit("+") << endl;
 
     return true;
 }
 
 bool OQConsole::doExecuteShowDriver( const QString &stringDriver )
 {
-    QTextStream streamOut( stdout );
     OQDriver    Driver = pSystem->getDriver( stringDriver );
 
     // get col widths
@@ -628,9 +628,9 @@ bool OQConsole::doExecuteShowDriver( const QString &stringDriver )
     }
 
     // header
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << ""    << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << ""      << qSetFieldWidth( 1 ) << "+" << endl;
-    streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nKeyMaxChars ) << "Key" << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nValueMaxChars ) << "Value" << qSetFieldWidth( 1 ) << "|" << endl;
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << ""    << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << ""      << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("")    << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("")      << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("Key") << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("Value") << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("")    << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("")      << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     // body
     {
@@ -638,19 +638,18 @@ bool OQConsole::doExecuteShowDriver( const QString &stringDriver )
         while ( i.hasNext() ) 
         {
             i.next();
-            streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nKeyMaxChars ) << i.key() << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nValueMaxChars ) << i.value() << qSetFieldWidth( 1 ) << "|" << endl;
+            *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nKeyMaxChars ) << i.key() << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nValueMaxChars ) << i.value() << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
         }
     }
 
     // footer
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     return true;
 }
 
 bool OQConsole::doExecuteShowDrivers()
 {
-    QTextStream         streamOut( stdout );
     QVector<OQDriver>   vectorDrivers = pSystem->getDrivers();
 
     // get col widths
@@ -659,29 +658,28 @@ bool OQConsole::doExecuteShowDrivers()
     for ( int n = 0; n < vectorDrivers.count(); n++ )
     {
         nNameMaxChars        = max( vectorDrivers[n].stringName.length(), nNameMaxChars );
-        nDescriptionMaxChars = max( vectorDrivers[n].mapAttributes["DESCRIPTION"].length(), nDescriptionMaxChars );
+        nDescriptionMaxChars = max( vectorDrivers[n].mapAttributes[QString::fromLocal8Bit("DESCRIPTION")].length(), nDescriptionMaxChars );
     }
 
     // header
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nNameMaxChars ) << ""     << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nDescriptionMaxChars ) << ""            << qSetFieldWidth( 1 ) << "+" << endl;
-    streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nNameMaxChars ) << "Name" << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nDescriptionMaxChars ) << "Description" << qSetFieldWidth( 1 ) << "|" << endl;
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nNameMaxChars ) << ""     << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nDescriptionMaxChars ) << ""            << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("")     << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("")            << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("Name") << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("Description") << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("")     << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("")            << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     // body
     for ( int n = 0; n < vectorDrivers.count(); n++ )
     {
-        streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nNameMaxChars ) << vectorDrivers[n].stringName << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nDescriptionMaxChars ) << vectorDrivers[n].mapAttributes["DESCRIPTION"] << qSetFieldWidth( 1 ) << "|" << endl;
+        *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nNameMaxChars ) << vectorDrivers[n].stringName << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nDescriptionMaxChars ) << vectorDrivers[n].mapAttributes[QString::fromLocal8Bit("DESCRIPTION")] << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
     }
 
     // footer
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nNameMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nDescriptionMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     return true;
 }
 
 bool OQConsole::doExecuteShowDataSourceName( const QString &stringDataSourceName )
 {
-    QTextStream      streamOut( stdout );
     OQDataSourceName DataSourceName = pSystem->getDataSource( stringDataSourceName );
 
     // get col widths
@@ -698,9 +696,9 @@ bool OQConsole::doExecuteShowDataSourceName( const QString &stringDataSourceName
     }
 
     // header
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << ""    << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << ""      << qSetFieldWidth( 1 ) << "+" << endl;
-    streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nKeyMaxChars ) << "Key" << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nValueMaxChars ) << "Value" << qSetFieldWidth( 1 ) << "|" << endl;
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << ""    << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << ""      << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("")    << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("")      << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("Key") << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("Value") << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("")    << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("")      << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     // body
     {
@@ -708,19 +706,18 @@ bool OQConsole::doExecuteShowDataSourceName( const QString &stringDataSourceName
         while ( i.hasNext() ) 
         {
             i.next();
-            streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nKeyMaxChars ) << i.key() << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nValueMaxChars ) << i.value() << qSetFieldWidth( 1 ) << "|" << endl;
+            *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nKeyMaxChars ) << i.key() << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nValueMaxChars ) << i.value() << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
         }
     }
 
     // footer
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nKeyMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nValueMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nKeyMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nValueMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     return true;
 }
 
 bool OQConsole::doExecuteShowDataSourceNames()
 {
-    QTextStream               streamOut( stdout );
     QVector<OQDataSourceName> vectorDataSourceNames = pSystem->getDataSources();
 
     // get col widths
@@ -729,30 +726,28 @@ bool OQConsole::doExecuteShowDataSourceNames()
     for ( int n = 0; n < vectorDataSourceNames.count(); n++ )
     {
         nNameMaxChars        = max( vectorDataSourceNames[n].stringName.length(), nNameMaxChars );
-        nDescriptionMaxChars = max( vectorDataSourceNames[n].mapAttributes["DESCRIPTION"].length(), nDescriptionMaxChars );
+        nDescriptionMaxChars = max( vectorDataSourceNames[n].mapAttributes[QString::fromLocal8Bit("DESCRIPTION")].length(), nDescriptionMaxChars );
     }
 
     // header
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nNameMaxChars ) << ""     << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nDescriptionMaxChars ) << ""            << qSetFieldWidth( 1 ) << "+" << endl;
-    streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nNameMaxChars ) << "Name" << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nDescriptionMaxChars ) << "Description" << qSetFieldWidth( 1 ) << "|" << endl;
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nNameMaxChars ) << ""     << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nDescriptionMaxChars ) << ""            << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("")     << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("")            << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("Name") << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("Description") << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("")     << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("")            << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     // body
     for ( int n = 0; n < vectorDataSourceNames.count(); n++ )
     {
-        streamOut << qSetPadChar( ' ' ) << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nNameMaxChars ) << vectorDataSourceNames[n].stringName << qSetFieldWidth( 1 ) << "|" << qSetFieldWidth( nDescriptionMaxChars ) << vectorDataSourceNames[n].mapAttributes["DESCRIPTION"] << qSetFieldWidth( 1 ) << "|" << endl;
+        *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nNameMaxChars ) << vectorDataSourceNames[n].stringName << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nDescriptionMaxChars ) << vectorDataSourceNames[n].mapAttributes[QString::fromLocal8Bit("DESCRIPTION")] << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
     }
 
     // footer
-    streamOut << qSetPadChar( '-' ) << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nNameMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << qSetFieldWidth( nDescriptionMaxChars ) << "" << qSetFieldWidth( 1 ) << "+" << endl;
+    *pstreamOutData << qSetPadChar( QLatin1Char('-') ) << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nNameMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << qSetFieldWidth( nDescriptionMaxChars ) << QString::fromLocal8Bit("") << qSetFieldWidth( 1 ) << QLatin1Char('+') << endl;
 
     return true;
 }
 
 void OQConsole::doProcessResultSet()
 {
-    QTextStream streamErr( stderr );
-
     QString     stringSepLine;
     SQLSMALLINT nCols   = -1;
     SQLLEN      nRows   = 0;
@@ -763,8 +758,8 @@ void OQConsole::doProcessResultSet()
     if ( !SQL_SUCCEEDED( pStatement->doNumResultCols( &nCols ) ) )
     {
 //        pStatement->doFree();
-        streamErr << "[OQConsole]ERROR: While requesting number of columns\n";
-        return false;
+        *pstreamOutErrors << tr("[OQConsole]ERROR: While requesting number of columns\n");
+        return;
     }
 
     if ( nCols > 0 )
@@ -835,30 +830,27 @@ void OQConsole::doWriteHeaderHTMLTable()
 {
     SQLUSMALLINT    nCol                            = 0;
     SQLSMALLINT     nColumns                        = 0;
-    SQLTCHAR        szColumnName[MAX_DATA_WIDTH+1];
-
-    *szColumnName = '\0';
+    SQLWCHAR        szColumnName[MAX_DATA_WIDTH+1];
 
     if ( !SQL_SUCCEEDED( pStatement->doNumResultCols( &nColumns ) ) )
         nColumns = -1;
 
-    printf( "<div id=ResultSet>\n" );
-    printf( "<table border>\n" );
-
-    printf( "\t<thead>\n" );
-    printf( "\t\t<tr>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "<div id=ResultSet>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "<table border>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t<thead>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t\t<tr>\n" );
 
     for ( nCol = 1; nCol <= nColumns; nCol++ )
     {
+        *szColumnName = '\0';
         pStatement->doColAttribute( nCol, SQL_DESC_LABEL, szColumnName, MAX_DATA_WIDTH, NULL, NULL );
-        printf( "\t\t\t<th scope=\"col\">" );
-        ODBCPrintF( (ODBCCPTR)TEXT("%s"), szColumnName );
-        printf( "</th>\n" );
+        *pstreamOutData << QString::fromLocal8Bit( "\t\t\t<th scope=\"col\">" );
+        *pstreamOutData << szColumnName;
+        *pstreamOutData << QString::fromLocal8Bit( "</th>\n" );
     }
-    printf( "\t\t</tr>\n" );
-    printf( "\t</thead>\n" );
-
-    printf( "\t<tbody>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t\t</tr>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t</thead>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t<tbody>\n" );
 }
 
 SQLLEN OQConsole::doWriteBodyHTMLTable()
@@ -868,8 +860,8 @@ SQLLEN OQConsole::doWriteBodyHTMLTable()
     SQLRETURN       nReturn     = 0;
     SQLLEN          nRows       = 0;
 
-    ODBCVariant v( ( bWideCharData ? ODBCVariant::WideChar : ODBCVariant::Char ) );
-    v.setElementsMax( MAX_DATA_WIDTH );
+    QVariant v;
+//    v.setElementsMax( MAX_DATA_WIDTH );
 
     pStatement->doNumResultCols( &nColumns );
 
@@ -877,23 +869,20 @@ SQLLEN OQConsole::doWriteBodyHTMLTable()
     while ( SQL_SUCCEEDED( pStatement->doFetch() ) )
     {
         nRows++;
-        printf( "\t\t<tr>\n" );
-        printf( "\t\t\t<th scope=\"row\" id=\"%d\"></th>\n", nRows );
+        *pstreamOutData << QString::fromLocal8Bit( "\t\t<tr>\n" );
+        *pstreamOutData << QString::fromLocal8Bit( "\t\t\t<th scope=\"row\" id=\"") << nRows << QString::fromLocal8Bit( "\"></th>\n" );
         /* COLS */
         for ( nCol = 1; nCol <= nColumns; nCol++ )
         {
-            printf( "\t\t\t<td>" );
-            nReturn = pStatement->doData( nCol, &v );
-            if ( !v.isNull() )
-            {
-                if ( bWideCharData )
-                    wprintf( L"%s", (SQLWCHAR*)v.getBuffer() );
-                else
-                    printf( (const char *)v.getBuffer() );
-            }
-            printf( "</td>\n" );
+            *pstreamOutData << QString::fromLocal8Bit( "\t\t\t<td>" );
+            v = pStatement->getData( nCol, &nReturn );
+            if ( v.canConvert<QString>() ) 
+                *pstreamOutData << v.toString();
+            else
+                *pstreamOutData << tr("can not convert to string");
+            *pstreamOutData << QString::fromLocal8Bit( "</td>\n" );
         }
-        printf( "\t\t</tr>\n" );
+        *pstreamOutData << QString::fromLocal8Bit( "\t\t</tr>\n" );
     }
 
     return nRows;
@@ -907,16 +896,14 @@ void OQConsole::doWriteFooterHTMLTable( SQLLEN nRows )
     pStatement->doNumResultCols( &nColumns );
     pStatement->doRowCount( &nRowsAffected );
 
-    printf( "\t</tbody>\n" );
-
-    printf( "\t<tfoot>\n" );
-    printf( "\t\t<tr>\n" );
-    printf( "\t\t\t<td colspan=\"%d\">Rows affected: %d returned: %d</th>\n", nColumns, nRowsAffected, nRows );
-    printf( "\t\t</tr>\n" );
-    printf( "\t</tfoot>\n" );
-
-    printf( "</table>\n" );
-    printf( "</div>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t</tbody>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t<tfoot>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t\t<tr>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t\t\t<td colspan=\"" ) << nColumns << QString::fromLocal8Bit( "\">Rows affected: ") << nRowsAffected << QString::fromLocal8Bit( " returned: ") << nRows << QString::fromLocal8Bit( "</th>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t\t</tr>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "\t</tfoot>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "</table>\n" );
+    *pstreamOutData << QString::fromLocal8Bit( "</div>\n" );
 }
 
 /****************************
@@ -929,8 +916,8 @@ void OQConsole::doWriteBodyInsertTable()
     SQLRETURN       nReturn                         = 0;
     bool *          pbQuote                         = 0;
 
-    ODBCVariant v( ( bWideCharData ? ODBCVariant::WideChar : ODBCVariant::Char ) );
-    v.setElementsMax( MAX_DATA_WIDTH );
+    QVariant v;
+ //   v.setElementsMax( MAX_DATA_WIDTH );
 
     pStatement->doNumResultCols( &nColumns );
 
@@ -940,65 +927,64 @@ void OQConsole::doWriteBodyInsertTable()
     pbQuote = (bool*)calloc( sizeof(bool), nColumns );
 
     // parse stringColumnsToQuote
-    if ( stringColumnsToQuote )
+    if ( !stringColumnsToQuote.isEmpty())
     {
         int         nCursorColumnsToQuote   = 0;
         int         nCursorColumn           = 0;
-        SQLTCHAR    szColumn[100];
+        QString     stringColumn;
 
         while ( 1 )
         {
-            if ( stringColumnsToQuote[nCursorColumnsToQuote] == ',' || stringColumnsToQuote[nCursorColumnsToQuote] == '\0' )
+            if ( stringColumnsToQuote[nCursorColumnsToQuote] == QLatin1Char(',') || stringColumnsToQuote[nCursorColumnsToQuote] == QLatin1Char('\0') )
             {
                 if ( nCursorColumn )
                 {
-                    szColumn[nCursorColumn] = '\0';
-                    int nColumn = ODBCToI( szColumn );
+                    stringColumn[nCursorColumn] = QChar::Null;
+                    int nColumn = stringColumn.toInt();
                     if ( nColumn > 0 && nColumn <= nColumns )
                     {
                         pbQuote[nColumn - 1] = 1;
                     }
                     nCursorColumn = 0;
-
                 }
             }
             else
             {
-                szColumn[nCursorColumn] = stringColumnsToQuote[nCursorColumnsToQuote];
+                stringColumn[nCursorColumn] = stringColumnsToQuote[nCursorColumnsToQuote];
                 nCursorColumn++;
             }
 
-            if ( stringColumnsToQuote[nCursorColumnsToQuote] == '\0' )
+            if ( stringColumnsToQuote[nCursorColumnsToQuote] == QLatin1Char('\0') )
                 break;
 
             nCursorColumnsToQuote++;
-        }
+        } // while
     }
 
     // process results
     while ( SQL_SUCCEEDED( pStatement->doFetch() ) ) /* ROWS */
     {
-        ODBCPrintF( (ODBCCPTR)TEXT("INSERT INTO %s VALUES ( "), stringInsertTable );
+        *pstreamOutData << QString::fromLocal8Bit("INSERT INTO ") << stringInsertTable << QString::fromLocal8Bit( " VALUES ( ");
         for ( nCol = 1; nCol <= nColumns; nCol++ ) /* COLS */
         {
             if ( nCol > 1 )
-                printf( ", " );
+                *pstreamOutData << QString::fromLocal8Bit( ", " );
 
-            nReturn = pStatement->doData( nCol, &v );
+            v = pStatement->getData( nCol, &nReturn );
             if ( v.isNull() )
-                printf( "NULL" );
+                *pstreamOutData << QString::fromLocal8Bit( "NULL" );
             else
             {
-                // TODO: Escape any quote char embedded in char data
-                ODBCPrintF( (ODBCCPTR)TEXT("%s"), ( pbQuote[nCol - 1] ? stringQuoteToUse : TEXT("") ) ); 
-                if ( bWideCharData )
-                    wprintf( L"%s", (SQLWCHAR*)v.getBuffer() );
+                *pstreamOutData <<  ( pbQuote[nCol - 1] ? stringQuoteToUse : QString::fromLocal8Bit(("") ) ); 
+                if ( v.canConvert<QString>() )
+                    *pstreamOutData << v.toString();
                 else
-                    printf( (const char *)v.getBuffer() );
-                ODBCPrintF( (ODBCCPTR)TEXT("%s"), ( pbQuote[nCol - 1] ? stringQuoteToUse : TEXT("") ) ); 
+                    *pstreamOutData << tr("Could not convert to string.");
+
+                *pstreamOutData <<  ( pbQuote[nCol - 1] ? stringQuoteToUse : QString::fromLocal8Bit(("") ) ); 
             }
         } // cols
-        ODBCPrintF( (ODBCCPTR)TEXT(" )%c\n"), cStatementTerminator );
+        *pstreamOutData << QString::fromLocal8Bit( " )" ) << cStatementTerminator << endl;
     } // rows
 
     free( pbQuote );
@@ -1014,59 +1000,54 @@ void OQConsole::doWriteHeaderDelimited()
 {
     SQLUSMALLINT    nCol                            = 0;
     SQLSMALLINT     nColumns                        = 0;
-    SQLTCHAR        szColumnName[MAX_DATA_WIDTH+1];
-
-    *szColumnName = '\0';
+    SQLWCHAR        szColumnName[MAX_DATA_WIDTH+1];
+    SQLSMALLINT     nBufferLengthBytes = MAX_DATA_WIDTH * sizeof(SQLWCHAR);
+    SQLSMALLINT     nStringLengthBytesAvailable = 0;
 
     if ( !SQL_SUCCEEDED( pStatement->doNumResultCols( &nColumns ) ) )
         nColumns = -1;
 
     for ( nCol = 1; nCol <= nColumns; nCol++ )
     {
-        pStatement->doColAttribute( nCol, SQL_DESC_LABEL, szColumnName, sizeof(szColumnName), NULL, NULL );
-        ODBCFPutS( szColumnName, stdout );
+        pStatement->doColAttribute( nCol, SQL_DESC_LABEL, szColumnName, nBufferLengthBytes, &nStringLengthBytesAvailable, NULL );
+        *pstreamOutData << qSetFieldWidth( (nStringLengthBytesAvailable<=nBufferLengthBytes ? nStringLengthBytesAvailable : nBufferLengthBytes ) ) << szColumnName;
         if ( nCol < nColumns )
-            ODBCPutChar( cDelimiter );
+            *pstreamOutData << cDelimiter;
     }
-    ODBCPutChar( '\n' );
+    *pstreamOutData << endl;
 }
 
 void OQConsole::doWriteBodyDelimited()
 {
-    SQLUSMALLINT    nCol                            = 0;
     SQLSMALLINT     nColumns                        = 0;
     SQLRETURN       nReturn                         = 0;
 
-    ODBCVariant v( ( bWideCharData ? ODBCVariant::WideChar : ODBCVariant::Char ) );
-    v.setElementsMax( MAX_DATA_WIDTH );
-
-    pStatement->doNumResultCols( &nColumns );
+    nReturn = pStatement->doNumResultCols( &nColumns );
+    if ( nColumns <= 0 )
+        return;
 
     /* ROWS */
-    while ( SQL_SUCCEEDED( pStatement->doFetch() ) )
+    nReturn = pStatement->doFetch();
+    while ( SQL_SUCCEEDED( nReturn ) )
     {
         /* COLS */
-        for ( nCol = 1; nCol <= nColumns; nCol++ )
+        for ( SQLUSMALLINT nCol = 1; nCol <= nColumns; nCol++ )
         {
-            nReturn = pStatement->doData( nCol, &v );
-            if ( v.isNull() )
+            QVariant v = pStatement->getData( nCol, &nReturn );
+            if ( !v.isNull() )
             {
-                if ( nCol < nColumns )
-                    ODBCPutChar( cDelimiter );
-            }
-            else
-            {
-                if ( bWideCharData )
-                    wprintf( L"%s", v.getBuffer() );
+                if ( v.canConvert<QString>() )
+                    *pstreamOutData << v.toString();
                 else
-                    printf( (const char *)v.getBuffer() );
-                if ( nCol < nColumns )
-                    ODBCPutChar( cDelimiter );
-            }
-        }
-        printf( "\n" );
-    }
+                    *pstreamOutData << tr("Could not convert to string.");
 
+            }
+            if ( nCol < nColumns )
+                *pstreamOutData << cDelimiter;
+        }
+        *pstreamOutData << endl;
+        nReturn = pStatement->doFetch();
+    }
 }
 
 /****************************
@@ -1074,81 +1055,90 @@ void OQConsole::doWriteBodyDelimited()
  ***************************/
 QString OQConsole::doWriteHeaderNormal()
 {
-    if ( !pStatement )
-    {
-    }
-
-    SQLUSMALLINT    nCol                            = 0;
     SQLSMALLINT     nColumns                        = 0;
-    SQLTCHAR        szColumn[MAX_DATA_WIDTH+20];
-    SQLTCHAR        szColumnName[MAX_DATA_WIDTH+1];
-    SQLTCHAR        szHdrLine[MAX_LINE_OUT_CHARS + 1];
-    SQLUINTEGER     nSepLine                        = 0;    // index to next char
-
-    *szColumn       = '\0';
-    *szColumnName   = '\0';
-    *szHdrLine      = '\0';
+    QString         stringNameLine;
+    QString         stringBoxLine; 
 
     vectorColumnWidths = getColumnWidths( pStatement, nUserWidth );
+    nColumns = vectorColumnWidths.size();
 
-    if ( !SQL_SUCCEEDED( pStatement->doNumResultCols( &nColumns ) ) )
-        nColumns = -1;
-
-    for ( nCol = 1; nCol <= nColumns; nCol++ )
+    // process columns...
+    for ( SQLUSMALLINT nCol = 1; nCol <= nColumns; nCol++ )
     {
         SQLUINTEGER nColumnWidth = vectorColumnWidths.at( nCol - 1 );
-        pStatement->doColAttribute( nCol, SQL_DESC_LABEL, szColumnName, sizeof(szColumnName), NULL, NULL );
+        QString     stringColumnName;
 
-        /* SEP */
-        szSepLine[nSepLine] = '+'; nSepLine++;
-        for ( SQLUINTEGER n = 0; n <= nColumnWidth; n++, nSepLine++ ) { szSepLine[nSepLine] = '-'; }
+        // get stringColumnName
+        {
+            SQLWCHAR        szColumnName[MAX_DATA_WIDTH+1];
+            SQLSMALLINT     nBufferLengthBytes = MAX_DATA_WIDTH * sizeof(SQLWCHAR);
+            SQLSMALLINT     nStringLengthBytesAvailable = 0;
 
-        /* HDR */
-        ODBCSPrintF( (ODBCCPTR)szColumn, (ODBCCPTR)TEXT("| %-*.*s"), (int)nColumnWidth, (int)nColumnWidth, szColumnName );
-        ODBCStrCat( szHdrLine, MAX_LINE_OUT_CHARS, szColumn );
+            // Get column name - always null terminated but may be truncated.
+            pStatement->doColAttribute( nCol, SQL_DESC_LABEL, szColumnName, nBufferLengthBytes, &nStringLengthBytesAvailable, NULL );
+            // Always null terminated. Ignore possible truncation (case where nStringLengthBytesAvailable > 0).
+            stringColumnName = QString::fromUtf16( szColumnName );
+        }
+
+        // Advance the box line...
+        stringBoxLine += QLatin1Char('+');
+        for ( SQLUINTEGER n = 0; n <= nColumnWidth; n++ ) { stringBoxLine += QLatin1Char('-'); }
+
+        // Advance the name line...
+        stringNameLine += QLatin1Char('|');
+//        stringNameLine << qSetFieldWidth( vectorColumnWidths.at( nCol - 1 ) ) << stringColumnName;
+        stringNameLine += stringColumnName;
     }
-    szSepLine[nSepLine] = '+'; nSepLine++;
-    szSepLine[nSepLine] = '\n'; nSepLine++;
-    szSepLine[nSepLine] = '\0'; nSepLine++;
+    stringBoxLine += QLatin1Char('+');
+    stringNameLine += QLatin1Char('|');
 
-    ODBCStrCat( szHdrLine, MAX_LINE_OUT_CHARS, TEXT("|\n") );
+    *pstreamOutData << stringBoxLine << endl;
+    *pstreamOutData << stringNameLine << endl;
+    *pstreamOutData << stringBoxLine << endl;
 
-    ODBCPrintF( (ODBCCPTR)szSepLine );
-    ODBCPrintF( (ODBCCPTR)szHdrLine );
-    ODBCPrintF( (ODBCCPTR)szSepLine );
-
-    return stringSepLine;
+    // return box line so it can used at the end of the data output
+    return stringBoxLine;
 }
 
 SQLLEN OQConsole::doWriteBodyNormal()
 {
-    SQLUSMALLINT    nCol                            = 0;
     SQLSMALLINT     nColumns                        = 0;
     SQLRETURN       nReturn                         = 0;
     SQLLEN          nRows                           = 0;
 
     /*! 
+     * We ignore the following for now. 
+     *  
      * \note
      *          We can be a single-char app and still work with wide-char data. Conversely; we can be 
      *          a wide-char app and need to work with single-char data.
      *  
      * \sa      setWideCharData
      */
-    ODBCVariant v( ( bWideCharData ? ODBCVariant::WideChar : ODBCVariant::Char ) );
-    v.setElementsMax( MAX_DATA_WIDTH );
 
-    pStatement->doNumResultCols( &nColumns );
+    nColumns == vectorColumnWidths.size();
     
     /* ROWS */
-    while ( SQL_SUCCEEDED( pStatement->doFetch() ) )
+    nReturn = pStatement->doFetch();
+    while ( SQL_SUCCEEDED( nReturn ) )
     {
         /* COLS */
-        for ( nCol = 1; nCol <= nColumns; nCol++ )
+        for ( SQLUSMALLINT nCol = 1; nCol <= nColumns; nCol++ )
         {
             SQLUINTEGER nColumnWidth = vectorColumnWidths.at( nCol - 1 );
 
             // get the data
-            nReturn = pStatement->doData( nCol, &v );
+            QVariant v = pStatement->getData( nCol, &nReturn );
+            *pstreamOutData << QLatin1Char( '|' );
+            if ( !v.isNull() )
+            {
+                if ( v.canConvert<QString>() )
+                    *pstreamOutData << v.toString();
+                else
+                    *pstreamOutData << tr("Could not convert to string.");
+
+            }
+/*
             if ( v.isNull() )
                 ODBCPrintF( (ODBCCPTR)TEXT("| %-*s"), (int)nColumnWidth, TEXT("") );
             else
@@ -1158,35 +1148,38 @@ SQLLEN OQConsole::doWriteBodyNormal()
                 else
                     printf( "| %-*.*s", (int)nColumnWidth, (int)nColumnWidth, (SQLCHAR*)v.getBuffer() );
             }
-
-            v.clear();
-
+*/
         } /* for columns */
 
         nRows++;
-        printf( "|\n" );
+        *pstreamOutData << QLatin1Char( '|' ) << endl;
+
+        // next record
+        nReturn = pStatement->doFetch();
     } /* while rows */
 
     return nRows;
 }
 
-void OQConsole::doWriteFooterNormal( const QString &stringSepLine, SQLLEN nRows )
+void OQConsole::doWriteFooterNormal( const QString &stringBoxLine, SQLLEN nRows )
 {
     SQLLEN nRowsAffected = -1;
 
-    ODBCPrintF( (ODBCCPTR)szSepLine );
+    // close the box off...
+    *pstreamOutData << stringBoxLine << endl;
 
+    // show number of rows returned/affected...
     pStatement->doRowCount( &nRowsAffected );
     if ( nRowsAffected >= 0 && nInteraction == CommandLineInteractive )
-        printf( "%d rows affected\n", (int)nRowsAffected );
+        *pstreamOutData << nRowsAffected << tr( " rows affected" ) << endl;
 
     if ( nRows && nInteraction == CommandLineInteractive )
-        printf( "%d rows returned\n", (int)nRows );
+        *pstreamOutData << nRows << tr( " rows returned" ) << endl;
 }
 
-vector<SQLUINTEGER> OQConsole::getColumnWidths( OQStatement *pStatement, SQLUINTEGER nUserWidth )
+QVector<SQLUINTEGER> OQConsole::getColumnWidths( OQStatement *pStatement, SQLUINTEGER nUserWidth )
 {
-    vector<SQLUINTEGER> vectorColumnWidths;
+    QVector<SQLUINTEGER> vectorColumnWidths;
     SQLUSMALLINT        nCol       = 0;
     SQLSMALLINT         nColumns   = 0;
 
@@ -1225,13 +1218,11 @@ SQLUINTEGER OQConsole::getColumnWidth( OQStatement *pStatement, SQLUINTEGER nUse
     SQLLEN      nLabelWidth                     = 10;
     SQLLEN      nDataWidth                      = 10;
     SQLUINTEGER nOptimalDisplayWidth            = 10;
-    SQLTCHAR    szColumnName[MAX_DATA_WIDTH+1];
-
-    *szColumnName = '\0';
+    SQLWCHAR    szColumnName[MAX_DATA_WIDTH+1];
 
     pStatement->doColAttribute( nCol, SQL_DESC_DISPLAY_SIZE, NULL, 0, NULL, &nDataWidth );
     pStatement->doColAttribute( nCol, SQL_DESC_LABEL, szColumnName, sizeof(szColumnName), NULL, NULL );
-    nLabelWidth = ODBCStrLen( szColumnName );
+    nLabelWidth = QString::fromUtf16( szColumnName ).length();
 
     nOptimalDisplayWidth = max( nLabelWidth, nDataWidth );
 
@@ -1257,8 +1248,7 @@ void OQConsole::slotDiagnostic( OQDiagnostic Diagnostic )
 
     for ( SQLINTEGER nRecord = 1; nRecord <= nRecords; nRecord++ )
     {
-        OQDiagnosticRecord Record = Diagnostic.getRecord( nRecord );
-        streamErr << Record.getMessageText();
+        *pstreamOutErrors << OQDiagnosticRecord( &Diagnostic, nRecord ).getMessageText() << endl;
     }
 }
 

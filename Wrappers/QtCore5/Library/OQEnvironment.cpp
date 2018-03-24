@@ -12,7 +12,7 @@
 OQEnvironment::OQEnvironment( OQSystem *pSystem )
     : OQHandle( Env, pSystem )
 {
-    setObjectName( "OQEnvironment" );
+    setObjectName( QString::fromLocal8Bit("OQEnvironment") );
 
     // echo up the object hierarchy
     connect( this, SIGNAL(signalMessage(OQMessage)), pSystem, SIGNAL(signalMessage(OQMessage)) );
@@ -213,27 +213,20 @@ bool OQEnvironment::getAttrOutputNTS( SQLRETURN *pnReturn )
 
 QStringList OQEnvironment::getDrivers( SQLRETURN *pnReturn )
 {
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
     QStringList     stringlistDrivers;
     SQLRETURN       nReturn;
-    SQLTCHAR        szDRV[100];
-    SQLSMALLINT     nLength1;
-    SQLTCHAR        szAttribute[300];
-    SQLSMALLINT     nLength2;
+    SQLWCHAR        szDRV[100];
+    SQLSMALLINT     nDrvChars;
+    SQLWCHAR        szAttribute[300];
+    SQLSMALLINT     nAttrChars;
 
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
-    nReturn = doDrivers( SQL_FETCH_FIRST, szDRV, sizeof(szDRV) / sizeof(SQLTCHAR), &nLength1, szAttribute, sizeof(szAttribute)  / sizeof(SQLTCHAR), &nLength2 );
-printf( "[PAH][%s][%d] %d\n", __FILE__, __LINE__, nReturn );
+    nReturn = doDrivers( SQL_FETCH_FIRST, szDRV, 100, &nDrvChars, szAttribute, 300, &nAttrChars );
     while ( SQL_SUCCEEDED( nReturn ) )
     {
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
-        stringlistDrivers.append( OQToQString( szDRV ) );
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
-        nReturn = doDrivers( SQL_FETCH_NEXT, szDRV, sizeof(szDRV) / sizeof(SQLTCHAR), &nLength1, szAttribute, sizeof(szAttribute) / sizeof(SQLTCHAR), &nLength2 );
-printf( "[PAH][%s][%d] %d\n", __FILE__, __LINE__, nReturn );
+        stringlistDrivers.append( QString::fromUtf16( szDRV, nDrvChars ) );
+        nReturn = doDrivers( SQL_FETCH_NEXT, szDRV, 100, &nDrvChars, szAttribute, 300, &nAttrChars );
     }
 
-printf( "[PAH][%s][%d] %d\n", __FILE__, __LINE__, stringlistDrivers.size() );
     if ( pnReturn )
         *pnReturn = nReturn;
 
@@ -248,9 +241,9 @@ QStringList OQEnvironment::getDataSources( bool bUser, bool bSystem, SQLRETURN *
     QStringList     stringlistDataSources;
     SQLRETURN       nReturn;
     SQLUSMALLINT    nDirection  =   SQL_FETCH_FIRST;
-    SQLTCHAR        szDSN[100];
+    SQLWCHAR        szDSN[100];
     SQLSMALLINT     nLength1;
-    SQLTCHAR        szDescription[100];
+    SQLWCHAR        szDescription[100];
     SQLSMALLINT     nLength2;
 
     if ( bUser || bSystem )
@@ -262,11 +255,11 @@ QStringList OQEnvironment::getDataSources( bool bUser, bool bSystem, SQLRETURN *
             nDirection = SQL_FETCH_FIRST_USER;
 #endif
 
-        nReturn = doDataSources( nDirection, szDSN, sizeof(szDSN) / sizeof(SQLTCHAR), &nLength1, szDescription, sizeof(szDescription) / sizeof(SQLTCHAR), &nLength2 );
+        nReturn = doDataSources( nDirection, szDSN, sizeof(szDSN) / sizeof(SQLWCHAR), &nLength1, szDescription, sizeof(szDescription) / sizeof(SQLWCHAR), &nLength2 );
         while ( SQL_SUCCEEDED( nReturn ) )
         {
-            stringlistDataSources += OQToQString(szDSN);
-            nReturn = doDataSources( SQL_FETCH_NEXT, szDSN, sizeof(szDSN) / sizeof(SQLTCHAR), &nLength1, szDescription, sizeof(szDescription) / sizeof(SQLTCHAR), &nLength2 );
+            stringlistDataSources += QString::fromUtf16(szDSN, nLength1);
+            nReturn = doDataSources( SQL_FETCH_NEXT, szDSN, sizeof(szDSN) / sizeof(SQLWCHAR), &nLength1, szDescription, sizeof(szDescription) / sizeof(SQLWCHAR), &nLength2 );
         }
     }
     else
@@ -313,10 +306,10 @@ SQLRETURN OQEnvironment::setEnvAttr( SQLINTEGER nAttribute, SQLPOINTER pValue )
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -362,10 +355,10 @@ SQLRETURN OQEnvironment::getEnvAttr( SQLINTEGER nAttribute, SQLPOINTER pValue )
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -387,16 +380,13 @@ SQLRETURN OQEnvironment::getEnvAttr( SQLINTEGER nAttribute, SQLPOINTER pValue )
  * 
  * \return  SQLRETURN
  */
-SQLRETURN OQEnvironment::doDrivers( SQLUSMALLINT nDirection, SQLTCHAR *pszDriverDescription, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnDescriptionLengthPtr, SQLTCHAR *pszDriverAttributes, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnAttributesLengthPtr )
+SQLRETURN OQEnvironment::doDrivers( SQLUSMALLINT nDirection, SQLWCHAR *pszDriverDescription, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnDescriptionLengthPtr, SQLWCHAR *pszDriverAttributes, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnAttributesLengthPtr )
 {
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
     if ( !isAlloc() )
         return SQL_ERROR;
 
-printf( "[PAH][%s][%d] %p\n", __FILE__, __LINE__, hHandle );
     //
-    SQLRETURN nReturn = SQLDrivers( hHandle, nDirection, pszDriverDescription, nBufferLength1, pnDescriptionLengthPtr, pszDriverAttributes, nBufferLength2, pnAttributesLengthPtr );
-printf( "[PAH][%s][%d] %d\n", __FILE__, __LINE__, nReturn );
+    SQLRETURN nReturn = SQLDriversW( hHandle, nDirection, pszDriverDescription, nBufferLength1, pnDescriptionLengthPtr, pszDriverAttributes, nBufferLength2, pnAttributesLengthPtr );
     switch ( nReturn )
     {
         case SQL_SUCCESS:
@@ -409,14 +399,13 @@ printf( "[PAH][%s][%d] %d\n", __FILE__, __LINE__, nReturn );
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
     return nReturn;
 }
 
@@ -435,13 +424,13 @@ printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
  * 
  * \return  SQLRETURN
  */
-SQLRETURN OQEnvironment::doDataSources( SQLUSMALLINT nDirection, SQLTCHAR *pszServerName, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnNameLength1Ptr, SQLTCHAR *pszDescription, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnNameLength2Ptr )
+SQLRETURN OQEnvironment::doDataSources( SQLUSMALLINT nDirection, SQLWCHAR *pszServerName, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnNameLength1Ptr, SQLWCHAR *pszDescription, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnNameLength2Ptr )
 {
     if ( !isAlloc() )
         return SQL_ERROR;
 
     //
-    SQLRETURN nReturn = SQLDataSources( hHandle, nDirection, pszServerName, nBufferLength1, pnNameLength1Ptr, pszDescription, nBufferLength2, pnNameLength2Ptr );
+    SQLRETURN nReturn = SQLDataSourcesW( hHandle, nDirection, pszServerName, nBufferLength1, pnNameLength1Ptr, pszDescription, nBufferLength2, pnNameLength2Ptr );
     switch ( nReturn )
     {
         case SQL_SUCCESS:
@@ -454,10 +443,10 @@ SQLRETURN OQEnvironment::doDataSources( SQLUSMALLINT nDirection, SQLTCHAR *pszSe
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
