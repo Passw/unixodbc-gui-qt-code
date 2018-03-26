@@ -686,7 +686,7 @@ bool OQConsole::doExecuteShowDataSourceName( const QString &stringDataSourceName
     int nKeyMaxChars    = 5;
     int nValueMaxChars  = 7;
     {
-        QMapIterator<QString, QString> i( DataSourceName.mapAttributes );
+        QMapIterator<QString, QString> i( DataSourceName.Attributes.mapAttributes );
         while ( i.hasNext() ) 
         {
             i.next();
@@ -702,7 +702,7 @@ bool OQConsole::doExecuteShowDataSourceName( const QString &stringDataSourceName
 
     // body
     {
-        QMapIterator<QString, QString> i( DataSourceName.mapAttributes );
+        QMapIterator<QString, QString> i( DataSourceName.Attributes.mapAttributes );
         while ( i.hasNext() ) 
         {
             i.next();
@@ -725,8 +725,9 @@ bool OQConsole::doExecuteShowDataSourceNames()
     int nDescriptionMaxChars = 13;
     for ( int n = 0; n < vectorDataSourceNames.count(); n++ )
     {
-        nNameMaxChars        = max( vectorDataSourceNames[n].stringName.length(), nNameMaxChars );
-        nDescriptionMaxChars = max( vectorDataSourceNames[n].mapAttributes[QString::fromLocal8Bit("DESCRIPTION")].length(), nDescriptionMaxChars );
+        OQDataSourceName DataSourceName = vectorDataSourceNames[n];
+        nNameMaxChars        = max( DataSourceName.Attributes.stringName.length(), nNameMaxChars );
+        nDescriptionMaxChars = max( DataSourceName.Attributes.mapAttributes[QString::fromLocal8Bit("DESCRIPTION")].length(), nDescriptionMaxChars );
     }
 
     // header
@@ -737,7 +738,8 @@ bool OQConsole::doExecuteShowDataSourceNames()
     // body
     for ( int n = 0; n < vectorDataSourceNames.count(); n++ )
     {
-        *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nNameMaxChars ) << vectorDataSourceNames[n].stringName << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nDescriptionMaxChars ) << vectorDataSourceNames[n].mapAttributes[QString::fromLocal8Bit("DESCRIPTION")] << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
+        OQDataSourceName DataSourceName = vectorDataSourceNames[n];
+        *pstreamOutData << qSetPadChar( QLatin1Char(' ') ) << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nNameMaxChars ) << DataSourceName.Attributes.stringName << qSetFieldWidth( 1 ) << QLatin1Char('|') << qSetFieldWidth( nDescriptionMaxChars ) << DataSourceName.Attributes.mapAttributes[QString::fromLocal8Bit("DESCRIPTION")] << qSetFieldWidth( 1 ) << QLatin1Char('|') << endl;
     }
 
     // footer
@@ -1125,7 +1127,7 @@ SQLLEN OQConsole::doWriteBodyNormal()
         /* COLS */
         for ( SQLUSMALLINT nCol = 1; nCol <= nColumns; nCol++ )
         {
-            SQLUINTEGER nColumnWidth = vectorColumnWidths.at( nCol - 1 );
+            // SQLUINTEGER nColumnWidth = vectorColumnWidths.at( nCol - 1 );
 
             // get the data
             QVariant v = pStatement->getData( nCol, &nReturn );

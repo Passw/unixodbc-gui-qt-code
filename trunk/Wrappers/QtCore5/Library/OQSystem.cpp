@@ -11,9 +11,9 @@
 #include <odbcinst.h>
 
 OQSystem::OQSystem()
-    : OQHandle( TypeSys )
+    : OQHandle( Sys )
 {
-    setObjectName( "OQSystem" );
+    setObjectName( QString::fromLocal8Bit("OQSystem") );
 }
 
 OQSystem::~OQSystem()
@@ -29,13 +29,13 @@ OQSystem::~OQSystem()
  * \author  pharvey (10/6/2009)
  * 
  * \param   pnReturn 
- * 
+ * QVector
  * \return  OQAttributes 
  */
 OQAttributes OQSystem::getAttributes( SQLRETURN *pnReturn )
 {
     SQLRETURN       nReturn;
-    OQAttributes    Attributes = getAttributes( "ODBCINST.INI", "ODBC", &nReturn );
+    OQAttributes    Attributes = getAttributes( QString::fromLocal8Bit("ODBCINST.INI"), QString::fromLocal8Bit("ODBC"), &nReturn );
 
     if ( pnReturn ) *pnReturn = nReturn;
 
@@ -57,7 +57,7 @@ OQAttributes OQSystem::getAttributes( SQLRETURN *pnReturn )
 OQDriver OQSystem::getDriver( const QString &stringDriver, SQLRETURN *pnReturn )
 {
     SQLRETURN   nReturn;
-    OQDriver    Driver = getAttributes( "ODBCINST.INI", stringDriver, &nReturn );
+    OQDriver    Driver = getAttributes( QString::fromLocal8Bit("ODBCINST.INI"), stringDriver, &nReturn );
 
     if ( pnReturn ) *pnReturn = nReturn;
 
@@ -138,22 +138,20 @@ QVector<OQDriver> OQSystem::getDrivers( SQLRETURN *pnReturn )
  * 
  * \return  OQDataSourceName 
  */
-OQDataSourceName OQSystem::getDataSource( const QString &stringDataSourceName, OQDataSourceName::Scopes nScope, SQLRETURN *pnReturn )
+OQDataSourceName OQSystem::getDataSource( const QString &stringDataSourceName, OQDataSourceName::enumScopes nScope, SQLRETURN *pnReturn )
 {
-    OQDataSourceName::Scopes nScopeOrig = OQDataSourceName::ScopeBoth;
+    OQDataSourceName::enumScopes nScopeOrig = OQDataSourceName::ScopeBoth;
 
     doGetConfigMode( &nScopeOrig );
     doSetConfigMode( nScope );
 
     SQLRETURN           nReturn;
-    OQDataSourceName    DataSourceName = getAttributes( "ODBC.INI", stringDataSourceName, &nReturn );
+    SQLRETURN *         pnRet = ( pnReturn ? pnReturn : &nReturn );
+    OQDataSourceName    DataSourceName( QString::fromLocal8Bit("ODBC.INI"), nScope );
 
-    if ( pnReturn ) *pnReturn = nReturn;
+    DataSourceName.Attributes = getAttributes( DataSourceName.stringFileName, stringDataSourceName, pnRet );
 
     SQLSetConfigMode( nScopeOrig );
-
-    DataSourceName.nScope           = nScope;
-    DataSourceName.stringFilename   = "ODBC.INI";
 
     return DataSourceName;
 }
@@ -171,22 +169,20 @@ OQDataSourceName OQSystem::getDataSource( const QString &stringDataSourceName, O
  * 
  * \return  OQDataSourceName 
  */
-OQDataSourceName OQSystem::getDataSource( const QString &stringDataSourceName, const QString &stringFilename, SQLRETURN *pnReturn )
+OQDataSourceName OQSystem::getDataSource( const QString &stringDataSourceName, const QString &stringFileName, SQLRETURN *pnReturn )
 {
-    OQDataSourceName::Scopes nScope = OQDataSourceName::ScopeBoth;
+    OQDataSourceName::enumScopes nScope = OQDataSourceName::ScopeBoth;
 
     doGetConfigMode( &nScope );
 
-    if ( stringFilename.upper() == "ODBC.INI" )
+    if ( stringFileName.toUpper() == QString::fromLocal8Bit( "ODBC.INI" ) )
         return getDataSource( stringDataSourceName, nScope, pnReturn );
 
     SQLRETURN           nReturn;
-    OQDataSourceName    DataSourceName = getAttributes( stringFilename, stringDataSourceName, &nReturn );
+    SQLRETURN *         pnRet = ( pnReturn ? pnReturn : &nReturn );
+    OQDataSourceName    DataSourceName( stringFileName, nScope );
 
-    if ( pnReturn ) *pnReturn = nReturn;
-
-    DataSourceName.nScope           = nScope;
-    DataSourceName.stringFilename   = stringFilename;
+    DataSourceName.Attributes = getAttributes( stringFileName, stringDataSourceName, pnRet );
 
     return DataSourceName;
 }
@@ -204,23 +200,20 @@ OQDataSourceName OQSystem::getDataSource( const QString &stringDataSourceName, c
  * 
  * \return  QVector<QString> 
  */
-QVector<QString> OQSystem::getDataSourceNames( OQDataSourceName::Scopes nScope, SQLRETURN *pnReturn )
+QVector<QString> OQSystem::getDataSourceNames( OQDataSourceName::enumScopes nScope, SQLRETURN *pnReturn )
 {
-    QVector<QString>            vectorDataSourceNames;
-    OQDataSourceName::Scopes    nScopeOrig = OQDataSourceName::ScopeBoth;
+    QVector<QString>                vectorDataSourceNames;
+    OQDataSourceName::enumScopes    nScopeOrig = OQDataSourceName::ScopeBoth;
 
     doGetConfigMode( &nScopeOrig );
     doSetConfigMode( nScope );
 
-    BOOL b = doGetPrivateProfileString( QString::null, &vectorDataSourceNames, "ODBC.INI" );
+    BOOL b = doGetPrivateProfileString( QString::null, &vectorDataSourceNames, QString::fromLocal8Bit( "ODBC.INI" ) );
     if ( pnReturn ) *pnReturn = ( b ? SQL_SUCCESS : SQL_ERROR );
 
     SQLSetConfigMode( nScopeOrig );
 
-    DataSourceName.nScope           = nScope;
-    DataSourceName.stringFilename   = "ODBC.INI";
-
-    return DataSourceName;
+    return vectorDataSourceNames;
 }
 
 /*!
@@ -233,29 +226,26 @@ QVector<QString> OQSystem::getDataSourceNames( OQDataSourceName::Scopes nScope, 
  * 
  * \return  QVector<OQDataSourceName> 
  */
-QVector<OQDataSourceName> OQSystem::getDataSources( OQDataSourceName::Scopes nScope, SQLRETURN *pnReturn )
+QVector<OQDataSourceName> OQSystem::getDataSources( OQDataSourceName::enumScopes nScope, SQLRETURN *pnReturn )
 {
     QVector<OQDataSourceName>   vectorDataSources;
-    SQLRETURN                   nReturn;
     QVector<QString>            vectorDataSourceNames;
     SQLRETURN                   nReturn;
-    SQLRETURN *                 pn = &nReturn;
-
-    if ( pnReturn ) pn = pnReturn;
+    SQLRETURN *                 pnRet = ( pnReturn ? pnReturn : &nReturn );
 
     // get a list data source names...
-    vectorDataSourceNames = getDataSourceNames( nScope, pn );
-    if ( !SQL_SUCCEEDED(*pn) )
+    vectorDataSourceNames = getDataSourceNames( nScope, pnRet );
+    if ( !SQL_SUCCEEDED(*pnRet) )
         return vectorDataSources;
 
     // get data source objects..
     for ( int n = 0; n <  vectorDataSourceNames.size(); n++ )
     {
-        OQDataSource DataSource = getDataSource( vectorDataSourceNames[n], nScope, pn ); 
-        if ( !SQL_SUCCEEDED(*pn) )
+        OQDataSourceName DataSourceName = getDataSource( vectorDataSourceNames[n], nScope, pnRet ); 
+        if ( !SQL_SUCCEEDED(*pnRet) )
             return vectorDataSources;
 
-        vectorDataSources.append( DataSource );
+        vectorDataSources.append( DataSourceName );
     }
 
     return vectorDataSources;
@@ -273,7 +263,7 @@ QVector<OQDataSourceName> OQSystem::getDataSources( OQDataSourceName::Scopes nSc
  * 
  * \return  OQSystemError 
  */
-OQSystemError OQSystem::getSystemError( WORD nIndex /* 1 - 8 */, RETCODE *pnRetCode = NULL )
+OQSystemError OQSystem::getSystemError( WORD nIndex /* 1 - 8 */, RETCODE *pnRetCode )
 {
     OQSystemError SystemError;
 
@@ -355,18 +345,24 @@ BOOL OQSystem::doManageDataSources( HWND hWnd )
  * 
  * \return  OQAttributes 
  */
-OQAttributes OQSystem::getAttributes( const QString &stringFilename, const QString &stringSection, SQLRETURN *pnReturn )
+OQAttributes OQSystem::getAttributes( const QString &stringFileName, const QString &stringSection, SQLRETURN *pnReturn )
 {
     OQAttributes        Attributes;
     QVector<QString>    vectorKeys;
+    SQLRETURN           nReturn;
+    SQLRETURN *         pnRet = ( pnReturn ? pnReturn : &nReturn );
+    BOOL                b;
 
-    doGetPrivateProfileString( stringSection, &vectorKeys, stringFilename );
+    b = doGetPrivateProfileString( stringSection, &vectorKeys, stringFileName );
+    *pnRet = ( b ? SQL_SUCCESS : SQL_ERROR );
 
     for ( int n = 0; n < vectorKeys.size(); n++ )
     {
         QString stringValue;
-        doGetPrivateProfileString( stringSection, vectorKeys[n], &stringValue, stringFilename );
-        Attributes.mapAttributes.insert( vectorKeys[n], stringValue );
+        b = doGetPrivateProfileString( stringSection, vectorKeys[n], QString::null, &stringValue, stringFileName );
+        *pnRet = ( b ? SQL_SUCCESS : SQL_ERROR );
+        if ( b )
+            Attributes.mapAttributes.insert( vectorKeys[n], stringValue );
     }
 
     Attributes.stringName = stringSection;
@@ -395,7 +391,7 @@ BOOL OQSystem::doConfigDriver( HWND hwndParent, enumConfigDriverRequest nRequest
     LPTSTR  pszDriver   = (LPTSTR)OQFromQString(stringDriver);
     LPTSTR  pszArgs     = (LPTSTR)OQFromQString(stringArgs);
     WORD    nMsgMax     = 512;
-    TCHAR   szMsg[nMsgMax];
+    WCHAR   szMsg[nMsgMax];
     WORD    nMsgMaxOut  = 0;
 
     b = SQLConfigDriver( hwndParent, (WORD)nRequest, pszDriver, pszArgs, szMsg, nMsgMax, &nMsgMaxOut );
@@ -403,7 +399,7 @@ BOOL OQSystem::doConfigDriver( HWND hwndParent, enumConfigDriverRequest nRequest
     {
         nMsgMax = (nMsgMaxOut + 2);
         {
-            TCHAR szMsg[nMsgMax];
+            WCHAR szMsg[nMsgMax];
 
             b = SQLConfigDriver( hwndParent, (WORD)nRequest, pszDriver, pszArgs, szMsg, nMsgMax, &nMsgMaxOut );
             if ( b && pstringMsg )
@@ -433,7 +429,7 @@ BOOL OQSystem::doCreateDataSource( HWND hwnd, const QString &stringDS )
  * 
  * \return BOOL 
  */
-BOOL OQSystem::doGetConfigMode( enumConfigMode *pnConfigMode )
+BOOL OQSystem::doGetConfigMode( OQDataSourceName::enumConfigMode *pnConfigMode )
 {
     return SQLGetConfigMode( (UWORD)pnConfigMode );
 }
@@ -449,19 +445,19 @@ BOOL OQSystem::doGetConfigMode( enumConfigMode *pnConfigMode )
  */
 BOOL OQSystem::doGetInstalledDrivers( QVector<QString> *pvectorDrivers )
 {
-    BOOL    b;
-    WORD    nBufMax = 1024;
-    TCHAR   szBuf[nBufMax];
-    WORD    nBufOut = 0;
+    BOOL        b;
+    WORD        nBufMax = 1024;
+    WCHAR       szBuf[nBufMax];
+    WORD        nBufOut = 0;
 
-    b = SQLGetInstalledDrivers( szBuf, nBufMax, &nBufOut );
+    b = SQLGetInstalledDriversW( szBuf, nBufMax, &nBufOut );
     if ( nBufOut <= nBufMax )
     {
         nBufMax = (nBufOut + 2);
         {
-            TCHAR szBuf[nBufMax];
+            WCHAR szBuf[nBufMax];
 
-            b = SQLGetInstalledDrivers( szBuf, nBufMax, &nBufOut );
+            b = SQLGetInstalledDriversW( szBuf, nBufMax, &nBufOut );
             if ( b && pvectorDrivers )
                 *pvectorDrivers = getVector( pszBuf );
         }
@@ -498,21 +494,21 @@ BOOL OQSystem::doGetPrivateProfileString( const QString &stringSection, const QS
 
     pstring->clear();
 
-    LPTSTR  pszSection = (LPTSTR)OQFromQString(stringSection);
-    LPTSTR  pszEntry   = (LPTSTR)OQFromQString(stringEntry);
-    LPTSTR  pszDefault = (LPTSTR)OQFromQString(stringDefault);
-    LPTSTR  pszFilename= (LPTSTR)OQFromQString(stringFilename);
+    LPCWSTR  pszSection = (LPCWSTR)(stringSection.utf16());
+    LPCWSTR  pszEntry   = (LPCWSTR)(stringEntry.utf16());
+    LPCWSTR  pszDefault = (LPCWSTR)(stringDefault.utf16());
+    LPCWSTR  pszFilename= (LPCWSTR)(stringFilename.utf16());
 
     int     nCharsMax = 1024;
-    TCHAR   szChars[nCharsMax] = { '\0' };
+    WCHAR   szChars[nCharsMax];
+    memset( szChars, '\0', nCharsMax * sizeof(WCHAR) );
 
-    int nCharsRead = SQLGetPrivateProfileString( pszSection, pszEntry, pszDefault, szChars, nCharsMax, pszFilename );
+    int nCharsRead = SQLGetPrivateProfileStringW( pszSection, pszEntry, pszDefault, szChars, nCharsMax, pszFilename );
 
     if ( nCharsRead < 1 )
         return true;
 
-    if ( pstring )
-        *pstring = OQToQString( szChars );
+    *pstring = QString::fromUtf16( szChars );
 
     return true;
 }
@@ -543,20 +539,21 @@ BOOL OQSystem::doGetPrivateProfileString( const QString &stringSection, QVector<
 
     pvectorStrings->clear();
 
-    LPTSTR  pszSection      = (LPTSTR)OQFromQString(stringSection);
-    LPTSTR  pszFilename     = (LPTSTR)OQFromQString(stringFilename);
+    LPCWSTR  pszSection      = (LPCWSTR)(stringSection.utf16());
+    LPCWSTR  pszFilename     = (LPCWSTR)(stringFilename.utf16());
 
     int     nCharsMax = 4096;
-    TCHAR   szChars[nCharsMax] = { '\0' };
+    WCHAR   szChars[nCharsMax];
+    memset( szChars, '\0', nCharsMax * sizeof(WCHAR) );
 
-    int nCharsRead = SQLGetPrivateProfileString( pszSection, NULL, NULL, szChars, nCharsMax, pszFilename );
+    int nCharsRead = SQLGetPrivateProfileStringW( pszSection, NULL, NULL, szChars, nCharsMax, pszFilename );
 
     if ( nCharsRead < 1 )
         return true;
 
     // decode result
     pvectorStrings->clear();
-    for ( TCHAR *pszCursor = szChars; pszCursor[1] != '\0'; )
+    for ( WCHAR *pszCursor = szChars; pszCursor[1] != '\0'; )
     {
         // grab the string
         pvectorStrings->append( OQToQString( pszCursor ) );
@@ -584,21 +581,24 @@ RETCODE OQSystem::doInstallerError( WORD nError, DWORD *pnErrorCode, QString *ps
 {
     WORD    nErrorMsgMaxChars               = 512;
     WORD    nErrorMsgChars                  = 0;
-    TCHAR   szErrorMsg[nErrorMsgMaxChars]   = { '\0' };
+    WCHAR   szErrorMsg[nErrorMsgMaxChars];
     RETCODE nRetCode;
 
-    nRetCode = SQLInstallerError( nError, pnErrorCode, szErrorMsg, nErrorMsgMaxChars, &nErrorMsgChars );
+    memset( szErrorMsg, '\0', nErrorMsgMaxChars * sizeof(WCHAR) );
+
+    nRetCode = SQLInstallerErrorW( nError, pnErrorCode, szErrorMsg, nErrorMsgMaxChars, &nErrorMsgChars );
     if ( nErrorMsgChars >= nErrorMsgMaxChars  )
     {
         nErrorMsgMaxChars = nErrorMsgChars + 1;
         {
-            TCHAR szErrorMsg[nErrorMsgMaxChars]   = { '\0' };
-            nRetCode = SQLInstallerError( nError, pnErrorCode, szErrorMsg, nErrorMsgMaxChars, &nErrorMsgChars );
+            WCHAR szErrorMsg[nErrorMsgMaxChars];
+            memset( szErrorMsg, '\0', nErrorMsgMaxChars * sizeof(WCHAR) );
+            nRetCode = SQLInstallerErrorW( nError, pnErrorCode, szErrorMsg, nErrorMsgMaxChars, &nErrorMsgChars );
         }
     }
 
     if ( SQL_SUCCEEDED(nRetCode) && pstringMsg )
-        *pstringMsg = OQToQString( szErrorMsg );
+        *pstringMsg = QString::fromUtf16( szErrorMsg );
 
     return nRetCode;
 }
@@ -619,7 +619,7 @@ RETCODE OQSystem::doPostInstallerError( DWORD nErrorCode, const QString &stringE
  * 
  * \return BOOL 
  */
-BOOL OQSystem::doSetConfigMode( enumConfigMode nConfigMode )
+BOOL OQSystem::doSetConfigMode( OQDataSourceName::enumScopes nConfigMode )
 {
     return SQLSetConfigMode( (UWORD)nConfigMode );
 }

@@ -13,6 +13,16 @@ those interested in the GNU auto-tools method.
 
 NOTE: The Qt5 version is currently only built with qmake. The
 GNU auto-build files have been copied but have not been tried.
+Optional code is still being ported to Qt5. So at this time...
+if you are building for a distro - I would, for example, comment 
+out parts of the build in the pro file so as to *only* include;
+
+* ini (static library to support odbcinstQ5)
+* odbcinstQ5 (GUI plugin for unixODBC, installs to same dir as libodbcinst.so)
+* ODBCCreateDataSourceQ5 (bin simply calls SQLCreateDataSource to invoke GUI)
+* ODBCManageDataSourcesQ5 (bin simply calls SQLManageDataSources to invoke GUI)
+
+This will provide all needed functionality for the Qt5 based GUI plugin.
 
 Requirements
 ------------

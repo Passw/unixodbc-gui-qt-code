@@ -44,7 +44,7 @@ public:
 class OQAttributes
 {
 public:
-    QString                 stringName;     // section
+    QString                 stringName;     // section (can be a Driver Name or a Data Source Name for example)
     QMap<QString,QString>   mapAttributes;  // key/value pairs
 };
 
@@ -60,23 +60,25 @@ typedef OQAttributes OQDriver;
  * 
  * \author  pharvey (10/2/2009)
  */
-class OQDataSourceName : public OQAttributes
+class OQDataSourceName
 {
 public:
-    enum Scopes
+    enum enumScopes
     {
         ScopeUser       = ODBC_USER_DSN,       /*!< User scope. DSN's which are for use for a specific User account.   */
         ScopeSystem     = ODBC_SYSTEM_DSN,     /*!< System scope. DSN's which apply to the entire system/machine.      */
         ScopeBoth       = ODBC_BOTH_DSN        /*!< User and System scope combined.                                    */
     };
 
-    OQDataSourceName()
+    OQDataSourceName( const QString &stringFileName = QString::fromLocal8Bit("ODBC.INI"), enumScopes nScope = ScopeBoth )
     {
-        nScope = ScopeBoth;
+        this->stringFileName    = stringFileName;
+        this->nScope            = nScope;
     }
 
-    Scopes  nScope;
-    QString stringFilename; // filename or default (default="ODBC.INI"/null/empty)
+    enumScopes      nScope;
+    QString         stringFileName; // filename or default (default="ODBC.INI"/null/empty)
+    OQAttributes    Attributes;
 };
 
 /*! 
@@ -115,13 +117,6 @@ public:
         RemoveDriver    = ODBC_REMOVE_DRIVER
     };
 
-    enum enumConfigMode
-    {
-        UserDsn     = ODBC_USER_DSN,
-        SystemDsn   = ODBC_SYSTEM_DSN,
-        BothDsn     = ODBC_BOTH_DSN
-    };
-
     enum enumInstallDriverExRequest
     {
         InstallInquiry  = ODBC_INSTALL_INQUIRY,
@@ -133,10 +128,10 @@ public:
     virtual OQDriver                   getDriver( const QString &stringDriver, SQLRETURN *pnReturn = NULL );
     virtual QVector<QString>           getDriverNames( SQLRETURN *pnReturn = NULL );
     virtual QVector<OQDriver>          getDrivers( SQLRETURN *pnReturn = NULL);
-    virtual OQDataSourceName           getDataSource( const QString &stringDataSourceName, OQDataSourceName::Scopes nScope = OQDataSourceName::ScopeBoth, SQLRETURN *pnReturn = NULL );
+    virtual OQDataSourceName           getDataSource( const QString &stringDataSourceName, OQDataSourceName::enumScopes nScope = OQDataSourceName::ScopeBoth, SQLRETURN *pnReturn = NULL );
     virtual OQDataSourceName           getDataSource( const QString &stringDataSourceName, const QString &stringLocation, SQLRETURN *pnReturn = NULL );
-    virtual QVector<QString>           getDataSourceNames( OQDataSourceName::Scopes nScope = OQDataSourceName::ScopeBoth, SQLRETURN *pnReturn = NULL );
-    virtual QVector<OQDataSourceName>  getDataSources( OQDataSourceName::Scopes nScope = OQDataSourceName::ScopeBoth, SQLRETURN *pnReturn = NULL );
+    virtual QVector<QString>           getDataSourceNames( OQDataSourceName::enumScopes nScope = OQDataSourceName::ScopeBoth, SQLRETURN *pnReturn = NULL );
+    virtual QVector<OQDataSourceName>  getDataSources( OQDataSourceName::enumScopes nScope = OQDataSourceName::ScopeBoth, SQLRETURN *pnReturn = NULL );
     virtual OQSystemError              getSystemError( WORD nIndex /* 1 - 8 */, RETCODE *pnRetCode = NULL );
     virtual QVector<OQSystemError>     getSystemErrors();
 
@@ -154,17 +149,17 @@ protected:
 //    virtual BOOL    doConfigDataSource( HWND hwndParent, enumConfigDataSourceRequest nRequest, const QString &stringDriver, const QMap<Qstring,QString> &mapAttributes );
 //    virtual BOOL    doConfigDriver( HWND hwndParent, enumConfigDriverRequest nRequest, const QString &stringDriver, const QString &stringArgs, QString *pstringMsg ); 
 //    virtual BOOL    doCreateDataSource( HWND hwnd, const QString &stringDS );
-    virtual BOOL    doGetConfigMode( enumConfigMode *pnConfigMode );
+    virtual BOOL    doGetConfigMode( OQDataSourceName::enumScopes *pnConfigMode );
     virtual BOOL    doGetInstalledDrivers( QVector<QString> *pvectorDrivers );
     virtual BOOL    doGetPrivateProfileString( const QString &stringSection, const QString &stringEntry, const QString &stringDefault, QString *pstring, const QString &stringFilename );
-    virtual BOOL    doGetPrivateProfileString( const QString &stringSection, QVector<QString> pvectorStrings, const QString &stringFilename );
+    virtual BOOL    doGetPrivateProfileString( const QString &stringSection, QVector<QString> *pvectorStrings, const QString &stringFilename );
 //    virtual BOOL    doInstallDriverEx( const OQDriver &Driver, const QString &stringPathIn, QString *pstringPathOut, enumInstallDriverExRequest nRequest, LPDWORD pnUsageCount );
     virtual RETCODE doInstallerError( WORD nError, DWORD *pnErrorCode, QString *pstringMsg );
 //    virtual RETCODE doPostInstallerError( DWORD nErrorCode, const QString &stringErrorMsg );
 //    virtual BOOL    doReadFileDSN( const QString &stringFilename, const QString &stringAppName, const QString &stringKeyName, QString *pstring );
 //    virtual BOOL    doRemoveDriver( const QString &stringDriver, bool bRemoveDSN, LPDWORD pnUsageCount );
 //    virtual BOOL    doRemoveDSNFromIni( const QString &stringDSN );
-    virtual BOOL    doSetConfigMode( enumConfigMode nConfigMode );
+    virtual BOOL    doSetConfigMode( OQDataSourceName::enumScopes nConfigMode );
 //    virtual BOOL    doWriteFileDSN( const QString &stringFileName, const QString &stringAppName, const QString &stringKeyName, const QString stringValue );
 //    virtual BOOL    doWritePrivateProfileString( const QString &stringSection, const QString &stringEntry, const QString &stringValue, const QString &stringFilename );
 

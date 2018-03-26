@@ -74,14 +74,14 @@ QString OQMessage::getTypeText()
     switch( nType )
     {
         case Info:
-            return tr("INFO");
+            return QObject::tr("INFO");
         case Warning:
-            return tr("WARNING");
+            return QObject::tr("WARNING");
         case Error:
-            return tr("ERROR");
+            return QObject::tr("ERROR");
     }
 
-    return tr("UNKNOWN");
+    return QObject::tr("UNKNOWN");
 }
 
 /*! 

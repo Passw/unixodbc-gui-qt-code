@@ -32,6 +32,7 @@ public:
 
     enum Types
     {
+        Sys = 0,
         Env = SQL_HANDLE_ENV,
         Dbc = SQL_HANDLE_DBC,
         Stm = SQL_HANDLE_STMT
