@@ -10,6 +10,7 @@
 #pragma once
 
 #include "OQHandle.h"
+#include <QVariant>
 
 class OQConnection;
 
@@ -147,11 +148,11 @@ public:
     // GETTERS
     virtual SQLRETURN   getAttrAsyncEnable( AttrAsyncEnableTypes *pn );
     virtual SQLRETURN   getAttrConcurrency( AttrConcurrencyTypes *pn );
-    virtual QVariant    getData( SQLUSMALLINT nColumnNumber, SQLRETURN *pnReturn = 0 );
+    virtual QString     getData( SQLUSMALLINT nColumnNumber, SQLRETURN *pnReturn = 0 );
     virtual double      getElapsedSeconds();
 
     // DOERS
-    virtual SQLRETURN doBindCol( SQLUSMALLINT nColumnNumber, QVariant *pv );
+    virtual SQLRETURN doBindCol( SQLUSMALLINT nColumnNumber, SQLSMALLINT nTargetType, SQLPOINTER pTargetValue, SQLLEN nBufferLength, SQLLEN *pnStrLenOrInd );
     virtual SQLRETURN doCancel();
     virtual SQLRETURN doCatalogs( const QString &stringCatalogName );
     virtual SQLRETURN doCloseCursor();

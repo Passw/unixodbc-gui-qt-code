@@ -7,13 +7,15 @@
  * \date    2003
  * \license Copyright unixODBC-GUI-Qt Project 2003-2012, See LGPL.txt
  */
+#include <QCoreApplication>
 #include "OQConnection.h"
 #include "OQStatement.h"
+#include <unistd.h>
 
 OQStatement::OQStatement( OQConnection *pconnection )
     : OQHandle( Stm, pconnection )
 {
-    setObjectName( "OQStatement" );
+    setObjectName( QString::fromLocal8Bit("OQStatement") );
 
     nElapsedSeconds = 0;
 
@@ -50,62 +52,75 @@ SQLRETURN OQStatement::getAttrConcurrency( AttrConcurrencyTypes *pn )
 {
     return getStmtAttr( SQL_ATTR_CONCURRENCY, pn );
 }
-
-QVariant OQStatement::getData( SQLUSMALLINT nColumnNumber, SQLRETURN *pnReturn )
+/*
+ * re. Char Data
+ *
+ * There is an opportunity for confusion here. The specification says that calling
+ * with SQL_C_WCHAR will return wchar_t string.  
+ *
+ * We assume that the Driver is using the default for unixODBC (UTF16) and is 
+ * applying that to wchar data.
+ */
+QString OQStatement::getData( SQLUSMALLINT nColumnNumber, SQLRETURN *pnReturn )
 {
-    QVariant v( QVariant::String );
-
-    SQLCHAR     szValue[1024];
-    SQLSMALLINT nType           = SQL_C_CHAR;   // SQL_C_TCHAR
+    QString     s;
+    SQLWCHAR    szValue[1024];
+    SQLSMALLINT nType           = SQL_C_WCHAR;
     SQLLEN      nChars          = 1024;
-    SQLLEN      nBytes          = nChars;
+    SQLLEN      nBytes          = nChars * sizeof(SQLWCHAR);
     SQLLEN      nBytesAvailable = 0;
 
     bool        bCancelled  = false;
     SQLRETURN   nReturn;
+    SQLRETURN * pnRet = ( pnReturn ? pnReturn : &nReturn );
 
     if ( !isAlloc() )
-        return SQL_ERROR;
+    {
+        *pnRet = SQL_ERROR;
+        return s;
+    }
 
     // do it
-    nReturn = SQL_STILL_EXECUTING;
-    while ( nReturn == SQL_STILL_EXECUTING )
+    *pnRet = SQL_STILL_EXECUTING;
+    while ( *pnRet == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLGetData( getHandle(), nColumnNumber, nType, szValue, nBytes, &nBytesAvailable );
-        switch ( nReturn )
+        *pnRet = SQLGetData( getHandle(), nColumnNumber, nType, szValue, nBytes, &nBytesAvailable );
+        switch ( *pnRet )
         {
             case SQL_SUCCESS:
-                v.setValue( QString::fromLocal8Bit( (const char*)szValue ) );
+                s = QString::fromUtf16( szValue );
                 break;
             case SQL_SUCCESS_WITH_INFO:
-                szValue[nChars - 1] = '\0';
-                v.setValue( QString::fromLocal8Bit( (const char*)szValue ) );
-                eventDiagnostic();
-                break;
+                {
+                    // could get here for various reasons - check to see if its likley because of truncation
+                    if ( nBytesAvailable > nChars )
+                        s = QString::fromUtf16( szValue, nChars );
+                    eventDiagnostic();
+                }
+            break;
             case SQL_STILL_EXECUTING:
                 if ( !bCancelled && !doWaiting() )
                 {
-                    if ( SQL_SUCCEEDED( doCancel() ) )
+                    *pnRet = doCancel();
+                    if ( SQL_SUCCEEDED( *pnRet ) )
                         bCancelled = true;  // Cancelled! We still need to loop to give the driver time to cleanup.
                 }
                 break;
             case SQL_NO_DATA:
-                return nReturn;
+                return s;
             case SQL_ERROR:
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
 
-    if ( *pnReturn ) *pnReturn = nReturn;
-
-    return v;
+    return s;
 }
 
 double OQStatement::getElapsedSeconds() 
@@ -113,14 +128,15 @@ double OQStatement::getElapsedSeconds()
     return nElapsedSeconds; 
 }
 
-SQLRETURN OQStatement::doBindCol( SQLUSMALLINT /* nColumnNumber */, QVariant */* pv */ )
+/*
+ * Not too much we can do here to simplify this call.
+ */
+SQLRETURN OQStatement::doBindCol( SQLUSMALLINT nColumnNumber, SQLSMALLINT nTargetType, SQLPOINTER pTargetValue, SQLLEN nBufferLength, SQLLEN *pnStrLenOrInd )
 {
-    SQLRETURN nReturn = SQL_ERROR;
-
     if ( !isAlloc() )
         return SQL_ERROR;
 
-//    nReturn = SQLBindCol( getHandle(), nColumnNumber, nTargetType, pTargetValuePtr, nBufferLength, pnStrLen_or_Ind );
+    SQLRETURN nReturn = SQLBindCol( getHandle(), nColumnNumber, nTargetType, pTargetValue, nBufferLength, pnStrLenOrInd );
     switch ( nReturn )
     {
         case SQL_SUCCESS:
@@ -132,10 +148,10 @@ SQLRETURN OQStatement::doBindCol( SQLUSMALLINT /* nColumnNumber */, QVariant */*
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -159,10 +175,10 @@ SQLRETURN OQStatement::doCancel()
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -194,10 +210,10 @@ SQLRETURN OQStatement::doCloseCursor()
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -235,10 +251,10 @@ SQLRETURN OQStatement::doColAttribute( SQLUSMALLINT nColumnNumber, SQLUSMALLINT 
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -258,10 +274,11 @@ SQLRETURN OQStatement::doColumns( const QString &stringCatalog, const QString &s
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *  pszCatalog = OQFromQString(stringCatalog);
-    SQLTCHAR *  pszSchema  = OQFromQString(stringSchema);
-    SQLTCHAR *  pszTable   = OQFromQString(stringTable);
-    SQLTCHAR *  pszColumn  = OQFromQString(stringColumn);
+    SQLWCHAR *pszCatalog = (SQLWCHAR*)( stringCatalog.isNull() ? 0 : stringCatalog.utf16() );
+    SQLWCHAR *pszSchema  = (SQLWCHAR*)( stringSchema.isNull() ? 0 : stringSchema.utf16() );
+    SQLWCHAR *pszTable   = (SQLWCHAR*)( stringTable.isNull() ? 0 : stringTable.utf16() );
+    SQLWCHAR *pszColumn  = (SQLWCHAR*)( stringColumn.isNull() ? 0 : stringColumn.utf16() );
+
     int         nCatalog   = pszCatalog ? SQL_NTS : 0;
     int         nSchema    = pszSchema ? SQL_NTS : 0; 
     int         nTable     = pszTable ? SQL_NTS : 0;
@@ -271,7 +288,7 @@ SQLRETURN OQStatement::doColumns( const QString &stringCatalog, const QString &s
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLColumns( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable, pszColumn, nColumn );
+        nReturn = SQLColumnsW( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable, pszColumn, nColumn );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -284,7 +301,8 @@ SQLRETURN OQStatement::doColumns( const QString &stringCatalog, const QString &s
             case SQL_STILL_EXECUTING:
                 if ( !bCancelled && !doWaiting() )
                 {
-                    if ( SQL_SUCCEEDED( doCancel() ) )
+                    nReturn = doCancel();
+                    if ( SQL_SUCCEEDED( nReturn ) )
                         bCancelled = true;  // Cancelled! We still need to loop to give the driver time to cleanup.
                 }
                 break;
@@ -292,10 +310,10 @@ SQLRETURN OQStatement::doColumns( const QString &stringCatalog, const QString &s
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -349,10 +367,10 @@ SQLRETURN OQStatement::doExecute()
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     } // while
@@ -382,7 +400,7 @@ SQLRETURN OQStatement::doExecDirect( const QString &stringStatement )
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLExecDirect( getHandle(), OQFromQString( stringStatement ), SQL_NTS );
+        nReturn = SQLExecDirectW( getHandle(), (SQLWCHAR*)stringStatement.utf16(), SQL_NTS );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -406,10 +424,10 @@ SQLRETURN OQStatement::doExecDirect( const QString &stringStatement )
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -456,10 +474,10 @@ SQLRETURN OQStatement::doFetch()
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -479,13 +497,13 @@ SQLRETURN OQStatement::doForeignKeys( const QString &stringPKCatalogName, const 
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *pszPKCatalogName = OQFromQString(stringPKCatalogName);
-    SQLTCHAR *pszPKSchemaName  = OQFromQString(stringPKSchemaName);
-    SQLTCHAR *pszPKTableName   = OQFromQString(stringPKTableName);
+    SQLWCHAR *pszPKCatalogName = (SQLWCHAR*)(stringPKCatalogName.isNull() ? 0 : stringPKCatalogName.utf16() );
+    SQLWCHAR *pszPKSchemaName  = (SQLWCHAR*)(stringPKSchemaName.isNull() ? 0 : stringPKSchemaName.utf16() );
+    SQLWCHAR *pszPKTableName   = (SQLWCHAR*)(stringPKTableName.isNull() ? 0 : stringPKTableName.utf16() );
 
-    SQLTCHAR *pszFKCatalogName = OQFromQString(stringFKCatalogName);
-    SQLTCHAR *pszFKSchemaName  = OQFromQString(stringFKSchemaName);
-    SQLTCHAR *pszFKTableName   = OQFromQString(stringFKTableName);
+    SQLWCHAR *pszFKCatalogName = (SQLWCHAR*)(stringFKCatalogName.isNull() ? 0 : stringFKCatalogName.utf16() );
+    SQLWCHAR *pszFKSchemaName  = (SQLWCHAR*)(stringFKSchemaName.isNull() ? 0 : stringFKSchemaName.utf16() );
+    SQLWCHAR *pszFKTableName   = (SQLWCHAR*)(stringFKTableName.isNull() ? 0 : stringFKTableName.utf16() );
 
     int nPKCatalogName = pszPKCatalogName ? SQL_NTS : 0;
     int nPKSchemaName  = pszPKSchemaName ? SQL_NTS : 0;
@@ -499,7 +517,7 @@ SQLRETURN OQStatement::doForeignKeys( const QString &stringPKCatalogName, const 
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLForeignKeys( getHandle(), OQFromQString( stringPKCatalogName ), SQL_NTS, OQFromQString( stringPKSchemaName ), SQL_NTS, OQFromQString( stringPKTableName ), SQL_NTS, OQFromQString( stringFKCatalogName ), SQL_NTS, OQFromQString( stringFKSchemaName ), SQL_NTS, OQFromQString( stringFKTableName ), SQL_NTS );
+        nReturn = SQLForeignKeysW( getHandle(), pszPKCatalogName, nPKCatalogName, pszPKSchemaName, nPKSchemaName, pszPKTableName, nPKTableName, pszFKCatalogName, nFKCatalogName, pszFKSchemaName, nFKSchemaName, pszFKTableName, nFKTableName );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -520,10 +538,10 @@ SQLRETURN OQStatement::doForeignKeys( const QString &stringPKCatalogName, const 
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
 
@@ -545,7 +563,7 @@ SQLRETURN OQStatement::doNumResultCols( SQLSMALLINT *pnColumnCountPtr )
     
     if ( !pnColumnCountPtr ) 
     {
-        eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), tr("Invalid argument.") ) );
+        eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Invalid argument.") ) );
         return SQL_ERROR;
     }
 
@@ -553,7 +571,7 @@ SQLRETURN OQStatement::doNumResultCols( SQLSMALLINT *pnColumnCountPtr )
 
     if (!isAlloc())
     {
-        eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), tr("Handle not allocated.") ) );
+        eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Handle not allocated.") ) );
         return SQL_ERROR;
     }
 
@@ -580,10 +598,10 @@ SQLRETURN OQStatement::doNumResultCols( SQLSMALLINT *pnColumnCountPtr )
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -603,7 +621,7 @@ SQLRETURN OQStatement::doPrepare( const QString &stringStatementText )
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLPrepare( getHandle(), OQFromQString( stringStatementText ), SQL_NTS );
+        nReturn = SQLPrepareW( getHandle(), (SQLWCHAR*)stringStatementText.utf16(), SQL_NTS );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -622,10 +640,10 @@ SQLRETURN OQStatement::doPrepare( const QString &stringStatementText )
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -645,9 +663,9 @@ SQLRETURN OQStatement::doPrimaryKeys( const QString &stringCatalog, const QStrin
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *  pszCatalog = OQFromQString(stringCatalog);
-    SQLTCHAR *  pszSchema  = OQFromQString(stringSchema);
-    SQLTCHAR *  pszTable   = OQFromQString(stringTable);
+    SQLWCHAR *pszCatalog = (SQLWCHAR*)( stringCatalog.isNull() ? 0 : stringCatalog.utf16() );
+    SQLWCHAR *pszSchema  = (SQLWCHAR*)( stringSchema.isNull() ? 0 : stringSchema.utf16() );
+    SQLWCHAR *pszTable   = (SQLWCHAR*)( stringTable.isNull() ? 0 : stringTable.utf16() );
     int         nCatalog   = pszCatalog ? SQL_NTS : 0;
     int         nSchema    = pszSchema ? SQL_NTS : 0; 
     int         nTable     = pszTable ? SQL_NTS : 0;
@@ -656,7 +674,7 @@ SQLRETURN OQStatement::doPrimaryKeys( const QString &stringCatalog, const QStrin
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLPrimaryKeys( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable );
+        nReturn = SQLPrimaryKeysW( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -677,10 +695,10 @@ SQLRETURN OQStatement::doPrimaryKeys( const QString &stringCatalog, const QStrin
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
 
@@ -707,10 +725,10 @@ SQLRETURN OQStatement::doProcedureColumns( const QString &stringCatalog, const Q
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *  pszCatalog     = OQFromQString(stringCatalog);
-    SQLTCHAR *  pszSchema      = OQFromQString(stringSchema);
-    SQLTCHAR *  pszProcedure   = OQFromQString(stringProcedure);
-    SQLTCHAR *  pszColumn      = OQFromQString(stringColumn);
+    SQLWCHAR *  pszCatalog      = (SQLWCHAR*)( stringCatalog.isNull() ? 0 : stringCatalog.utf16() );
+    SQLWCHAR *  pszSchema       = (SQLWCHAR*)( stringSchema.isNull() ? 0 : stringSchema.utf16() );
+    SQLWCHAR *  pszProcedure    = (SQLWCHAR*)( stringProcedure.isNull() ? 0 : stringProcedure.utf16() );
+    SQLWCHAR *  pszColumn       = (SQLWCHAR*)( stringColumn.isNull() ? 0 : stringColumn.utf16() );
     int         nCatalog       = pszCatalog ? SQL_NTS : 0;
     int         nSchema        = pszSchema ? SQL_NTS : 0; 
     int         nProcedure     = pszProcedure ? SQL_NTS : 0;
@@ -720,7 +738,7 @@ SQLRETURN OQStatement::doProcedureColumns( const QString &stringCatalog, const Q
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLProcedureColumns( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszProcedure, nProcedure, pszColumn, nColumn );
+        nReturn = SQLProcedureColumnsW( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszProcedure, nProcedure, pszColumn, nColumn );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -741,10 +759,10 @@ SQLRETURN OQStatement::doProcedureColumns( const QString &stringCatalog, const Q
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -770,9 +788,9 @@ SQLRETURN OQStatement::doProcedures( const QString &stringCatalog, const QString
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *  pszCatalog      = OQFromQString(stringCatalog);
-    SQLTCHAR *  pszSchema       = OQFromQString(stringSchema);
-    SQLTCHAR *  pszProcedure    = OQFromQString(stringProcedure);
+    SQLWCHAR *  pszCatalog      = (SQLWCHAR*)( stringCatalog.isNull() ? 0 : stringCatalog.utf16() );
+    SQLWCHAR *  pszSchema       = (SQLWCHAR*)( stringSchema.isNull() ? 0 : stringSchema.utf16() );
+    SQLWCHAR *  pszProcedure    = (SQLWCHAR*)( stringProcedure.isNull() ? 0 : stringProcedure.utf16() );
     int         nCatalog        = pszCatalog ? SQL_NTS : 0;
     int         nSchema         = pszSchema ? SQL_NTS : 0; 
     int         nProcedure      = pszProcedure ? SQL_NTS : 0;
@@ -781,7 +799,7 @@ SQLRETURN OQStatement::doProcedures( const QString &stringCatalog, const QString
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLProcedures( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszProcedure, nProcedure );
+        nReturn = SQLProceduresW( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszProcedure, nProcedure );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -802,10 +820,10 @@ SQLRETURN OQStatement::doProcedures( const QString &stringCatalog, const QString
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
 
@@ -837,10 +855,10 @@ SQLRETURN OQStatement::doRowCount( SQLLEN *pnRowCountPtr )
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -864,9 +882,9 @@ SQLRETURN OQStatement::doSpecialColumns( SQLSMALLINT nIdentifierType, const QStr
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *  pszCatalog      = OQFromQString( stringCatalog );
-    SQLTCHAR *  pszSchema       = OQFromQString( stringSchema );
-    SQLTCHAR *  pszTable        = OQFromQString( stringTable );
+    SQLWCHAR *pszCatalog = (SQLWCHAR*)( stringCatalog.isNull() ? 0 : stringCatalog.utf16() );
+    SQLWCHAR *pszSchema  = (SQLWCHAR*)( stringSchema.isNull() ? 0 : stringSchema.utf16() );
+    SQLWCHAR *pszTable   = (SQLWCHAR*)( stringTable.isNull() ? 0 : stringTable.utf16() );
     int         nCatalog        = pszCatalog ? SQL_NTS : 0;
     int         nSchema         = pszSchema ? SQL_NTS : 0; 
     int         nTable          = pszTable ? SQL_NTS : 0;
@@ -875,7 +893,7 @@ SQLRETURN OQStatement::doSpecialColumns( SQLSMALLINT nIdentifierType, const QStr
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLSpecialColumns( getHandle(), nIdentifierType, pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable, nScope, nNullable );
+        nReturn = SQLSpecialColumnsW( getHandle(), nIdentifierType, pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable, nScope, nNullable );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -896,10 +914,10 @@ SQLRETURN OQStatement::doSpecialColumns( SQLSMALLINT nIdentifierType, const QStr
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -925,9 +943,9 @@ SQLRETURN OQStatement::doStatistics( const QString &stringCatalog, const QString
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *  pszCatalog = OQFromQString(stringCatalog);
-    SQLTCHAR *  pszSchema  = OQFromQString(stringSchema);
-    SQLTCHAR *  pszTable   = OQFromQString(stringTable);
+    SQLWCHAR *pszCatalog = (SQLWCHAR*)( stringCatalog.isNull() ? 0 : stringCatalog.utf16() );
+    SQLWCHAR *pszSchema  = (SQLWCHAR*)( stringSchema.isNull() ? 0 : stringSchema.utf16() );
+    SQLWCHAR *pszTable   = (SQLWCHAR*)( stringTable.isNull() ? 0 : stringTable.utf16() );
     int         nCatalog   = pszCatalog ? SQL_NTS : 0;
     int         nSchema    = pszSchema ? SQL_NTS : 0; 
     int         nTable     = pszTable ? SQL_NTS : 0;
@@ -936,7 +954,7 @@ SQLRETURN OQStatement::doStatistics( const QString &stringCatalog, const QString
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLStatistics( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable, nUnique, nReserved );
+        nReturn = SQLStatisticsW( getHandle(), pszCatalog, nCatalog, pszSchema, nSchema, pszTable, nTable, nUnique, nReserved );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -957,10 +975,10 @@ SQLRETURN OQStatement::doStatistics( const QString &stringCatalog, const QString
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -986,10 +1004,11 @@ SQLRETURN OQStatement::doTables( const QString &stringCatalogName, const QString
     time( &timeStart );
     nElapsedSeconds = 0;
 
-    SQLTCHAR *pszCatalogName = OQFromQString( stringCatalogName );
-    SQLTCHAR *pszSchemaName  = OQFromQString( stringSchemaName );
-    SQLTCHAR *pszTableName   = OQFromQString( stringTableName );
-    SQLTCHAR *pszTableType   = OQFromQString( stringTableType );
+    SQLWCHAR *pszCatalogName = (SQLWCHAR*)( stringCatalogName.isNull() ? 0 : stringCatalogName.utf16() );
+    SQLWCHAR *pszSchemaName  = (SQLWCHAR*)( stringSchemaName.isNull() ? 0 : stringSchemaName.utf16() );
+    SQLWCHAR *pszTableName   = (SQLWCHAR*)( stringTableName.isNull() ? 0 : stringTableName.utf16() );
+    SQLWCHAR *pszTableType   = (SQLWCHAR*)( stringTableType.isNull() ? 0 : stringTableType.utf16() );
+
     int nCatalogNameLength   = pszCatalogName ? SQL_NTS : 0;
     int nSchemaNameLength    = pszSchemaName ? SQL_NTS : 0; 
     int nTableNameLength     = pszTableName ? SQL_NTS : 0;
@@ -999,7 +1018,7 @@ SQLRETURN OQStatement::doTables( const QString &stringCatalogName, const QString
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLTables( getHandle(), pszCatalogName, nCatalogNameLength, pszSchemaName, nSchemaNameLength, pszTableName, nTableNameLength, pszTableType, nTableTypeLength );
+        nReturn = SQLTablesW( getHandle(), pszCatalogName, nCatalogNameLength, pszSchemaName, nSchemaNameLength, pszTableName, nTableNameLength, pszTableType, nTableTypeLength );
         switch ( nReturn )
         {
             case SQL_SUCCESS:
@@ -1012,7 +1031,8 @@ SQLRETURN OQStatement::doTables( const QString &stringCatalogName, const QString
             case SQL_STILL_EXECUTING:
                 if ( !bCancelled && !doWaiting() )
                 {
-                    if ( SQL_SUCCEEDED( doCancel() ) )
+                    nReturn = doCancel();
+                    if ( SQL_SUCCEEDED( nReturn ) )
                         bCancelled = true;  // Cancelled! We still need to loop to give the driver time to cleanup.
                 }
                 break;
@@ -1020,10 +1040,10 @@ SQLRETURN OQStatement::doTables( const QString &stringCatalogName, const QString
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
     }
@@ -1074,10 +1094,10 @@ SQLRETURN OQStatement::doTypeInfo( SQLSMALLINT nDataType )
                 eventDiagnostic();
                 break;
             case SQL_INVALID_HANDLE:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
                 break;
             default:
-                eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+                eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
                 break;
         }
 
@@ -1312,10 +1332,10 @@ SQLRETURN OQStatement::setStmtAttr( SQLINTEGER nAttribute, SQLPOINTER pValue )
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -1340,10 +1360,10 @@ SQLRETURN OQStatement::getStmtAttr( SQLINTEGER nAttribute, SQLPOINTER pValue )
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("SQL_INVALID_HANDLE") ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), QString::fromLocal8Bit("SQL_INVALID_HANDLE") ) );
             break;
         default:
-            eventMessage( OQMessage( OQMessage::Error, QString(__FUNCTION__), QString("Unexpected SQLRETURN value."), nReturn ) );
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
 
@@ -1363,7 +1383,7 @@ void OQStatement::getParsedFilter(  const OQFilter &stringFilter, QString *pstri
     *pstringSchema  = QString::null;
     *pstringObject  = QString::null;
 
-    QStringList stringlist = stringFilter.split( '.' );
+    QStringList stringlist = stringFilter.split( QLatin1Char('.') );
     if ( stringlist.count() > 0 )
         *pstringObject = stringlist[stringlist.count() - 1];
 
