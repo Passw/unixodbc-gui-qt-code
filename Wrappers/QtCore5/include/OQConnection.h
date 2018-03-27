@@ -157,8 +157,8 @@ public:
     virtual bool isConnected();
 
 signals:
-    virtual void signalConnected();
-    virtual void signalDisconnected();
+    void signalConnected();
+    void signalDisconnected();
 
 protected:
     bool bConnected;             /*!< cached connect state - need to see if this is needed                   */

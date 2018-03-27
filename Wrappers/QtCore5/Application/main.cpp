@@ -7,6 +7,7 @@
  * \date    2003
  * \license Copyright unixODBC-GUI-Qt Project 2003-2012, See GPL.txt
  */
+#include <QCoreApplication>
 #include "OQConsole.h"
 
 #ifdef WIN32
