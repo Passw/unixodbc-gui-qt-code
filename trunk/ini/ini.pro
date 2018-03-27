@@ -10,6 +10,8 @@ include( ../common.pri )
 include( ../config.pri )
 include( ../defines.pri )
 
+QT -= gui
+
 HEADERS		= ini.h
 SOURCES		= _iniDump.c \
 		_iniObjectRead.c \

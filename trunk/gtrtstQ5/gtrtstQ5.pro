@@ -3,7 +3,8 @@ include(../config.pri)
 include(../defines.pri)
 include(../odbc.pri)
 
-QT += widgets
+# QT += widgets
+QT += gui
 
 TEMPLATE= lib
 TARGET  = gtrtstQ5

@@ -11,6 +11,7 @@
 #define OQGPROPERTIESDIALOG_H
 
 #include <QtGui>
+#include <QtWidgets>
 
 #include "OQGProperty.h"
 #include "OQGPropertiesModel.h"

@@ -19,8 +19,8 @@ OQGConsole::OQGConsole()
     : QMainWindow( 0 /*, WDestructiveClose */ )
 {
     // init our gui elements...
-    setWindowTitle( "OQGConsole" );
-    setWindowIcon( QIcon( xpmODBC64 ) );
+    setWindowTitle( QString::fromLocal8Bit("OQGConsole") );
+    setWindowIcon( QIcon( QPixmap(xpmODBC64) ) );
     createHandles();
     createActions();
     createMenus();
@@ -61,7 +61,7 @@ void OQGConsole::createHandles()
 
 void OQGConsole::createActions()
 {
-    pactionExecute = new QAction( QIcon( xpmExecute16 ), "&Execute", this );
+    pactionExecute = new QAction( QIcon( QPixmap(xpmExecute16) ), tr("&Execute"), this );
     pactionExecute->setShortcut( tr( "Ctrl+E" ) );
     pactionExecute->setStatusTip( tr( "Submit the text to the data source for execution" ) );
     connect( pactionExecute, SIGNAL(triggered()), this, SLOT(slotExecute()) );
@@ -71,7 +71,7 @@ void OQGConsole::createActions()
     pactionQuit->setStatusTip( tr( "Quit this application" ) );
     connect( pactionQuit, SIGNAL(triggered()), this, SLOT(close()) );
 
-    pactionConnect = new QAction( QIcon( xpmDisconnected16 ), "&Connect", this );
+    pactionConnect = new QAction( QIcon( QPixmap(xpmDisconnected16) ), tr("&Connect"), this );
     pactionConnect->setStatusTip( tr( "Connect to a Data Source or Disconnect from current." ) );
     connect( pactionConnect, SIGNAL(triggered()), this, SLOT(slotConnectToggle()) );
 
@@ -113,7 +113,7 @@ void OQGConsole::createClientArea()
 {
     pSplitter           = new QSplitter( Qt::Vertical, this );          
     ptexteditSQL        = new QTextEdit( pSplitter );
-    ptablewidgetResults       = new QTableWidget( pSplitter );
+    ptablewidgetResults = new QTableWidget( pSplitter );
     ptexteditMessages   = new QTextEdit( pSplitter );
 
     setCentralWidget( pSplitter );
@@ -130,12 +130,12 @@ void OQGConsole::slotConnectToggle()
 
 void OQGConsole::slotConnected()
 {
-    pactionConnect->setIcon( QIcon( xpmConnected16 ) );
+    pactionConnect->setIcon( QIcon( QPixmap( xpmConnected16 ) ) );
 }
 
 void OQGConsole::slotDisconnected()
 {
-    pactionConnect->setIcon( QIcon( xpmDisconnected16 ) );
+    pactionConnect->setIcon( QIcon( QPixmap( xpmDisconnected16 ) ) );
 }
 
 void OQGConsole::slotExecute() 
@@ -184,14 +184,15 @@ void OQGConsole::doResultGUIGrid()
 void OQGConsole::doResultGUIGridHeader( SWORD nColumns )
 {
 	int			nCol;
-	SQLCHAR		szColumnName[101]	= "";	
+    SQLSMALLINT nMaxBytes = 200;
+	SQLWCHAR	szColumnName[nMaxBytes];	
     QStringList stringlistHeaderLabels;
 
 	for( nCol = 0; nCol < nColumns; nCol++ )
 	{
-        *szColumnName = '\0';
-		pStatement->doColAttribute( nCol + 1, SQL_DESC_LABEL, szColumnName, sizeof(szColumnName), 0, 0 );
-        stringlistHeaderLabels << (const char*)szColumnName;
+        memset( szColumnName, '\0', nMaxBytes );
+		pStatement->doColAttribute( nCol + 1, SQL_DESC_LABEL, szColumnName, nMaxBytes, 0, 0 );
+        stringlistHeaderLabels << QString::fromUtf16( szColumnName );
 	}
     ptablewidgetResults->setHorizontalHeaderLabels( stringlistHeaderLabels );
 }
@@ -218,7 +219,7 @@ void OQGConsole::doResultGUIGridBody( SWORD nColumns )
 
             if ( v.isNull() )
             {
-                ptablewidgetitem = new QTableWidgetItem( "" );
+                ptablewidgetitem = new QTableWidgetItem( QString::fromLocal8Bit("") );
             }
             else
             {
@@ -235,7 +236,7 @@ void OQGConsole::slotAbout()
 {
     QMessageBox MessageBox;
 
-    MessageBox.setText( "OQGConsole" );
+    MessageBox.setText( QString::fromLocal8Bit("OQGConsole") );
     MessageBox.exec();
 }
 

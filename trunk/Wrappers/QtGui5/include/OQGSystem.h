@@ -11,6 +11,8 @@
 #define OQGSYSTEM_H
 
 #include <QtGui>
+#include <QtWidgets>
+
 #include <OQSystem.h>
 
 /*! 

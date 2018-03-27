@@ -15,6 +15,8 @@
 
 // Qt
 #include <QtGui>
+#include <QtWidgets>
+#include <QDialog>
 
 //
 #ifndef Q_WS_WIN

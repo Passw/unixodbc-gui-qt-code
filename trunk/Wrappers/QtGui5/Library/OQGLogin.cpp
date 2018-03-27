@@ -19,7 +19,7 @@
 OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGEnvironment *penvironment )
     : QDialog( pwidgetParent )
 {
-    setObjectName( "OQGLogin" );
+    setObjectName( QString::fromLocal8Bit("OQGLogin") );
     this->penvironment = penvironment;
 
     QVBoxLayout *playoutTop = new QVBoxLayout;
@@ -43,8 +43,11 @@ OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGEnvironment *penvironment )
         // UID
         plabelUserID  = new QLabel( tr( "User ID" ) );
         plineeditUserID = new QLineEdit;
-    #ifndef Q_WS_WIN
-        plineeditUserID->setText( ((struct passwd *)getpwuid(getuid()))->pw_name );
+    #ifndef Q_OS_WIN
+        /* Skip this - looks like it does not support wchar.
+         *  
+         * plineeditUserID->setText( ((struct passwd *)getpwuid(getuid()))->pw_name );
+         */
     #endif
         plineeditUserID->setToolTip( tr( "your User ID\nHINT: you get this from your database administrator" ) );
         playoutFields->addWidget( plabelUserID, 2, 0 );
@@ -197,17 +200,14 @@ void OQGLogin::setPassword( const QString &string )
 
 void OQGLogin::loadDrivers()
 {
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
     pcomboboxDriver->insertItems( 0, penvironment->getDrivers() );
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
-    pcomboboxDriver->insertItem( 0, "" );
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
+    pcomboboxDriver->insertItem( 0, QString::fromLocal8Bit("") );
 }
 
 void OQGLogin::loadDataSourceNames()
 {
     pcomboboxDataSourceName->insertItems( 0, penvironment->getDataSources() );
-    pcomboboxDataSourceName->insertItem( 0, "" );
+    pcomboboxDataSourceName->insertItem( 0, QString::fromLocal8Bit("") );
 }
 
 

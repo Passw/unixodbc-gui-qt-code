@@ -12,7 +12,7 @@
 OQGSystem::OQGSystem()
     : OQSystem()
 {
-    setObjectName( "OQGSystem" );
+    setObjectName( QString::fromLocal8Bit("OQGSystem") );
 }
 
 OQGSystem::~OQGSystem()
@@ -33,7 +33,7 @@ OQGSystem::~OQGSystem()
  *              Windows invoke its interface.
  *  
  */
-#if Q_OS_MACOS
+#if defined(Q_OS_MACOS)
 bool OQGSystem::doManageDataSources( QWidget * )
 {
     if ( !OQSystem::doManageDataSources( NULL ) )
@@ -44,7 +44,7 @@ bool OQGSystem::doManageDataSources( QWidget * )
 
 	return true;
 }
-#elif Q_OS_UNIX
+#elif defined(Q_OS_UNIX)
 bool OQGSystem::doManageDataSources( QWidget *pwidgetParent )
 {
     ODBCINSTWND odbcinstwnd;
@@ -53,13 +53,15 @@ bool OQGSystem::doManageDataSources( QWidget *pwidgetParent )
 
     if ( !OQSystem::doManageDataSources( (HWND)(&odbcinstwnd) ) )
     {
-        QMessageBox::warning( pwidgetParent, metaObject()->className(),  tr( "Failed to execute a Qt based ODBC Config tool. - this sucks but it can easily be corrected.\nSimply ensure that ODBCConfig or gODBCConfig is in your path.\nThese programs are availible on www.sourceforge.com (search for unixODBC)." ), QMessageBox::Ok );
+        const QMetaObject *p = metaObject();
+        const char *psz = p->className();
+        QMessageBox::warning( pwidgetParent, QString::fromLocal8Bit(psz),  tr( "Failed to execute a Qt based ODBC Config tool. Is the unixODBC libodbcinstQ5 plugin installed?." ), QMessageBox::Ok );
         return false;
     }
 
     return true;
 }
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN)
 bool OQGSystem::doManageDataSources( QWidget *pwidget )
 {
     HWND hWnd = ( pwidget ? (HWND)(pwidget->winId()) : NULL );

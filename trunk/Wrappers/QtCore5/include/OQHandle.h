@@ -43,6 +43,7 @@ public:
 
     Types       getType();
     SQLHANDLE   getHandle();
+    OQHandle *  getParent();
 
     virtual SQLRETURN doAlloc();        
     virtual SQLRETURN doFree();         
@@ -53,7 +54,6 @@ public:
     virtual void eventDiagnostic();
 
 protected:
-    OQHandle *  phandleParent;
     Types       nType;
     SQLHANDLE   hHandle;
 };

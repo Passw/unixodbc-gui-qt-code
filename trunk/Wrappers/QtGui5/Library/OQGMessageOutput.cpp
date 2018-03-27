@@ -60,13 +60,13 @@ void OQGMessageOutput::slotMessage( OQMessage Message )
     switch ( Message.getType() )
     {
         case OQMessage::Info:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( xpmInformation16 ), "" ) );
+            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap( xpmInformation16 ) ), QString::fromLocal8Bit("") ) );
             break;
         case OQMessage::Error:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( xpmError16 ), "" ) );
+            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap( xpmError16 ) ), QString::fromLocal8Bit("") ) );
             break;
         case OQMessage::Warning:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( xpmWarning16 ), "" ) );
+            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap( xpmWarning16 ) ), QString::fromLocal8Bit("") ) );
             break;
     }
 
@@ -95,13 +95,13 @@ void OQGMessageOutput::slotDiagnostic( OQDiagnostic Diagnostic )
     switch ( Diagnostic.getReturncode() )
     {
         case SQL_SUCCESS:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( xpmInformation16 ), "" ) );
+            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmInformation16) ), QString::fromLocal8Bit("") ) );
             break;
         case SQL_SUCCESS_WITH_INFO:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( xpmWarning16 ), "" ) );
+            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmWarning16) ), QString::fromLocal8Bit("") ) );
             break;
         default:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( xpmError16 ), "" ) );
+            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmError16) ), QString::fromLocal8Bit("") ) );
             break;
     }
 

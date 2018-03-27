@@ -30,8 +30,9 @@
 #endif
 
 #include <QtGui>
-#include <QObject>
 #include <QWidget>
+ 
+#include <QObject>
 #include <QVBoxLayout>
 #include <QMessageBox>
 #include <QWizardPage>

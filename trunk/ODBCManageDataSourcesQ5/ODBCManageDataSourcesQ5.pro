@@ -7,6 +7,8 @@ TEMPLATE= app
 TARGET  = ODBCManageDataSourcesQ5
 VERSION = %V_MAJOUR%.%V_MINOR%.%V_RELEASE%
 DESTDIR	= ../bin
+
+QT += gui
 QT += widgets
 
 SOURCES = main.cpp
