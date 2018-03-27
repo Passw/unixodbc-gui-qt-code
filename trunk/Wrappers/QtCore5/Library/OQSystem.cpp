@@ -300,16 +300,18 @@ QVector<OQSystemError> OQSystem::getSystemErrors()
  *  \f$     doManageDataSources
  *  \brief  Wrapper for SQLManageDataSources. Invoke a GUI (an ODBC Administrator).
  *  
- *          On MS Windows or when working with a recent unixODBC - we can simply pass this
- *          request on via SQLManageDataSources().
+ *  Q_OS_MACOS  We execute an external program 'ODBC Administrator.app'. In this case
+ *              hWnd is ignored.
  *  
- *          On OSX we exec a program since SQLManageDataSources() is not likely to be supported.
+ *  Q_OS_UNIX   We simply pass call to SQLManageDataSources().
+ *              If we are using unixODBC (most likley) the hWnd should be a
+ *              pointer to an ODBCINSTWND. SQLGetInfo() can be used to determine
+ *              if unixODBC is being used.
  *  
- *  \note   HWND should be a viable ODBCINSTWND when using unixODBC. The app can call SQLGetInfo()
- *          to determine if unixODBC is in use.
- *          
+ *  Q_OS_WIN    We simply pass call to SQLManageDataSources().
+ *  
  */
-#ifdef Q_WS_MACX
+#if defined(Q_OS_MACOS)
 BOOL OQSystem::doManageDataSources( HWND )
 {
     QProcess  * pprocess = new QProcess( this );
@@ -325,11 +327,29 @@ BOOL OQSystem::doManageDataSources( HWND )
 
     return false;
 }
-#else
+#elif defined(Q_OS_UNIX)
 BOOL OQSystem::doManageDataSources( HWND hWnd )
 {
-	return SQLManageDataSources( hWnd );
+    /* The caller should initialize an ODBCINSTWND as follows and then
+     * pass that to us as hWnd. This example is for Qt5.
+     *
+     *  ODBCINSTWND odbcinstwnd;
+     *  strcpy( odbcinstwnd.szUI, "odbcinstQ5" );
+     *  odbcinstwnd.hWnd = hWnd; // QWidget
+     *  
+     *  SQLManageDataSources( (HWND)(&odbcinstwnd) );
+     */
+
+    return SQLManageDataSources( hWnd );
 }
+#elif defined(Q_OS_WIN)
+BOOL OQSystem::doManageDataSources( HWND hWnd )
+{
+
+    return SQLManageDataSources( hWnd );
+}
+#else
+    #error Platform not supported.
 #endif
 
 /*!
@@ -429,9 +449,9 @@ BOOL OQSystem::doCreateDataSource( HWND hwnd, const QString &stringDS )
  * 
  * \return BOOL 
  */
-BOOL OQSystem::doGetConfigMode( OQDataSourceName::enumConfigMode *pnConfigMode )
+BOOL OQSystem::doGetConfigMode( OQDataSourceName::enumScopes *pnConfigMode )
 {
-    return SQLGetConfigMode( (UWORD)pnConfigMode );
+    return SQLGetConfigMode( (UWORD*)pnConfigMode );
 }
 
 /*!
@@ -445,27 +465,36 @@ BOOL OQSystem::doGetConfigMode( OQDataSourceName::enumConfigMode *pnConfigMode )
  */
 BOOL OQSystem::doGetInstalledDrivers( QVector<QString> *pvectorDrivers )
 {
-    BOOL        b;
-    WORD        nBufMax = 1024;
-    WCHAR       szBuf[nBufMax];
-    WORD        nBufOut = 0;
+    BOOL        b = false;
+    WORD        nCharMax = 1024;
+    WCHAR       szChar[nCharMax];
+    WORD        nCharOut = 0;
 
-    b = SQLGetInstalledDriversW( szBuf, nBufMax, &nBufOut );
-    if ( nBufOut <= nBufMax )
+    if ( !pvectorDrivers )
+        return false;
+
+    b = SQLGetInstalledDriversW( szChar, nCharMax, &nCharOut );
+    if ( !b )
+        return false;
+
+    // Buffer too small? Try again with buffer size we actually need.
+    if ( nCharOut <= nCharMax )
     {
-        nBufMax = (nBufOut + 2);
+        nCharMax = (nCharOut + 2);
         {
-            WCHAR szBuf[nBufMax];
+            WCHAR szChar[nCharMax];
 
-            b = SQLGetInstalledDriversW( szBuf, nBufMax, &nBufOut );
-            if ( b && pvectorDrivers )
-                *pvectorDrivers = getVector( pszBuf );
+            b = SQLGetInstalledDriversW( szChar, nCharMax, &nCharOut );
+            if ( !b )
+                return false;
+            *pvectorDrivers = getParsedStrings( szChar );
+            return true;
         }
     }
-    else if ( b && pvectorDrivers )
-        *pvectorDrivers = getVector( pszBuf );
 
-    return b;
+    *pvectorDrivers = getParsedStrings( szChar );
+
+    return true;
 }
 
 /*!
@@ -556,7 +585,7 @@ BOOL OQSystem::doGetPrivateProfileString( const QString &stringSection, QVector<
     for ( WCHAR *pszCursor = szChars; pszCursor[1] != '\0'; )
     {
         // grab the string
-        pvectorStrings->append( OQToQString( pszCursor ) );
+        pvectorStrings->append( QString::fromUtf16( pszCursor ) );
         // scan until next string
         while ( *pszCursor != '\0' )
             pszCursor++;
@@ -603,7 +632,7 @@ RETCODE OQSystem::doInstallerError( WORD nError, DWORD *pnErrorCode, QString *ps
     return nRetCode;
 }
 
-/*
+/* 
 RETCODE OQSystem::doPostInstallerError( DWORD nErrorCode, const QString &stringErrorMsg )
 {
     return SQLPostInstallerError( nErrorCode, (LPTSTR)OQFromQString(stringErrorMsg); );
@@ -624,4 +653,37 @@ BOOL OQSystem::doSetConfigMode( OQDataSourceName::enumScopes nConfigMode )
     return SQLSetConfigMode( (UWORD)nConfigMode );
 }
 
+/*!
+ * \brief Parse result string from SQLGetPrivateProfileString().
+ * 
+ * \author pharvey (3/26/18)
+ * 
+ * \param sz    This is a series of null terminated strings where 2 consecutive 
+ *              nulls means no more data.
+ * 
+ * \return QVector&lt;QString&gt;   
+ */
+QVector<QString> OQSystem::getParsedStrings( WCHAR* sz )
+{
+    WCHAR *             pszCursor = sz;
+    QVector<QString>    vectorStrings;
+    QString             s;
+
+    if ( !sz ) return vectorStrings;
+
+    s = QString::fromUtf16( pszCursor );
+    while ( 1 )
+    {
+        if ( !s.isEmpty() )
+            vectorStrings.append( s );
+
+        pszCursor += s.length() + 1;
+        s = QString::fromUtf16( pszCursor );
+
+        if ( s.isEmpty() )
+            break;
+    }
+
+    return vectorStrings;
+}
 

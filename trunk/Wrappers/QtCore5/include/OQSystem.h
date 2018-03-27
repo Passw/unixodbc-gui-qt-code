@@ -139,10 +139,10 @@ public:
     virtual BOOL    doManageDataSources( HWND hWnd );    
 
 signals:
-    virtual void signalSystemError( OQSystemError SystemError );
+    void signalSystemError( OQSystemError SystemError );
 
 protected:
-    virtual void eventSystemError();
+//    virtual void eventSystemError();
 
     virtual OQAttributes getAttributes( const QString &stringFilename, const QString &stringSection, SQLRETURN *pnReturn );
 
@@ -163,5 +163,6 @@ protected:
 //    virtual BOOL    doWriteFileDSN( const QString &stringFileName, const QString &stringAppName, const QString &stringKeyName, const QString stringValue );
 //    virtual BOOL    doWritePrivateProfileString( const QString &stringSection, const QString &stringEntry, const QString &stringValue, const QString &stringFilename );
 
+    QVector<QString>    getParsedStrings( WCHAR* sz );
 };
 

@@ -6,7 +6,8 @@ include( ../../../config.pri )
 include( ../../../defines.pri )
 include( ../../../odbc.pri )
 CONFIG          += console
-CONFIG          -= qt
+QT += core
+# $CONFIG          -= qt
 INCLUDEPATH     += ../include
 
 LIBS += -L../../../lib -lOQ5

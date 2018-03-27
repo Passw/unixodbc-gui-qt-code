@@ -19,7 +19,7 @@
 # export UNIXODBC_DIR=/usr
 # export UNIXODBC_LIBDIR=$UNIXODBC_DIR/lib64
 #
-# Get unixODBC-Test (do not build it yet) and set the
+# Get unixODBC-Test (do not build it yet) and setQT += widgets the
 # following environment variable to tell us where it is;
 #
 # export UNIXODBC_TEST_SRC=~/unixodbc-test/trunk
