@@ -55,8 +55,8 @@ void OQGPropertiesDialog::loadState()
 {
     QSettings settings;
 
-    int nW = settings.value( "OQGPropertiesDialog/w", geometry().width() ).toInt();
-    int nH = settings.value( "OQGPropertiesDialog/h", geometry().height() ).toInt();
+    int nW = settings.value( QString::fromLocal8Bit("OQGPropertiesDialog/w"), geometry().width() ).toInt();
+    int nH = settings.value( QString::fromLocal8Bit("OQGPropertiesDialog/h"), geometry().height() ).toInt();
 
     resize( nW, nH );
 }
@@ -65,8 +65,8 @@ void OQGPropertiesDialog::saveState()
 {
     QSettings settings;
 
-    settings.setValue( "OQGPropertiesDialog/w", width() );
-    settings.setValue( "OQGPropertiesDialog/h", height() );
+    settings.setValue( QString::fromLocal8Bit("OQGPropertiesDialog/w"), width() );
+    settings.setValue( QString::fromLocal8Bit("OQGPropertiesDialog/h"), height() );
 }
 
 

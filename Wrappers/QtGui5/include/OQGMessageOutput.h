@@ -12,6 +12,7 @@
 
 // Qt
 #include <QtGui>
+#include <QtWidgets>
 
 //
 #include <OQMessage.h>

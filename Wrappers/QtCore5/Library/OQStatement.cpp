@@ -232,7 +232,7 @@ SQLRETURN OQStatement::doColAttribute( SQLUSMALLINT nColumnNumber, SQLUSMALLINT 
     nReturn = SQL_STILL_EXECUTING;
     while ( nReturn == SQL_STILL_EXECUTING )
     {
-        nReturn = SQLColAttribute( getHandle(), nColumnNumber, nFieldIdentifier, nCharacterAttributePtr, nBufferLength, pnStringLengthPtr, pnNumericAttributePtr );
+        nReturn = SQLColAttributeW( getHandle(), nColumnNumber, nFieldIdentifier, nCharacterAttributePtr, nBufferLength, pnStringLengthPtr, pnNumericAttributePtr );
         switch ( nReturn )
         {
             case SQL_SUCCESS:

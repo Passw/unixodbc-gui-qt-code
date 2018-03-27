@@ -3,7 +3,8 @@ include(../config.pri)
 include(../defines.pri)
 include(../odbc.pri)
 
-QT += widgets
+#QT += widgets
+QT += gui
 
 win32 {
         LIBS            += ..\lib\gtrtstQ5.lib

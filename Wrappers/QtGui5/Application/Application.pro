@@ -6,14 +6,17 @@ include( ../../../config.pri )
 include( ../../../defines.pri )
 include( ../../../odbc.pri )
 
+QT += gui
+QT += widgets
+
 INCLUDEPATH     += ../include  ../../QtCore5/include
 
-LIBS += -L../../../lib -lOQG5  -lOQ
+LIBS += -L../../../lib -lOQG5  -lOQ5
 
 HEADERS		= \
-                OQGConsole5.h
+                OQGConsole.h
 SOURCES 	= \
                 main.cpp \
-                OQGConsole5.cpp
+                OQGConsole.cpp
 
 

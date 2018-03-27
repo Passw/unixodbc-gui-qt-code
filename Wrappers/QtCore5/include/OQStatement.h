@@ -187,8 +187,8 @@ public:
     virtual bool      isCursor();
 
 signals:
-    virtual void signalElapsedSeconds( double nElapsedSeconds );
-    virtual void signalResults( OQStatement *pstatement );
+    void signalElapsedSeconds( double nElapsedSeconds );
+    void signalResults( OQStatement *pstatement );
 
 public slots:
     SQLRETURN slotExecDirect( const QString &stringStatement );

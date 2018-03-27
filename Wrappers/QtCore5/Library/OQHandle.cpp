@@ -10,10 +10,10 @@
 #include "OQHandle.h"
 
 OQHandle::OQHandle( Types nType, OQHandle *phandleParent )
+ : QObject( phandleParent )
 {
     this->nType         = nType;
-    this->phandleParent = phandleParent;
-    hHandle             = NULL;
+    hHandle             = NULL; // this will always be NULL for Sys type
 }
 
 OQHandle::~OQHandle()
@@ -30,6 +30,18 @@ OQHandle::Types OQHandle::getType()
 SQLHANDLE OQHandle::getHandle()
 {
     return hHandle;
+}
+
+OQHandle *OQHandle::getParent()
+{
+    /* The Sys type *could* have a QObject based parent but it would not be a 
+     * OQHandle so we ignore it. For our purposes the Sys type is the top level.
+     * A call to parent() will get the parent QObject if exists and is needed.
+     */
+    if ( getType() == Sys )
+        return NULL;
+
+    return (OQHandle *)parent();
 }
 
 /*! 
@@ -49,13 +61,21 @@ SQLHANDLE OQHandle::getHandle()
  */
 SQLRETURN OQHandle::doAlloc()
 {
+    // Sys type is a special case
+    if ( getType() == Sys )
+    {
+        return SQL_SUCCESS;
+    }
+
     if ( isAlloc( false ) )
     {
         eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Already allocated.") ) );
         return SQL_ERROR;
     }
 
-    SQLRETURN nReturn = SQLAllocHandle( nType, ( phandleParent ? phandleParent->getHandle() : SQL_NULL_HANDLE ), &hHandle );
+    OQHandle *pParent = (OQHandle*)(parent());
+
+    SQLRETURN nReturn = SQLAllocHandle( nType, ( pParent ? pParent->getHandle() : SQL_NULL_HANDLE ), &hHandle );
     switch ( nReturn )
     {
         case SQL_SUCCESS:
@@ -101,6 +121,12 @@ SQLRETURN OQHandle::doAlloc()
  */
 SQLRETURN OQHandle::doFree()
 {
+    // Sys type is a special case
+    if ( getType() == Sys )
+    {
+        return SQL_SUCCESS;
+    }
+
     if ( !isAlloc( false ) )
     {
         eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Already free.") ) );
@@ -132,7 +158,7 @@ SQLRETURN OQHandle::doFree()
 }
 
 /*! 
- * \brief   Ensure underlying environment handle is allocated.
+ * \brief   Ensure underlying handle is allocated.
  *
  *          We call this at the start of most methods to ensure that we have an allocated
  *          handle to work with.
@@ -148,6 +174,12 @@ SQLRETURN OQHandle::doFree()
  */
 bool OQHandle::isAlloc( bool bAlloc )
 {
+    // Sys type is a special case
+    if ( getType() == Sys )
+    {
+        return true;
+    }
+
     if ( hHandle == NULL )
     {
         if ( !bAlloc )

@@ -12,6 +12,8 @@ TARGET  = odbcinstQ5
 
 DESTDIR	= ../lib
 CONFIG	+= plugin
+
+QT += gui
 QT += widgets
 
 INCLUDEPATH	+= ../ini

@@ -6,28 +6,32 @@ include( ../../../common.pri )
 include( ../../../config.pri )
 include( ../../../defines.pri )
 include( ../../../odbc.pri )
+
+QT += gui
+QT += widgets
+
 CONFIG          += staticlib
 
 INCLUDEPATH     += ../include  ../../QtCore5/include
 
 HEADERS =       ../include/OQGConnection.h \
-		../include/OQGEnvironment.h \
+		        ../include/OQGEnvironment.h \
                 ../include/OQGLogin.h \
-		../include/OQGMessageOutput.h \
-		../include/OQGPropertiesDelegate.h \
-		../include/OQGPropertiesDialog.h \
+		        ../include/OQGMessageOutput.h \
+		        ../include/OQGPropertiesDelegate.h \
+		        ../include/OQGPropertiesDialog.h \
                 ../include/OQGPropertiesModel.h \
                 ../include/OQGProperty.h \
-		../include/OQGStatement.h \
-		../include/OQGSystem.h
+		        ../include/OQGStatement.h \
+		        ../include/OQGSystem.h
 SOURCES =       OQGConnection.cpp \
-		OQGEnvironment.cpp \
+		        OQGEnvironment.cpp \
                 OQGLogin.cpp \
-		OQGMessageOutput.cpp \
-		OQGPropertiesDelegate.cpp \
-		OQGPropertiesDialog.cpp \
+		        OQGMessageOutput.cpp \
+		        OQGPropertiesDelegate.cpp \
+		        OQGPropertiesDialog.cpp \
                 OQGPropertiesModel.cpp \
                 OQGProperty.cpp \
-		OQGStatement.cpp \
-		OQGSystem.cpp
+		        OQGStatement.cpp \
+		        OQGSystem.cpp
 

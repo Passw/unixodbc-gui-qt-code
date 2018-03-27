@@ -5,9 +5,11 @@ include( ../../../common.pri )
 include( ../../../config.pri )
 include( ../../../defines.pri )
 include( ../../../odbc.pri )
-CONFIG          += console
+
 QT += core
-# $CONFIG          -= qt
+
+CONFIG          += console
+
 INCLUDEPATH     += ../include
 
 LIBS += -L../../../lib -lOQ5

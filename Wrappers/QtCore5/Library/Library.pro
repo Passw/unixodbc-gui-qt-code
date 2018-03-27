@@ -6,9 +6,13 @@ include( ../../../common.pri )
 include( ../../../config.pri )
 include( ../../../defines.pri )
 include( ../../../odbc.pri )
+
+QT += core
+
 CONFIG          += staticlib
 CONFIG          += console
-QT += core
+
+
 INCLUDEPATH     += ../include
 
 HEADERS =   ../include/OQConnection.h \

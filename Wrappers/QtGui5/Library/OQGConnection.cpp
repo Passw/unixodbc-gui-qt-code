@@ -32,15 +32,13 @@ OQGConnection::OQGConnection( OQGEnvironment *pEnvironment )
 bool OQGConnection::doConnect( QWidget *pwidgetParent, const QString &stringDSN, const QString &stringUID, const QString &stringPWD )
 {
     bool bReturn = false;
-    OQGEnvironment  *pEnvironment = (OQGEnvironment*)getEnvironment();
-printf( "[PAH][%s][%d] %p\n", __FILE__, __LINE__, pEnvironment );
+    OQGEnvironment  *pEnvironment = (OQGEnvironment*)getParent();
 
     // With Prompting.
     OQGLogin *plogin = new OQGLogin( pwidgetParent, pEnvironment );
     plogin->setWindowTitle( tr( "Connect..." ) );
     plogin->setShowDriver( false );
 
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
     bool bPromptSomething = bPromptDataSourceName || bPromptUserID || bPromptPassword;
     plogin->setShowDataSourceName( bPromptDataSourceName );
     plogin->setShowUserID( bPromptUserID );
@@ -51,12 +49,9 @@ printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
 
     while ( 1 )
     {
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
         if ( !bPromptSomething || (plogin->exec() == QDialog::Accepted) ) 
         {
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
             SQLRETURN nReturn = OQConnection::doConnect( plogin->getDataSourceName(), plogin->getUserID(), plogin->getPassword() );
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
             if ( SQL_SUCCEEDED( nReturn ) )
             {
                 bReturn = true;
@@ -103,7 +98,7 @@ bool OQGConnection::doBrowseConnect( QWidget *pwidgetParent, const QString &stri
     bool        bReturn     = false;
     SQLRETURN   nReturn     = SQL_NEED_DATA;
     QString     stringIn    = stringConnect;
-    QString     stringOut   = "";
+    QString     stringOut   = QString::fromLocal8Bit("");
 
     while ( nReturn == SQL_NEED_DATA )
     {
@@ -149,7 +144,7 @@ bool OQGConnection::doBrowseConnect( QWidget *pwidgetParent )
 {
     bool bReturn = false;
     
-    OQGLogin *plogin = new OQGLogin( pwidgetParent, (OQGEnvironment*)getEnvironment() );
+    OQGLogin *plogin = new OQGLogin( pwidgetParent, (OQGEnvironment*)getParent() );
     plogin->setWindowTitle( tr( "Browse Connect..." ) );
     while ( 1 )
     {
@@ -168,15 +163,15 @@ bool OQGConnection::doBrowseConnect( QWidget *pwidgetParent )
                 delete plogin;
 
                 if ( !stringDriver.isEmpty() )
-                    stringConnection += "DRIVER=" + stringDriver + ";";
+                    stringConnection += QString::fromLocal8Bit("DRIVER=") + stringDriver + QString::fromLocal8Bit(";");
 //                if ( !stringFileDataSourceName.isEmpty() )
 //                    stringConnection += "FILEDSN=" + stringFileDataSourceName + ";";
                 if ( !stringDataSourceName.isEmpty() )
-                    stringConnection += "DSN=" + stringDataSourceName + ";";
+                    stringConnection += QString::fromLocal8Bit("DSN=") + stringDataSourceName + QString::fromLocal8Bit(";");
                 if ( !stringUserID.isEmpty() )
-                    stringConnection += "UID=" + stringUserID + ";";
+                    stringConnection += QString::fromLocal8Bit("UID=") + stringUserID + QString::fromLocal8Bit(";");
                 if ( !stringPassword.isEmpty() )
-                    stringConnection += "PWD=" + stringPassword + ";";
+                    stringConnection += QString::fromLocal8Bit("PWD=") + stringPassword + QString::fromLocal8Bit(";");
 
                 return doBrowseConnect( pwidgetParent, stringConnection );
             }
@@ -230,8 +225,8 @@ QString OQGConnection::getString( QVector<OQGProperty> vectorProperties )
     for ( ; nPrompt < nPrompts; nPrompt++ )
     {
         OQGProperty property = vectorProperties.at( nPrompt );
-        stringReturn    += property.getName() + "=";
-        stringReturn    += property.getValue() + ";";
+        stringReturn    += property.getName() + QString::fromLocal8Bit("=");
+        stringReturn    += property.getValue() + QString::fromLocal8Bit(";");
     }
 
     return stringReturn;
@@ -290,11 +285,11 @@ QVector<OQGProperty> OQGConnection::getProperties( const QString &stringProperti
 {
     QVector<OQGProperty> vectorProperties;
     
-    QStringList stringlistProperties = stringProperties.split( ';' );
+    QStringList stringlistProperties = stringProperties.split( QLatin1Char(';') );
 
     for ( QStringList::Iterator it = stringlistProperties.begin(); it != stringlistProperties.end(); ++it ) 
     {
-        QStringList stringlistProperty = (*it).split( ':' );
+        QStringList stringlistProperty = (*it).split( QLatin1Char(':') );
         if ( stringlistProperty.count() > 0 )
         {
             OQGProperty property( OQGProperty::PromptLineEdit, stringlistProperty[0] );

@@ -8,6 +8,7 @@
  * \license Copyright unixODBC-GUI-Qt Project 2007-2008, LGPL
  */
 #include <QtGui>
+#include <QtWidgets>
 
 #include "../include/OQGProperty.h"
 #include "../include/OQGPropertiesDelegate.h"
@@ -20,6 +21,8 @@ OQGPropertiesDelegate::OQGPropertiesDelegate( QObject *pobjectParent )
 
 QWidget *OQGPropertiesDelegate::createEditor( QWidget *pwidgetParent, const QStyleOptionViewItem &styleoptionviewitem, const QModelIndex &modelindex ) const
 {
+    Q_UNUSED(styleoptionviewitem)
+
     if ( modelindex.column() != 1 )
         return 0;
 
@@ -136,6 +139,8 @@ void OQGPropertiesDelegate::setModelData( QWidget *pwidgetEditor, QAbstractItemM
 
 void OQGPropertiesDelegate::updateEditorGeometry( QWidget *pwidgetEditor, const QStyleOptionViewItem &styleoptionviewitem, const QModelIndex &modelindex ) const
 {
+    Q_UNUSED(modelindex)
+
     pwidgetEditor->setGeometry( styleoptionviewitem.rect );
 }
 
