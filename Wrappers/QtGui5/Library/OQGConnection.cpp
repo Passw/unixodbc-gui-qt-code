@@ -32,10 +32,9 @@ OQGConnection::OQGConnection( OQGEnvironment *pEnvironment )
 bool OQGConnection::doConnect( QWidget *pwidgetParent, const QString &stringDSN, const QString &stringUID, const QString &stringPWD )
 {
     bool bReturn = false;
-    OQGEnvironment  *pEnvironment = (OQGEnvironment*)getParent();
 
     // With Prompting.
-    OQGLogin *plogin = new OQGLogin( pwidgetParent, pEnvironment );
+    OQGLogin *plogin = new OQGLogin( pwidgetParent, this );
     plogin->setWindowTitle( tr( "Connect..." ) );
     plogin->setShowDriver( false );
 
@@ -144,7 +143,7 @@ bool OQGConnection::doBrowseConnect( QWidget *pwidgetParent )
 {
     bool bReturn = false;
     
-    OQGLogin *plogin = new OQGLogin( pwidgetParent, (OQGEnvironment*)getParent() );
+    OQGLogin *plogin = new OQGLogin( pwidgetParent, this );
     plogin->setWindowTitle( tr( "Browse Connect..." ) );
     while ( 1 )
     {

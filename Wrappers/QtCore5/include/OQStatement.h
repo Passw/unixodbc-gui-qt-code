@@ -137,6 +137,17 @@ public:
         UbOn    = SQL_UB_ON
     };
 
+    enum enumFetch
+    {
+        FetchNext       = SQL_FETCH_NEXT,
+        FetchPrior      = SQL_FETCH_PRIOR,
+        FetchFirst      = SQL_FETCH_FIRST,
+        FetchLast       = SQL_FETCH_LAST,
+        FetchAbsolute   = SQL_FETCH_ABSOLUTE,
+        FetchRelative   = SQL_FETCH_RELATIVE,
+        FetchBookmark   = SQL_FETCH_BOOKMARK 
+    };
+
     OQStatement( OQConnection *pconnection );
     virtual ~OQStatement();
 

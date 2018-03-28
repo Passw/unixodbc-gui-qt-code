@@ -8,7 +8,9 @@
  */
 #pragma once
 
-#include "OQHandle.h"
+#include "OQ.h"
+
+class OQHandle;
 
 class OQDiagnostic;
 

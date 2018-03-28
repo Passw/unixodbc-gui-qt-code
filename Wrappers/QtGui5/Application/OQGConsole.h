@@ -41,6 +41,8 @@ protected:
     QAction *   pactionExecute;
     QAction *   pactionQuit;
     QAction *   pactionConnect;
+    QAction *   pactionCreateDataSource;
+    QAction *   pactionManageDataSources;
     QAction *   pactionAbout;
 
     QSplitter *     pSplitter;
@@ -63,9 +65,12 @@ protected slots:
     void slotConnectToggle();
     void slotConnected();
     void slotDisconnected();
+    void slotCreateDataSource();
+    void slotManageDataSources();
     void slotExecute();
     void slotResults( OQStatement *pStatement );
     void slotMessage( OQMessage Message );
+    void slotDiagnostic( OQDiagnostic Diagnostic );
     void slotAbout();
 };
 

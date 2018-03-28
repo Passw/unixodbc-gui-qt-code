@@ -296,6 +296,25 @@ QVector<OQSystemError> OQSystem::getSystemErrors()
     return vectorSystemErrors;
 }
 
+/*!
+ * \brief   Invokes a UI to allow User to create a new Data Source Name (DSN). 
+ *  
+ *          This call will work on MS Windows or when using unixODBC. 
+ * 
+ * \author pharvey (3/27/18)
+ * 
+ * \param hwnd Handle to parent window (ODBCINSTWND* when using unixODBC).
+ * \param stringDS A new Data Source Name (can be NULL). Input only.
+ * 
+ * \return BOOL true || false
+ */
+BOOL OQSystem::doCreateDataSource( HWND hwnd, const QString &stringDSN )
+{
+    // we can pass a NULL for 2nd arg but a bug has us passing an empty string instead
+    QString stringEmpty( QString::fromLocal8Bit("") );
+    return SQLCreateDataSourceW( hwnd, ( stringDSN.isNull() ? (SQLWCHAR*)(stringEmpty.utf16()) : (SQLWCHAR*)(stringDSN.utf16()) ) ); 
+}
+
 /*! 
  *  \f$     doManageDataSources
  *  \brief  Wrapper for SQLManageDataSources. Invoke a GUI (an ODBC Administrator).
@@ -430,13 +449,6 @@ BOOL OQSystem::doConfigDriver( HWND hwndParent, enumConfigDriverRequest nRequest
         *pstringMsg = OQToQString( pszMsg );
 
     return b;
-}
-*/
-
-/*
-BOOL OQSystem::doCreateDataSource( HWND hwnd, const QString &stringDS )
-{
-    return SQLCreateDataSource( hwnd, OQFromQString( stringDS ) ); 
 }
 */
 

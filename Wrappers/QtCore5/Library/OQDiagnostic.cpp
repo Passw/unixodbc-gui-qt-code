@@ -7,6 +7,7 @@
  * \license Copyright unixODBC-CPP Project 2003-2009, LGPL
  */
 #include "OQDiagnostic.h"
+#include "OQHandle.h"
 
 OQDiagnosticRecord::OQDiagnosticRecord( OQDiagnostic *pDiagnostic, SQLINTEGER nRecord )
 {
@@ -22,7 +23,7 @@ QString OQDiagnosticRecord::getClassOrigin( SQLRETURN *pnReturn )
     SQLRETURN   nReturn;
     QString     s;
 
-    // how many bytes do we need?
+    // how many bytes do we need?OQMessage
     nReturn = getDiagField( ClassOrigin, NULL, 0, &nRequiredBytes );
     if ( !SQL_SUCCEEDED( nReturn ) )
         return s;
@@ -279,7 +280,7 @@ SQLRETURN OQDiagnosticRecord::getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOIN
     if ( !pDiagnostic->pHandle->isAlloc() )
         return SQL_ERROR;
 
-    SQLRETURN nReturn = SQLGetDiagField( (SQLSMALLINT)pDiagnostic->pHandle->getType(), pDiagnostic->pHandle->getHandle(), nRecord, nDiagIdentifier, pnDiagInfoPtr, nBufferLength, pnStringLengthPtr );
+    SQLRETURN nReturn = SQLGetDiagFieldW( (SQLSMALLINT)pDiagnostic->pHandle->getType(), pDiagnostic->pHandle->getHandle(), nRecord, nDiagIdentifier, pnDiagInfoPtr, nBufferLength, pnStringLengthPtr );
     switch ( nReturn )
     {
         case SQL_SUCCESS:
@@ -385,7 +386,7 @@ SQLRETURN OQDiagnostic::getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pn
     if ( !pHandle->isAlloc() )
         return SQL_ERROR;
 
-    SQLRETURN nReturn = SQLGetDiagField( pHandle->getType(), pHandle->getHandle(), 0, nDiagIdentifier, pnDiagInfoPtr, nBufferLength, pnStringLengthPtr );
+    SQLRETURN nReturn = SQLGetDiagFieldW( pHandle->getType(), pHandle->getHandle(), 0, nDiagIdentifier, pnDiagInfoPtr, nBufferLength, pnStringLengthPtr );
     switch ( nReturn )
     {
         case SQL_SUCCESS:

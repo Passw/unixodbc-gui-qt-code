@@ -211,6 +211,18 @@ bool OQEnvironment::getAttrOutputNTS( SQLRETURN *pnReturn )
     return b;
 }
 
+/*!
+ * \brief   Get a list of the installed drivers. 
+ *  
+ *          This can be accomplished by OQSystem as well but they use
+ *          different underlying SQL calls.
+ * 
+ * \author pharvey (3/27/18)
+ * 
+ * \param pnReturn Return value. (optional)
+ * 
+ * \return QStringList List of driver names.
+ */
 QStringList OQEnvironment::getDrivers( SQLRETURN *pnReturn )
 {
     QStringList     stringlistDrivers;
@@ -234,36 +246,40 @@ QStringList OQEnvironment::getDrivers( SQLRETURN *pnReturn )
 }
 
 /*!
-    Qt friendly way to get a list of DSN's. 
-*/
-QStringList OQEnvironment::getDataSources( bool bUser, bool bSystem, SQLRETURN *pnReturn )
+ * \brief   Get a list of Data Source Names (DSN).
+ * 
+ *          This can be accomplished by OQSystem as well but they use
+ *          different underlying SQL calls.
+ *  
+ * \author pharvey (3/27/18)
+ * 
+ * \param bUser User scope.
+ * \param bSystem System scope.
+ * \param pnReturn Return value. (optional)
+ * 
+ * \return QStringList List of Data Source Names.
+ */
+QStringList OQEnvironment::getDataSources( OQSystem::enumFetch nScope, SQLRETURN *pnReturn )
 {
     QStringList     stringlistDataSources;
     SQLRETURN       nReturn;
-    SQLUSMALLINT    nDirection  =   SQL_FETCH_FIRST;
-    SQLWCHAR        szDSN[100];
-    SQLSMALLINT     nLength1;
-    SQLWCHAR        szDescription[100];
-    SQLSMALLINT     nLength2;
 
-    if ( bUser || bSystem )
+    SQLSMALLINT     nDSNChars = 100;
+    SQLWCHAR        szDSN[nDSNChars];
+    SQLSMALLINT     nDSNCharsAvail = 0;
+
+    SQLSMALLINT      nDescChars = 200;
+    SQLWCHAR        szDesc[nDescChars];
+    SQLSMALLINT     nDescCharsAvail = 0;
+
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
+    nReturn = doDataSources( (SQLUSMALLINT)nScope, szDSN, nDSNChars, &nDSNCharsAvail, szDesc, nDescChars, &nDescCharsAvail );
+    while ( SQL_SUCCEEDED( nReturn ) )
     {
-#ifndef Q_WS_MACX
-        if ( !bUser && bSystem )
-            nDirection = SQL_FETCH_FIRST_SYSTEM;
-        else if ( bUser && !bSystem )
-            nDirection = SQL_FETCH_FIRST_USER;
-#endif
-
-        nReturn = doDataSources( nDirection, szDSN, sizeof(szDSN) / sizeof(SQLWCHAR), &nLength1, szDescription, sizeof(szDescription) / sizeof(SQLWCHAR), &nLength2 );
-        while ( SQL_SUCCEEDED( nReturn ) )
-        {
-            stringlistDataSources += QString::fromUtf16(szDSN, nLength1);
-            nReturn = doDataSources( SQL_FETCH_NEXT, szDSN, sizeof(szDSN) / sizeof(SQLWCHAR), &nLength1, szDescription, sizeof(szDescription) / sizeof(SQLWCHAR), &nLength2 );
-        }
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
+        stringlistDataSources << QString::fromUtf16( szDSN );
+        nReturn = doDataSources( SQL_FETCH_NEXT, szDSN, nDSNChars, &nDSNCharsAvail, szDesc, nDescChars, &nDescCharsAvail );
     }
-    else
-        nReturn = SQL_NO_DATA;
 
     if ( pnReturn )
         *pnReturn = nReturn;
@@ -426,8 +442,10 @@ SQLRETURN OQEnvironment::doDrivers( SQLUSMALLINT nDirection, SQLWCHAR *pszDriver
  */
 SQLRETURN OQEnvironment::doDataSources( SQLUSMALLINT nDirection, SQLWCHAR *pszServerName, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnNameLength1Ptr, SQLWCHAR *pszDescription, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnNameLength2Ptr )
 {
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
     if ( !isAlloc() )
         return SQL_ERROR;
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
 
     //
     SQLRETURN nReturn = SQLDataSourcesW( hHandle, nDirection, pszServerName, nBufferLength1, pnNameLength1Ptr, pszDescription, nBufferLength2, pnNameLength2Ptr );
@@ -435,11 +453,14 @@ SQLRETURN OQEnvironment::doDataSources( SQLUSMALLINT nDirection, SQLWCHAR *pszSe
     {
         case SQL_SUCCESS:
         case SQL_NO_DATA:
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
             break;
         case SQL_SUCCESS_WITH_INFO:
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
             eventDiagnostic();
             break;
         case SQL_ERROR:
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:

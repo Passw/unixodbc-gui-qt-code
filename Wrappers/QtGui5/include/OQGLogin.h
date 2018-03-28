@@ -19,13 +19,15 @@
 #include <QDialog>
 
 //
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
 #include <unistd.h>
 #include <pwd.h>
 #endif
 
 //
+class OQGSystem;
 class OQGEnvironment;
+class OQGConnection;
 class OQMessage;
 class OQGMessageOutput;
 
@@ -33,7 +35,7 @@ class OQGLogin: public QDialog
 {
 	Q_OBJECT
 public:
-    OQGLogin( QWidget *pwidgetParent, OQGEnvironment *penvironment );
+    OQGLogin( QWidget *pwidgetParent, OQGConnection *pconnection );
     ~OQGLogin();
 
     // SETTERS
@@ -53,7 +55,7 @@ public:
     QString getPassword() { return plineeditPassword->text(); }
 
 protected:
-    OQGEnvironment*      penvironment;
+    OQGEnvironment *        penvironment;
     QLabel *                plabelDriver;
     QComboBox *             pcomboboxDriver;
     QLabel *                plabelDataSourceName;

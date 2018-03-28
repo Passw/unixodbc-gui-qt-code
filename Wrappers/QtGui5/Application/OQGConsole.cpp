@@ -27,11 +27,6 @@ OQGConsole::OQGConsole()
     createToolBars();
     createStatusBar();
     createClientArea();
-
-    // message passing is all connected now so lets make some ODBC calls...
-//    pEnvironment->doAlloc();
-//    pConnection->doAlloc();
-
 }
 
 OQGConsole::~OQGConsole()
@@ -49,7 +44,6 @@ void OQGConsole::createHandles()
 //    connect( pSystem, SIGNAL(signalMessage(OQMessage)), this, SLOT(slotMessage(OQMessage)) );
 
     pEnvironment    = new OQGEnvironment( pSystem );
-    connect( pEnvironment, SIGNAL(signalMessage(OQMessage)), this, SLOT(slotMessage(OQMessage)) );
 
     pConnection     = new OQGConnection( pEnvironment );
     connect( pConnection, SIGNAL(signalConnected()), this, SLOT(slotConnected()) );
@@ -57,6 +51,12 @@ void OQGConsole::createHandles()
     
     pStatement      = new OQGStatement( pConnection );
     connect( pStatement, SIGNAL(signalResults(OQStatement*)), this, SLOT(slotResults(OQStatement*)) );
+
+    // messages
+    connect( pSystem, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
+    connect( pEnvironment, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
+    connect( pConnection, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
+    connect( pStatement, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
 }
 
 void OQGConsole::createActions()
@@ -75,6 +75,14 @@ void OQGConsole::createActions()
     pactionConnect->setStatusTip( tr( "Connect to a Data Source or Disconnect from current." ) );
     connect( pactionConnect, SIGNAL(triggered()), this, SLOT(slotConnectToggle()) );
 
+    pactionCreateDataSource = new QAction( QIcon( QPixmap(xpmDisconnected16) ), tr("C&reate Data Source"), this );
+    pactionCreateDataSource->setStatusTip( tr( "Create a new Data Source Name that you can conveniently connect to later." ) );
+    connect( pactionCreateDataSource, SIGNAL(triggered()), this, SLOT(slotCreateDataSource()) );
+
+    pactionManageDataSources = new QAction( QIcon( QPixmap(xpmDisconnected16) ), tr("&Manage Data Sources"), this );
+    pactionManageDataSources->setStatusTip( tr( "Configure most things ODBC." ) );
+    connect( pactionManageDataSources, SIGNAL(triggered()), this, SLOT(slotManageDataSources()) );
+
     pactionAbout = new QAction( tr( "&About" ), this );
     pactionAbout->setStatusTip( tr( "Show this application's About box" ) );
     connect( pactionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()) );
@@ -88,6 +96,8 @@ void OQGConsole::createMenus()
 
     pmenuDataSource = menuBar()->addMenu( tr( "&Data Source" ) );
     pmenuDataSource->addAction( pactionConnect );
+    pmenuDataSource->addAction( pactionCreateDataSource );
+    pmenuDataSource->addAction( pactionManageDataSources );
 
     menuBar()->addSeparator();
 
@@ -138,6 +148,16 @@ void OQGConsole::slotDisconnected()
     pactionConnect->setIcon( QIcon( QPixmap( xpmDisconnected16 ) ) );
 }
 
+void OQGConsole::slotCreateDataSource()
+{
+    pSystem->doCreateDataSource( this );
+}
+
+void OQGConsole::slotManageDataSources()
+{
+    pSystem->doManageDataSources( this );
+}
+
 void OQGConsole::slotExecute() 
 {
     // remove table items...
@@ -157,7 +177,20 @@ void OQGConsole::slotResults( OQStatement * )
 
 void OQGConsole::slotMessage( OQMessage Message ) 
 {
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
     ptexteditMessages->append( Message.getText() );
+}
+
+void OQGConsole::slotDiagnostic( OQDiagnostic Diagnostic )
+{
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
+    SQLINTEGER nRecords = Diagnostic.getNumber();
+
+    for ( SQLINTEGER nRecord = 1; nRecord <= nRecords; nRecord++ )
+    {
+        OQDiagnosticRecord Record( &Diagnostic, nRecord );
+        ptexteditMessages->append( Record.getMessageText() );
+    }
 }
 
 void OQGConsole::doResultGUIGrid()

@@ -192,14 +192,17 @@ bool OQHandle::isAlloc( bool bAlloc )
     return true;
 }
 
-void OQHandle::eventMessage( OQMessage )
+void OQHandle::eventMessage( OQMessage m )
 {
-    /* do nothing - let derived class decide what to do */
+    emit signalMessage( m );
 }
 
 void OQHandle::eventDiagnostic()
 {
-    /* do nothing - let derived class decide what to do */
+    if ( getType() == Sys )
+        return;
+
+    emit signalDiagnostic(OQDiagnostic( this ));
 }
 
 
