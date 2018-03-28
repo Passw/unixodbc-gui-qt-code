@@ -17,14 +17,16 @@
  * \brief   An ODBC handle.
  *
  *          This is the base class for key classes in this library. Specifically;
- *
+ * 
+ *          \li OQSystem
  *          \li OQEnvironment
  *          \li OQConnection
  *          \li OQStatement
  *
- * \sa OQEnvironment
- *     OQConnection
- *     OQStatement
+ * \sa  OQSystem
+ *      OQEnvironment
+ *      OQConnection
+ *      OQStatement
  */
 class OQHandle : public QObject
 {
@@ -44,7 +46,7 @@ public:
 
     Types       getType();
     SQLHANDLE   getHandle();
-    OQHandle *  getParent();
+    OQHandle *  getParent( Types nType );
 
     virtual SQLRETURN doAlloc();        
     virtual SQLRETURN doFree();         

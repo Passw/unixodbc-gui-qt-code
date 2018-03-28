@@ -23,8 +23,8 @@ OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGConnection *pconnection )
 {
     setObjectName( QString::fromLocal8Bit("OQGLogin") );
 
-    penvironment = (OQGEnvironment*)(pconnection->getParent());
-    OQGSystem *psystem = (OQGSystem*)penvironment->getParent();
+    penvironment = (OQGEnvironment*)(pconnection->getParent( OQHandle::Env ));
+    OQGSystem *psystem = (OQGSystem*)(penvironment->getParent( OQHandle::Sys ));
 
     QVBoxLayout *playoutTop = new QVBoxLayout;
 

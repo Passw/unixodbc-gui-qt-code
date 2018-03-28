@@ -11,6 +11,7 @@
 
 // qt
 #include <QtGui>
+#include <QtWidgets>
 
 // OQG
 #include <OQGSystem.h>
@@ -20,6 +21,18 @@
 
 #include "OQGMessageOutput.h"
 
+/*!
+ * \class OQGConsole 
+ * \brief Provides the 'main window' for a sinmple application which allows the User to interact (and test) the wrapper. 
+ *  
+ *          This provides for a single; environment and connection handle. However; the connection can have
+ *          more than one statement. The statements are presented to the User in a tab interface
+ *          where each tab/statement contains an SQL area and a Results area.
+ *  
+ * \note    The UI is intentionaly simple. \sa OQGDataManager provides more functionalty in a richer UI.
+ * 
+ * \author pharvey (3/28/18)
+ */
 class OQGConsole : public QMainWindow
 { 
     Q_OBJECT
@@ -28,30 +41,39 @@ public:
 	~OQGConsole();
 
 protected:
+    // these handles are init and remain while OQGConsole exist
     OQGSystem *      pSystem;
     OQGEnvironment * pEnvironment;
     OQGConnection *  pConnection;
-    OQGStatement *   pStatement;
 
+    // controls
     QMenu * pmenuFile;
     QMenu * pmenuDataSource;
+    QMenu * pmenuStatement;
     QMenu * pmenuHelp;
-
-    QToolBar *  ptoolbarFile;
     QToolBar *  ptoolbarDataSource;
+    QToolBar *  ptoolbarStatement;
 
-    QAction *   pactionExecute;
+    // actions
+    // file
     QAction *   pactionQuit;
-    QAction *   pactionConnect;
-    QAction *   pactionCreateDataSource;
-    QAction *   pactionManageDataSources;
+    // data sources
+    QAction *   pactionDataSourceConnect;
+    QAction *   pactionDataSourceNew;
+    QAction *   pactionDataSourcesManage;
+    // statement
+    QAction *   pactionStatementNew;
+    QAction *   pactionStatementClose;
+    QAction *   pactionStatementExecute;
+    // about
     QAction *   pactionAbout;
 
+    // client area
     QSplitter *         pSplitter;
-    QTextEdit *         ptexteditSQL;
-    QTableWidget *      ptablewidgetResults;
-    OQGMessageOutput *  pmessageoutput;
+    QTabWidget *        pTabWidget;         // one tab per statement
+    OQGMessageOutput *  pmessageoutput;     // one output shared among all handles
 
+    // init
     void createHandles();
     void createActions();
     void createMenus();
@@ -59,19 +81,21 @@ protected:
     void createStatusBar();
     void createClientArea();
 
-    void doResultGUIGrid();
-    void doResultGUIGridHeader( SWORD nColumns );
-    void doResultGUIGridBody( SWORD nColumns );
-
 protected slots:
+    // data sources
     void slotConnectToggle();
+    void slotDataSourceNew();
+    void slotDataSourcesManage();
+    // statement
+    void slotStatementNew();
+    void slotStatementClose();
+    void slotStatementExecute();
+    // about
+    void slotAbout();
+
+    // other (not actions)
     void slotConnected();
     void slotDisconnected();
-    void slotCreateDataSource();
-    void slotManageDataSources();
-    void slotExecute();
-    void slotResults( OQStatement *pStatement );
-    void slotAbout();
 };
 
 

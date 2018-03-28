@@ -32,8 +32,11 @@ SQLHANDLE OQHandle::getHandle()
     return hHandle;
 }
 
-OQHandle *OQHandle::getParent()
+OQHandle *OQHandle::getParent( Types nType )
 {
+    if ( getType() == nType )
+        return this;
+
     /* The Sys type *could* have a QObject based parent but it would not be a 
      * OQHandle so we ignore it. For our purposes the Sys type is the top level.
      * A call to parent() will get the parent QObject if exists and is needed.
@@ -41,7 +44,7 @@ OQHandle *OQHandle::getParent()
     if ( getType() == Sys )
         return NULL;
 
-    return (OQHandle *)parent();
+    return ((OQHandle *)parent())->getParent( nType );
 }
 
 /*! 
