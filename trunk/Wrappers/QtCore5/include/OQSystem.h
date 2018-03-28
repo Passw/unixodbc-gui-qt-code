@@ -123,6 +123,13 @@ public:
         InstallComplete = ODBC_INSTALL_COMPLETE
     };
 
+    enum enumFetch
+    {
+        FetchFirst          = SQL_FETCH_FIRST,
+        FetchFirstSystem    = SQL_FETCH_FIRST_SYSTEM,
+        FetchFirstUser      = SQL_FETCH_FIRST_USER
+    };
+
     // getters
     virtual OQAttributes               getAttributes( SQLRETURN *pnReturn = NULL);
     virtual OQDriver                   getDriver( const QString &stringDriver, SQLRETURN *pnReturn = NULL );
@@ -136,6 +143,7 @@ public:
     virtual QVector<OQSystemError>     getSystemErrors();
 
     // doers
+    virtual BOOL    doCreateDataSource( HWND hWnd, const QString &stringDSN = QString::null );    
     virtual BOOL    doManageDataSources( HWND hWnd );    
 
 signals:

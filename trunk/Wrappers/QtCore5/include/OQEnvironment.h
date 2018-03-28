@@ -67,15 +67,15 @@ public:
     virtual bool                        getAttrOutputNTS( SQLRETURN *pnReturn = NULL );
 
     virtual QStringList getDrivers( SQLRETURN *pnReturn = NULL );
-    virtual QStringList getDataSources( bool bUser = true, bool bSystem = true, SQLRETURN *pnReturn = NULL );
+    virtual QStringList getDataSources(OQSystem::enumFetch nScope = OQSystem::FetchFirst, SQLRETURN *pnReturn = NULL);
 
 protected:
     virtual SQLRETURN setEnvAttr( SQLINTEGER nAttribute, SQLPOINTER pValue );
 
     virtual SQLRETURN getEnvAttr( SQLINTEGER nAttribute, SQLPOINTER pValue );
 
-    virtual SQLRETURN doDrivers( SQLUSMALLINT nDirection, SQLTCHAR *pszDriverDescription, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnDescriptionLengthPtr, SQLTCHAR *pszDriverAttributes, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnAttributesLengthPtr );
-    virtual SQLRETURN doDataSources( SQLUSMALLINT nDirection, SQLTCHAR *pszServerName, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnNameLength1Ptr, SQLTCHAR *pszDescription, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnNameLength2Ptr );
+    virtual SQLRETURN doDrivers( SQLUSMALLINT nDirection, SQLWCHAR *pszDriverDescription, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnDescriptionLengthPtr, SQLWCHAR *pszDriverAttributes, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnAttributesLengthPtr );
+    virtual SQLRETURN doDataSources( SQLUSMALLINT nDirection, SQLWCHAR *pszServerName, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnNameLength1Ptr, SQLWCHAR *pszDescription, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnNameLength2Ptr );
 };
 
 

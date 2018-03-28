@@ -51,7 +51,9 @@ int main( int argc, char **argv )
     odbcinstwnd.hWnd = (QWidget*)(qApp->desktop());
 
     // call odbcinst library (which will map to odbcinstQ5 UI plugin)...
-    if ( SQLCreateDataSource( (HWND)(&odbcinstwnd), NULL ) )
+    // We can pass NULL for 2nd arg but we pass empty string to work around a bug
+    QString s( QString::fromLocal8Bit("") );
+    if ( SQLCreateDataSourceW( (HWND)(&odbcinstwnd), (SQLWCHAR*)(s.utf16()) ) )
         return 0;
 
     // oops - report any errors we can dig up...

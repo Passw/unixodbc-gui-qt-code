@@ -146,6 +146,9 @@ OQConsole::OQConsole( const QStringList &stringlistArguments, QTextStream *pstre
     pStatement      = new OQStatement( pConnection );
 
     connect( pSystem, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
+    connect( pEnvironment, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
+    connect( pConnection, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
+    connect( pStatement, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
     connect( pSystem, SIGNAL(signalDiagnostic(OQDiagnostic)), SLOT(slotDiagnostic(OQDiagnostic)) );
 
     doParseArgs( stringlistArguments );

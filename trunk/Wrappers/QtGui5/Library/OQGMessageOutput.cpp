@@ -52,6 +52,7 @@ void OQGMessageOutput::slotMessage( OQMessage Message )
 {
     int nRows = rowCount() + 1;
     int nRow  = nRows - 1;
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
 
     // add row
     setRowCount( nRows );
@@ -85,33 +86,41 @@ void OQGMessageOutput::slotMessage( OQMessage Message )
 
 void OQGMessageOutput::slotDiagnostic( OQDiagnostic Diagnostic )
 {
-    int nRows = rowCount() + 1;
-    int nRow  = nRows - 1;
+printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
+    SQLINTEGER nRecords = Diagnostic.getNumber();
 
-    // add row
-    setRowCount( nRows );
-
-    // column 1
-    switch ( Diagnostic.getReturncode() )
+    for ( SQLINTEGER nRecord = 1; nRecord <= nRecords; nRecord++ )
     {
-        case SQL_SUCCESS:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmInformation16) ), QString::fromLocal8Bit("") ) );
-            break;
-        case SQL_SUCCESS_WITH_INFO:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmWarning16) ), QString::fromLocal8Bit("") ) );
-            break;
-        default:
-            setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmError16) ), QString::fromLocal8Bit("") ) );
-            break;
+        OQDiagnosticRecord Record( &Diagnostic, nRecord );
+
+
+        int nRows = rowCount() + 1;
+        int nRow  = nRows - 1;
+
+        // add row
+        setRowCount( nRows );
+
+        // column 1
+        switch ( Diagnostic.getReturncode() )
+        {
+            case SQL_SUCCESS:
+                setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmInformation16) ), QString::fromLocal8Bit("") ) );
+                break;
+            case SQL_SUCCESS_WITH_INFO:
+                setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmWarning16) ), QString::fromLocal8Bit("") ) );
+                break;
+            default:
+                setItem( nRow, 0, new QTableWidgetItem( QIcon( QPixmap(xpmError16) ), QString::fromLocal8Bit("") ) );
+                break;
+        }
+
+        setItem( nRow, 1, new QTableWidgetItem( Record.getSqlstate() ) );
+        setItem( nRow, 2, new QTableWidgetItem( Record.getNative() ) );
+        setItem( nRow, 3, new QTableWidgetItem( Record.getMessageText() ) );
+
+        nWaitingMessages++;
     }
 
-    // column 2
-
-    // column 3
-
-    // column 4
-
-    nWaitingMessages++;
     emit signalWaitingMessages( this );
 }
 

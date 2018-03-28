@@ -11,16 +11,20 @@
 
 #include <OQMessage.h>
 
+#include "../include/OQGSystem.h"
 #include "../include/OQGEnvironment.h"
+#include "../include/OQGConnection.h"
 #include "../include/OQGMessageOutput.h"
 
 #include "ODBC64.xpm"
 
-OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGEnvironment *penvironment )
+OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGConnection *pconnection )
     : QDialog( pwidgetParent )
 {
     setObjectName( QString::fromLocal8Bit("OQGLogin") );
-    this->penvironment = penvironment;
+
+    penvironment = (OQGEnvironment*)(pconnection->getParent());
+    OQGSystem *psystem = (OQGSystem*)penvironment->getParent();
 
     QVBoxLayout *playoutTop = new QVBoxLayout;
 
@@ -88,7 +92,13 @@ OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGEnvironment *penvironment )
 //        setExtension( pmessageoutput );
 //        setOrientation( Qt::Vertical );
 
-        // connect( penvironment, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+        connect( psystem, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+        connect( penvironment, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+        connect( pconnection, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+
+        connect( psystem, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
+        connect( penvironment, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
+        connect( pconnection, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
 
     //    connect( pbMessages, SIGNAL(toggled(bool)), this, SLOT(showExtension(bool)) );
     }
@@ -98,18 +108,15 @@ OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGEnvironment *penvironment )
     setWindowTitle( tr( "Connect..." ) );
     setWindowIcon( QPixmap( xpmODBC64 ) );
     
-#ifndef Q_WS_WIN
+#ifndef Q_OS_WIN
     plineeditPassword->setFocus();
 #else
 	plineeditUserID->setFocus();
 #endif
 
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
     // do these last so we catch any errors with slotMessage
     loadDrivers();
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
     loadDataSourceNames();
-printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
 }
 
 OQGLogin::~OQGLogin()

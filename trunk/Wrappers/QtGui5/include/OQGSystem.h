@@ -30,6 +30,7 @@ public:
     virtual ~OQGSystem();
 
     // DO'rs
+    virtual bool doCreateDataSource( QWidget *pwidgetParent, const QString &stringDSN = QString::null );
     virtual bool doManageDataSources( QWidget *pwidgetParent );    
 };
 

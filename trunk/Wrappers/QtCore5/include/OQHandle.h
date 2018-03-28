@@ -11,6 +11,7 @@
 
 #include "OQ.h"
 #include "OQMessage.h"
+#include "OQDiagnostic.h"
 
 /*! 
  * \brief   An ODBC handle.
@@ -52,6 +53,10 @@ public:
 
     virtual void eventMessage( OQMessage Message );
     virtual void eventDiagnostic();
+
+signals:
+    void signalMessage( OQMessage );
+    void signalDiagnostic( OQDiagnostic );
 
 protected:
     Types       nType;

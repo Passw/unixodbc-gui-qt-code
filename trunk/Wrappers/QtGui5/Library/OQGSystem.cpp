@@ -19,6 +19,51 @@ OQGSystem::~OQGSystem()
 {
 }
 
+#if defined(Q_OS_MACOS)
+bool OQGSystem::doCreateDataSource( QWidget *pwidgetParent, const QString &stringDSN )
+{
+    if ( !OQSystem::doCreateDataSources( NULL, stringDSN ) )
+    {
+        QMessageBox::warning( 0, metaObject()->className(),  tr( "Failed to Create a new Data Source Name (DSN).\nThis request may not be supported by your implemetation of ODBC." ), QMessageBox::Ok );
+        return false;
+    }
+
+    return true;
+}
+#elif defined(Q_OS_UNIX)
+bool OQGSystem::doCreateDataSource( QWidget *pwidgetParent, const QString &stringDSN )
+{
+    ODBCINSTWND odbcinstwnd;
+    strcpy( odbcinstwnd.szUI, "odbcinstQ5" );
+    odbcinstwnd.hWnd = (HWND)pwidgetParent;
+
+    if ( !OQSystem::doCreateDataSource( (HWND)(&odbcinstwnd), stringDSN ) )
+    {
+        const QMetaObject *p = metaObject();
+        const char *psz = p->className();
+        QMessageBox::warning( pwidgetParent, QString::fromLocal8Bit(psz),  tr( "Failed to create a new Data Source Name (DSN).\nIs the unixODBC libodbcinstQ5 plugin installed?." ), QMessageBox::Ok );
+        return false;
+    }
+
+    return true;
+}
+#elif defined(Q_OS_WIN)
+bool OQGSystem::doCreateDataSource( QWidget *pwidgetParent, const QString &stringDSN )
+{
+    HWND hWnd = ( pwidget ? (HWND)(pwidget->winId()) : NULL );
+
+    if ( !OQSystem::doCreateDataSource( hWnd, stringDSN ) )
+    {
+        QMessageBox::warning( 0, metaObject()->className(),  tr( "Call to SQLManageDataSources returned false." ), QMessageBox::Ok );
+        return false;
+    }
+
+    return true;
+}
+#else
+    #error Platform not supported.
+#endif
+
 /*! 
  *  \f$     doManageDataSources
  *  \brief  Wrapper for SQLManageDataSources. Invoke a GUI (an ODBC Administrator).
@@ -34,8 +79,10 @@ OQGSystem::~OQGSystem()
  *  
  */
 #if defined(Q_OS_MACOS)
-bool OQGSystem::doManageDataSources( QWidget * )
+bool OQGSystem::doManageDataSources( QWidget *pwidgetParent )
 {
+    Q_UNUSED(pwidgetParent)
+
     if ( !OQSystem::doManageDataSources( NULL ) )
     {
         QMessageBox::warning( 0, metaObject()->className(),  tr( "Failed to execute the ODBC Administrator.\nIt should have been in /Applications/Utilities." ), QMessageBox::Ok );
