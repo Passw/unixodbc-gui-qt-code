@@ -23,6 +23,7 @@ HEADERS =       ../include/OQGConnection.h \
                 ../include/OQGPropertiesModel.h \
                 ../include/OQGProperty.h \
 		        ../include/OQGStatement.h \
+#                ../include/OQGStatementClient.h \
 		        ../include/OQGSystem.h
 SOURCES =       OQGConnection.cpp \
 		        OQGEnvironment.cpp \
@@ -33,5 +34,6 @@ SOURCES =       OQGConnection.cpp \
                 OQGPropertiesModel.cpp \
                 OQGProperty.cpp \
 		        OQGStatement.cpp \
+#                OQGStatementClient.cpp \
 		        OQGSystem.cpp
 
