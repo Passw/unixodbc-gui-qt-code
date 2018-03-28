@@ -272,11 +272,9 @@ QStringList OQEnvironment::getDataSources( OQSystem::enumFetch nScope, SQLRETURN
     SQLWCHAR        szDesc[nDescChars];
     SQLSMALLINT     nDescCharsAvail = 0;
 
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
     nReturn = doDataSources( (SQLUSMALLINT)nScope, szDSN, nDSNChars, &nDSNCharsAvail, szDesc, nDescChars, &nDescCharsAvail );
     while ( SQL_SUCCEEDED( nReturn ) )
     {
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
         stringlistDataSources << QString::fromUtf16( szDSN );
         nReturn = doDataSources( SQL_FETCH_NEXT, szDSN, nDSNChars, &nDSNCharsAvail, szDesc, nDescChars, &nDescCharsAvail );
     }
@@ -442,10 +440,8 @@ SQLRETURN OQEnvironment::doDrivers( SQLUSMALLINT nDirection, SQLWCHAR *pszDriver
  */
 SQLRETURN OQEnvironment::doDataSources( SQLUSMALLINT nDirection, SQLWCHAR *pszServerName, SQLSMALLINT nBufferLength1, SQLSMALLINT *pnNameLength1Ptr, SQLWCHAR *pszDescription, SQLSMALLINT nBufferLength2, SQLSMALLINT *pnNameLength2Ptr )
 {
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
     if ( !isAlloc() )
         return SQL_ERROR;
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
 
     //
     SQLRETURN nReturn = SQLDataSourcesW( hHandle, nDirection, pszServerName, nBufferLength1, pnNameLength1Ptr, pszDescription, nBufferLength2, pnNameLength2Ptr );
@@ -453,14 +449,11 @@ printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
     {
         case SQL_SUCCESS:
         case SQL_NO_DATA:
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
             break;
         case SQL_SUCCESS_WITH_INFO:
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
             eventDiagnostic();
             break;
         case SQL_ERROR:
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
             eventDiagnostic();
             break;
         case SQL_INVALID_HANDLE:

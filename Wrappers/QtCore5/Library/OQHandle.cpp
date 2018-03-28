@@ -13,7 +13,7 @@ OQHandle::OQHandle( Types nType, OQHandle *phandleParent )
  : QObject( phandleParent )
 {
     this->nType         = nType;
-    hHandle             = NULL; // this will always be NULL for Sys type
+    hHandle             = NULL; // starts off NULL (will always be NULL for Sys type)
 }
 
 OQHandle::~OQHandle()

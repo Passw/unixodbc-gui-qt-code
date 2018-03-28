@@ -64,7 +64,7 @@ protected:
 	QLineEdit *             plineeditUserID;
     QLabel *                plabelPassword;
 	QLineEdit *             plineeditPassword;
-    OQGMessageOutput *   pmessageoutput;
+    OQGMessageOutput *      pmessageoutput;
 
     virtual void loadDrivers();
     virtual void loadDataSourceNames();

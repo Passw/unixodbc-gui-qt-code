@@ -18,6 +18,8 @@
 #include <OQGConnection.h>
 #include <OQGStatement.h>
 
+#include "OQGMessageOutput.h"
+
 class OQGConsole : public QMainWindow
 { 
     Q_OBJECT
@@ -45,10 +47,10 @@ protected:
     QAction *   pactionManageDataSources;
     QAction *   pactionAbout;
 
-    QSplitter *     pSplitter;
-    QTextEdit *     ptexteditSQL;
-    QTableWidget *  ptablewidgetResults;
-    QTextEdit *     ptexteditMessages;
+    QSplitter *         pSplitter;
+    QTextEdit *         ptexteditSQL;
+    QTableWidget *      ptablewidgetResults;
+    OQGMessageOutput *  pmessageoutput;
 
     void createHandles();
     void createActions();
@@ -69,8 +71,6 @@ protected slots:
     void slotManageDataSources();
     void slotExecute();
     void slotResults( OQStatement *pStatement );
-    void slotMessage( OQMessage Message );
-    void slotDiagnostic( OQDiagnostic Diagnostic );
     void slotAbout();
 };
 

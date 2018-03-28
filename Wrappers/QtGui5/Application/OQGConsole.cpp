@@ -21,12 +21,12 @@ OQGConsole::OQGConsole()
     // init our gui elements...
     setWindowTitle( QString::fromLocal8Bit("OQGConsole") );
     setWindowIcon( QIcon( QPixmap(xpmODBC64) ) );
-    createHandles();
     createActions();
     createMenus();
     createToolBars();
     createStatusBar();
     createClientArea();
+    createHandles();
 }
 
 OQGConsole::~OQGConsole()
@@ -40,23 +40,31 @@ OQGConsole::~OQGConsole()
 
 void OQGConsole::createHandles()
 {
-    pSystem         = new OQGSystem();
-//    connect( pSystem, SIGNAL(signalMessage(OQMessage)), this, SLOT(slotMessage(OQMessage)) );
+    pSystem         = new OQGSystem(); 
+    pSystem->doAlloc();
 
-    pEnvironment    = new OQGEnvironment( pSystem );
+    pEnvironment    = new OQGEnvironment( pSystem ); 
+    pEnvironment->doAlloc();
+    pEnvironment->setAttrODBCVersion( OQGEnvironment::OVOdbc3 );
 
-    pConnection     = new OQGConnection( pEnvironment );
+    pConnection     = new OQGConnection( pEnvironment ); 
+    pConnection->doAlloc();
+
     connect( pConnection, SIGNAL(signalConnected()), this, SLOT(slotConnected()) );
     connect( pConnection, SIGNAL(signalDisconnected()), this, SLOT(slotDisconnected()) );
-    
     pStatement      = new OQGStatement( pConnection );
     connect( pStatement, SIGNAL(signalResults(OQStatement*)), this, SLOT(slotResults(OQStatement*)) );
 
     // messages
-    connect( pSystem, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
-    connect( pEnvironment, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
-    connect( pConnection, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
-    connect( pStatement, SIGNAL(signalMessage(OQMessage)), SLOT(slotMessage(OQMessage)) );
+    connect( pSystem, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+    connect( pEnvironment, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+    connect( pConnection, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+    connect( pStatement, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
+
+    connect( pSystem, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
+    connect( pEnvironment, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
+    connect( pConnection, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
+    connect( pStatement, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
 }
 
 void OQGConsole::createActions()
@@ -124,7 +132,7 @@ void OQGConsole::createClientArea()
     pSplitter           = new QSplitter( Qt::Vertical, this );          
     ptexteditSQL        = new QTextEdit( pSplitter );
     ptablewidgetResults = new QTableWidget( pSplitter );
-    ptexteditMessages   = new QTextEdit( pSplitter );
+    pmessageoutput      = new OQGMessageOutput( pSplitter );
 
     setCentralWidget( pSplitter );
     resize( 450, 600 );
@@ -173,24 +181,6 @@ void OQGConsole::slotExecute()
 void OQGConsole::slotResults( OQStatement * ) 
 {
     doResultGUIGrid();
-}
-
-void OQGConsole::slotMessage( OQMessage Message ) 
-{
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
-    ptexteditMessages->append( Message.getText() );
-}
-
-void OQGConsole::slotDiagnostic( OQDiagnostic Diagnostic )
-{
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
-    SQLINTEGER nRecords = Diagnostic.getNumber();
-
-    for ( SQLINTEGER nRecord = 1; nRecord <= nRecords; nRecord++ )
-    {
-        OQDiagnosticRecord Record( &Diagnostic, nRecord );
-        ptexteditMessages->append( Record.getMessageText() );
-    }
 }
 
 void OQGConsole::doResultGUIGrid()
@@ -245,7 +235,7 @@ void OQGConsole::doResultGUIGridBody( SWORD nColumns )
             ptablewidgetResults->setRowCount( nRow );
 
         // PROCESS ALL COLUMNS
-        for( nCol = 0; nCol < nColumns; nCol++ )
+        for( nCol = 1; nCol <= nColumns; nCol++ )
         {
             QVariant v = pStatement->getData( nCol );
             QTableWidgetItem *ptablewidgetitem;
@@ -259,7 +249,7 @@ void OQGConsole::doResultGUIGridBody( SWORD nColumns )
                 ptablewidgetitem = new QTableWidgetItem( v.toString() );
             }
             ptablewidgetitem->setFlags( Qt::ItemIsSelectable );
-            ptablewidgetResults->setItem( nRow - 1, nCol, ptablewidgetitem );
+            ptablewidgetResults->setItem( nRow - 1, nCol - 1, ptablewidgetitem );
         }
 
     } // while rows
