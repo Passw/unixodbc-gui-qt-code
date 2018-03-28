@@ -711,6 +711,12 @@ SQLRETURN OQConnection::doDisconnect()
         return SQL_ERROR;
     }
 
+    if ( children().count() )
+    {
+        eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit(__FUNCTION__), tr( "Active statement(s)." ) ) );
+        return SQL_ERROR;
+    }
+
     SQLRETURN nReturn = SQLDisconnect( hHandle );
     switch ( nReturn )
     {

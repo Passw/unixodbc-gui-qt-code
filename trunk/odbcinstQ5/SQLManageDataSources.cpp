@@ -87,9 +87,9 @@ static BOOL QT5CreateDataSource( HWND hWnd, LPCSTR pszDataSourceName )
         pWidget = qApp->desktop();
 
     // show dialog...
-    CDSNWizardData  WizardData( QString::fromLocal8Bit( pszDataSourceName ) );
+    CDSNWizardData  WizardData( ( pszDataSourceName ? QString::fromLocal8Bit( pszDataSourceName ) : QString::null ) );
     CDSNWizard      odbccreate( &WizardData, pWidget );
-	int nReturn = odbccreate.exec();
+    int nReturn = odbccreate.exec();
 
     //  sucks to have to do this after wizard is on its way out - no fail and Back :(
     if ( nReturn == QDialog::Accepted )
@@ -131,7 +131,7 @@ static BOOL QT5CreateDataSourceW( HWND hWnd, LPCWSTR pszDataSourceName )
         pWidget = qApp->desktop();
 
     // show dialog...
-    CDSNWizardData  WizardData( QString::fromUtf16( pszDataSourceName ) );
+    CDSNWizardData  WizardData( ( pszDataSourceName ? QString::fromUtf16( pszDataSourceName ) : QString::null ) );
     CDSNWizard      odbccreate( &WizardData, pWidget );
 	int nReturn = odbccreate.exec();
 

@@ -52,7 +52,6 @@ void OQGMessageOutput::slotMessage( OQMessage Message )
 {
     int nRows = rowCount() + 1;
     int nRow  = nRows - 1;
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
 
     // add row
     setRowCount( nRows );
@@ -86,7 +85,6 @@ printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
 
 void OQGMessageOutput::slotDiagnostic( OQDiagnostic Diagnostic )
 {
-printf( "[PAH][%s][%d]\n", __FUNCTION__, __LINE__ );
     SQLINTEGER nRecords = Diagnostic.getNumber();
 
     for ( SQLINTEGER nRecord = 1; nRecord <= nRecords; nRecord++ )
