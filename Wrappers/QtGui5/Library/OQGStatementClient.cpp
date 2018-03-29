@@ -9,22 +9,14 @@
  */
 #include "OQGStatementClient.h"
 
-#include "Execute16.xpm"
-#include "Connected16.xpm"
-#include "Disconnected16.xpm"
-#include "ODBC64.xpm"
 
-
-OQGStatementClient::OQGStatementClient( OQGConnection *pConnection, const QWidget *pwidgetParent )
+OQGStatementClient::OQGStatementClient( OQGConnection *pConnection, QWidget *pwidgetParent )
     : QWidget( pwidgetParent )
 {
     pStatement = new OQGStatement( pConnection );
     pStatement->doAlloc();
 
     // init our gui elements...
-    setWindowTitle( QString::fromLocal8Bit("OQGStatementClient") );
-    setWindowIcon( QIcon( QPixmap(xpmODBC64) ) );
-
     createClientArea();
 }
 
@@ -39,8 +31,8 @@ void OQGStatementClient::createClientArea()
     ptexteditSQL        = new QTextEdit( pSplitter );
     ptablewidgetResults = new QTableWidget( pSplitter );
 
-    setCentralWidget( pSplitter );
-    resize( 450, 600 );
+    QVBoxLayout *pLayout = new QVBoxLayout( this );
+    pLayout->addWidget( pSplitter );
 }
 
 void OQGStatementClient::slotExecute() 
@@ -59,6 +51,7 @@ void OQGStatementClient::slotExecute()
 
 void OQGStatementClient::doResults() 
 {
+    // could generate results in different formats but for now...
     doResultGUIGrid();
 }
 

@@ -11,6 +11,7 @@
 
 // qt
 #include <QtGui>
+#include <QtWidgets>
 
 // OQG
 #include <OQGSystem.h>
@@ -22,7 +23,7 @@ class OQGStatementClient : public QWidget
 { 
     Q_OBJECT
 public:
-	explicit OQGStatementClient( OQGConnection *pConnection, const QWidget *pwidgetParent = NULL );
+	explicit OQGStatementClient( OQGConnection *pConnection, QWidget *pwidgetParent = NULL );
 	~OQGStatementClient();
 
     OQGStatement *getStatement() { return pStatement; }
@@ -37,8 +38,9 @@ protected:
     QTextEdit *         ptexteditSQL;
     QTableWidget *      ptablewidgetResults;
 
+    // init
     void createClientArea();
-
+    // show result set
     void doResults();
     void doResultGUIGrid();
     void doResultGUIGridHeader( SWORD nColumns );
