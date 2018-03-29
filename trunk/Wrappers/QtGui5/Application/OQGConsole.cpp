@@ -8,6 +8,7 @@
  * \license Copyright unixODBC-GUI-Qt Project 2003-2009, LGPL
  */
 #include "OQGConsole.h"
+#include "OQGStatementClient.h"
 
 #include "New16.xpm"
 #include "Close16.xpm"
@@ -33,9 +34,18 @@ OQGConsole::OQGConsole()
 
 OQGConsole::~OQGConsole()
 {
-    if ( pConnection ) delete pConnection;
-    if ( pEnvironment ) delete pEnvironment;
-    if ( pSystem  ) delete pSystem;
+    // close all statements without using slotStatementClose()
+    // as it may giove options to save/cancel
+    while ( pTabWidget->count() )
+    {
+        OQGStatementClient *pStatementClient = (OQGStatementClient*)pTabWidget->currentWidget();
+        if ( !pStatementClient )
+            break;
+        delete pStatementClient; // will delete tab
+    }
+    delete pConnection;
+    delete pEnvironment;
+    delete pSystem;
 }
 
 void OQGConsole::createActions()
@@ -180,32 +190,35 @@ void OQGConsole::slotDataSourcesManage()
 
 void OQGConsole::slotStatementNew()
 {
-    /* for when creating a new statement tab
-    pStatement      = new OQGStatement( pConnection );
-    connect( pStatement, SIGNAL(signalResults(OQStatement*)), this, SLOT(slotResults(OQStatement*)) );
+    if ( !pConnection->isConnected() )
+    {
+        return;
+    }
+
+    OQGStatementClient *pStatementClient = new OQGStatementClient( pConnection );
+    OQGStatement *pStatement = pStatementClient->getStatement();
+
     connect( pStatement, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
     connect( pStatement, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
-    */
+
+    pTabWidget->addTab( pStatementClient, QString() );
 }
 
 void OQGConsole::slotStatementClose()
 {
-/*
-    OQGStatementClient *pClient = (OQGStatementClient*)pTabWidget->currentWidget();
-    if ( !pClient )
+    OQGStatementClient *pStatementClient = (OQGStatementClient*)pTabWidget->currentWidget();
+    if ( !pStatementClient )
         return;
-*/
+    delete pStatementClient; // this will delete the tab
 }
 
 void OQGConsole::slotStatementExecute() 
 {
-/*
-    OQGStatementClient *pClient = (OQGStatementClient*)pTabWidget->currentWidget();
-    if ( !pClient )
+    OQGStatementClient *pStatementClient = (OQGStatementClient*)pTabWidget->currentWidget();
+    if ( !pStatementClient )
         return;
 
-    pClient->slotExecute();
-*/
+    pStatementClient->slotExecute();
 }
 
 void OQGConsole::slotAbout()
