@@ -51,7 +51,8 @@
     <Files>
         <Folder
             Name="Source Files"
-            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl"
+            GUID="{415CAC69-618E-46A4-9EE0-3B4A32193A3C}">
             <F N="DBrowser.cpp"/>
             <F N="DDataManager.cpp"/>
             <F N="DDiagnostic.cpp"/>
@@ -92,7 +93,8 @@
         </Folder>
         <Folder
             Name="Header Files"
-            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if"
+            GUID="{7D67140B-5D03-4CD6-B97F-4CBB67F8FA74}">
             <F N="DBrowser.h"/>
             <F N="DDataManager.h"/>
             <F N="DDiagnostic.h"/>
@@ -132,13 +134,16 @@
         </Folder>
         <Folder
             Name="Resource Files"
-            Filters="*.ico;*.cur;*.dlg"/>
+            Filters="*.ico;*.cur;*.dlg"
+            GUID="{049D3C22-5BC3-4BB7-8B96-1913E841AC7E}"/>
         <Folder
             Name="Bitmaps"
-            Filters="*.bmp"/>
+            Filters="*.bmp"
+            GUID="{5891109D-6F97-48E3-91F9-657C4EFC3946}"/>
         <Folder
             Name="Other Files"
-            Filters="">
+            Filters=""
+            GUID="{72E2698B-D24B-45E2-A1BD-674F8A15A35E}">
             <F N="Add32.xpm"/>
             <F N="Attribute48.xpm"/>
             <F N="Connected48.xpm"/>
@@ -152,6 +157,7 @@
             <F N="Error48.xpm"/>
             <F N="Information48.xpm"/>
             <F N="Makefile.am"/>
+            <F N="Notes.txt"/>
             <F N="ODBC64.xpm"/>
             <F N="ODBCDataManager64.xpm"/>
             <F N="ODBCDataManagerQ5.pro"/>

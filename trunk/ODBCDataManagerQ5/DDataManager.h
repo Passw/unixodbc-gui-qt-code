@@ -34,6 +34,9 @@ public:
     virtual ~DDataManager();
 
 protected slots:
+
+    void slotAbout();
+
     void slotSubWindowActivated( QMdiSubWindow *pSubWindow );
     void slotSelected( const QModelIndex &index );
 

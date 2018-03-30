@@ -1,0 +1,53 @@
+Qt MODELS
+=========
+
+Important notes about how we layer Qt model paradigm upon our C++ wrapper for ODBC.
+
+1) QtGui5 provides all ODBC System Data based upon a hierarchy of ODBC handles implemented using QObject's
+2) ODBCModel (Qt Model) derived objects are organized in a hierachy that uses (1) as data. Each object in this hierarchy
+can provide a table view (as ODBCModel is derived from QAbstractTableModel) for viewing/editing properties.
+3) ODBCModelBrowser (derived from QAbstractItemModel) uses (2) as data focusing on the hierarchy so to allow (2) to be viewed in a QTreeView.
+
+OBJECT BROWSER
+==============
+
+System (handle)(1)
+	Environment (handle)(0-n)
+		Drivers (folder)(1)
+			Driver (object)(0-n)
+				Connection (handle)(0-n) *
+					Statement (handle)(0-n)
+		Data Source Names - System (folder)(1)
+			Data Source Name (object)(0-n)
+				Connection (handle) *
+					Statement (handle)(0-n)
+		Data Source Names - User (folder)(1)
+			Data Source Name (object)(0-n)
+				Connection (handle)(0-n) *
+					Statement (handle)(0-n)
+		Data Source Names - File (folder)(1)
+			Data Source Name (object)(0-n)
+				Connection (handle)(0-n) *
+					Statement (handle)(0-n)
+
+* Connection (handle)(0-n)
+	Statement (handle)(0-n)
+		Schema (folder) (1)
+			Table (object) (0-n)
+				Primary Key (object) (0-n)
+				Foreign Keys (folder)
+				Privileges (0-n)
+				Index (object) (0-n)
+				Row ID (folder) (1)
+					Column (object) (0-n)
+				Row Version (folder) (1)
+					Column (object) (0-n)
+				Column (object) (0-n)
+					Privileges (0-n)
+			Procedure (object) (0-n)
+				Column (object) (0-n)
+			Data Types
+				Type (0-n)
+
+		Result Set (object) (0-n)
+

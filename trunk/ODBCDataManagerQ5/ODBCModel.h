@@ -36,7 +36,7 @@ class ODBCModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModel( ODBCModel *pmodelParent = 0 );
+    explicit ODBCModel( OQHandle *pHandle, ODBCModel *pmodelParent = 0 );
     virtual ~ODBCModel();
 
     int rowCount ( const QModelIndex &indexParent = QModelIndex() ) const;
@@ -48,9 +48,7 @@ public:
 
     virtual QString             getText();
     virtual QIcon               getIcon() = 0;
-    virtual OQGSystem *      getSystem();
-    virtual OQGEnvironment * getEnvironment();
-    virtual OQGConnection *  getConnection();
+    virtual OQHandle *          getHandle() { return pHandle; }
 
     virtual bool doLoad() = 0;   // load children    
     virtual bool doClear() = 0;  // clear children (presumably for a refresh/reload)    
@@ -60,9 +58,10 @@ public:
 
 
 protected:
-    bool    bLoaded;        // support for lazy loading
-    int     nRows;          // default is 0; derived classes need to set to number of properties
-    int     nColumns;       // default is 2; 0=Name, 1=Value
+    OQHandle *  pHandle         // the underlying ODBC handle that this data is derived from 
+    bool        bLoaded;        // support for lazy loading
+    int         nRows;          // default is 0; derived classes need to set to number of properties
+    int         nColumns;       // default is 2; 0=Name, 1=Value
 };
 
 #endif

@@ -13,8 +13,8 @@
 #include "Remove32.xpm"
 #include "Driver48.xpm"
 
-ODBCModelDriver::ODBCModelDriver( ODBCModel *pmodelParent, const QString &stringDriver )
-    : ODBCModel( pmodelParent )
+ODBCModelDriver::ODBCModelDriver( OQGSystem *pSystem, ODBCModel *pmodelParent, const QString &stringDriver )
+    : ODBCModel( pSystem, pmodelParent )
 {
     setObjectName( stringDriver );
 

@@ -12,9 +12,8 @@
 #include "ODBC64.xpm"
 
 ODBCModelSystem::ODBCModelSystem( OQGSystem *pSystem )
-    : ODBCModel()
+    : ODBCModel( pSystem )
 {
-    this->pSystem = pSystem;
     pSysAttr    = ODBCMetaInfo::getSysAttr();
     nRows       = ODBCMetaInfo::getCount( pSysAttr ); // just attr but perhaps add number of active connections row
 
@@ -74,20 +73,17 @@ QIcon ODBCModelSystem::getIcon()
     return QIcon( QPixmap(xpmODBC64) );
 }
 
-OQGSystem *ODBCModelSystem::getSystem()
-{
-    return pSystem;
-}
-
 bool ODBCModelSystem::doLoad()
 {
-    new ODBCModelDrivers( this );
+    new ODBCModelDrivers( (OQGSystem*)(getHandle()), this );
     bLoaded = true;
     return true;
 }
 
 bool ODBCModelSystem::doClear()
 {
+    //\todo really get rid of children here
+
     bLoaded = false;
     return true;
 }
