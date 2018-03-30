@@ -23,24 +23,31 @@ ODBCModelDrivers::~ODBCModelDrivers()
 
 QVariant ODBCModelDrivers::data( const QModelIndex &index, int nRole ) const
 {
+    Q_UNUSED(index)
+    Q_UNUSED(nRole)
+
     // no props
     return QVariant();
 }
 
 bool ODBCModelDrivers::setData( const QModelIndex &index, const QVariant &variantValue, int nRole )
 {
+    Q_UNUSED(index)
+    Q_UNUSED(variantValue)
+    Q_UNUSED(nRole)
+
     // no props
     return false;
 }
 
 QIcon ODBCModelDrivers::getIcon()
 {
-    return QIcon( xpmDrivers48 );
+    return QIcon( QPixmap(xpmDrivers48) );
 }
 
 bool ODBCModelDrivers::doLoad()
 {
-    ODBCQGEnvironment * pEnvironment = getEnvironment();
+    OQGEnvironment * pEnvironment = getEnvironment();
     if ( !pEnvironment )
         return false;
 
@@ -51,6 +58,7 @@ bool ODBCModelDrivers::doLoad()
     }
 
     bLoaded = true;
+    return true;
 }
 
 bool ODBCModelDrivers::doClear()

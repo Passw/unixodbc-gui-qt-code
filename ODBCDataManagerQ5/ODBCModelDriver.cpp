@@ -18,10 +18,10 @@ ODBCModelDriver::ODBCModelDriver( ODBCModel *pmodelParent, const QString &string
 {
     setObjectName( stringDriver );
 
-    pactionConnect = new QAction( QIcon( xpmConnected48 ), "Connect", 0 );
+    pactionConnect = new QAction( QIcon( QPixmap( xpmConnected48 ) ), "Connect", 0 );
     connect( pactionConnect, SIGNAL(triggered()), this, SLOT(slotConnect()) );
 
-    pactionRemove = new QAction( QIcon( xpmRemove32 ), "Remove", 0 );
+    pactionRemove = new QAction( QIcon( QPixmap( xpmRemove32 ) ), "Remove", 0 );
     connect( pactionRemove, SIGNAL(triggered()), this, SLOT(slotRemove()) );
 
     doLoadProperties();
@@ -102,13 +102,15 @@ bool ODBCModelDriver::setData( const QModelIndex &index, const QVariant &variant
 
 QIcon ODBCModelDriver::getIcon()
 {
-    return QIcon( xpmDriver48 );
+    return QIcon( QPixmap( xpmDriver48 ) );
 }
 
 bool ODBCModelDriver::doLoad()
 {
     // no children (yet)
     bLoaded = true;
+
+    return true;
 }
 
 bool ODBCModelDriver::doClear()
@@ -119,12 +121,16 @@ bool ODBCModelDriver::doClear()
 
 void ODBCModelDriver::doContextMenu( QWidget *pwidgetParent, QPoint pos )
 {
+    Q_UNUSED(pwidgetParent)
+
     QList<QAction*> listActions;
 
     listActions.append( pactionConnect );
     listActions.append( pactionRemove );
 
     QAction *pAction = QMenu::exec( listActions, pos );
+
+    Q_UNUSED(pAction)
 }
 
 void ODBCModelDriver::slotConnect()
@@ -146,17 +152,17 @@ void ODBCModelDriver::doLoadProperties()
     vectorKeys.clear();    
     vectorValues.clear();
 
-    ODBCQGSystem *      pSystem         = getSystem();
-    ODBCQGEnvironment * pEnvironment    = getEnvironment();
+    OQGSystem *      pSystem         = getSystem();
+    OQGEnvironment * pEnvironment    = getEnvironment();
     if ( !pSystem || !pEnvironment )
         return;
 
     // get all attributes...
-    QMap<QString,QString> mapProperties = pSystem->getDriverAttributes( getText() );
+    OQDriver Driver = pSystem->getDriver( getText() );
 
     // translate to vectors since we only want access via index (row number)...
-    QMap<QString,QString>::const_iterator i = mapProperties.constBegin();
-    while ( i != mapProperties.constEnd() ) 
+    QMap<QString,QString>::const_iterator i = Driver.mapAttributes.constBegin();
+    while ( i != Driver.mapAttributes.constEnd() ) 
     {
         vectorKeys.append( i.key() );
         vectorValues.append( i.value() );
@@ -168,12 +174,7 @@ void ODBCModelDriver::doLoadProperties()
 
 bool ODBCModelDriver::doSaveProperty( const QString &stringKey, const QString &stringValue )
 {
-    ODBCQGSystem *      pSystem         = getSystem();
-    ODBCQGEnvironment * pEnvironment    = getEnvironment();
-    if ( !pSystem || !pEnvironment )
-        return false;
-
-    SQLRETURN nReturn = pSystem->setDriverAttribute( getText(), stringKey, stringValue );
+    SQLRETURN nReturn = getSystem()->setDriverAttribute( getText(), stringKey, stringValue );
 
     return (SQL_SUCCEEDED(nReturn));
 }

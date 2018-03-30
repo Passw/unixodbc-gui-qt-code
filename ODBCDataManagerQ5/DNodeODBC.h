@@ -10,8 +10,10 @@
 #ifndef DNODEODBC_H
 #define DNODEODBC_H
 
-#include "DNode.h"
+#include <OQGSystem.h>
+#include <OQGEnvironment.h>
 
+#include "DNode.h"
 class DNodeODBC : public DNode
 {
     Q_OBJECT
@@ -19,7 +21,8 @@ public:
     DNodeODBC( DNodeWidget *pNodeWidget );
     virtual ~DNodeODBC();
 
-    SQLHENV getEnvironment();
+    OQGSystem *     getSystem();        { return pSystem;       }
+    OQGEnvironment *getEnvironment()    { return pEnvironment;  }
 
     void doLoadProperties( DPropWidget *pPropWidget );
     void doClearProperties( DPropWidget *pPropWidget );
@@ -27,7 +30,8 @@ public:
     void doClear() {}
 
 private:
-    SQLHENV hEnv;
+    OQGSystem   *       pSystem;
+    OQGEnvironment *    pEnvironment;
 };
 
 #endif

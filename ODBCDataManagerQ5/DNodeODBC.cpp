@@ -24,9 +24,9 @@ DNodeODBC::DNodeODBC( DNodeWidget *pNodeWidget )
     setIcon( 0, QIcon( xpmODBC64 ) );
     setText( 0, QObject::tr( "ODBC" ) );
 
-    SQLRETURN nReturn = SQLAllocHandle( SQL_HANDLE_ENV, 0, &hEnv );
-    // we need the following because we (this app) are going to use v3 api calls...
-    SQLSetEnvAttr( hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0 );
+    pSystem = new OQGSystem();
+    pEnvironment = new OQGEnvironment( pSystem );
+    pEnvironment->doAlloc();
 
     new DNodeDrivers( pNodeWidget, this );
     new DNodeDataSourceNames( pNodeWidget, this );
@@ -36,12 +36,8 @@ DNodeODBC::DNodeODBC( DNodeWidget *pNodeWidget )
 
 DNodeODBC::~DNodeODBC()
 {
-    SQLRETURN nReturn = SQLFreeHandle( SQL_HANDLE_ENV, hEnv );
-}
 
-SQLHENV DNodeODBC::getEnvironment()
-{
-    return hEnv;
+    SQLRETURN nReturn = SQLFreeHandle( SQL_HANDLE_ENV, hEnv );
 }
 
 void DNodeODBC::doLoadProperties( DPropWidget *pPropWidget )

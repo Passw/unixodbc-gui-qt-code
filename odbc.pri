@@ -5,6 +5,18 @@
 # \sa		*.pri *.pro
 #
 
+#
+# Lets build for this version of the ODBC specification.
+#
+DEFINES += ODBCVER=0x0300
+
+#
+# Define for UNICODE, but do not map calls to A/W versions as we will call W versions
+# explicitly. 
+#
+DEFINES += UNICODE \
+	   SQL_NOUNICODEMAP
+
 # unixODBC-Test sources must be available so we can access 
 # autotest.h. This is needed for, at least, ODBCTestQx.
 

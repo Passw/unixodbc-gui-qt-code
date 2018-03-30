@@ -21,6 +21,22 @@ OQSystem::~OQSystem()
 }
 
 /*!
+ * \brief Set the given attribute for the given driver. 
+ * 
+ * \author pharvey (3/30/18)
+ * 
+ * \param stringDriver An existing driver.
+ * \param stringKey Key - it will be added if it does not exist.
+ * \param stringValue Value - attribute will be removed if this is null
+ * 
+ * \return SQLRETURN 
+ */
+SQLRETURN OQSystem::setDriverAttribute( const QString &stringDriver, const QString &stringKey, const QString &stringValue )
+{
+    return setAttribute( stringDriver, stringKey, stringValue, QString::fromLocal8Bit( "ODBCINST.INI" ) );
+}
+
+/*!
  * \brief   Get ODBC system-wide attributes. 
  *  
  *          These attributes are system-wide and include such things as connection pooling
@@ -370,6 +386,25 @@ BOOL OQSystem::doManageDataSources( HWND hWnd )
 #else
     #error Platform not supported.
 #endif
+
+/*!
+ * \brief Updates an attribute.
+ * 
+ * \author pharvey (3/30/18)
+ * 
+ * \param stringSection Section name. This can be a driver name, data source name, etc. In an INI file - its the text in [] brackets. It is an error to provide a NULL here. 
+ * \param stringKey The key. The entire section is removed if this is NULL.
+ * \param stringValue The value. The key/value is removed if this is NULL.
+ * \param stringFileName The file name. This can be a proper file name but usually it is "ODBC.INI" (combined with config mode) or "ODBCINST.INI".
+ * 
+ * \return SQLRETURN SQL_SUCCESS or SQL_ERROR
+ */
+SQLRETURN OQSystem::setAttribute( const QString &stringSection, const QString &stringKey, const QString &stringValue, const QString &stringFileName )
+{
+    BOOL b = SQLWritePrivateProfileStringW( ((LPCWSTR)stringSection.utf16()), ((LPCWSTR)stringKey.utf16()), ((LPCWSTR)stringValue.utf16()), ((LPCWSTR)stringFileName.utf16()) );
+    // capture/report errors here
+    return ( b ? SQL_SUCCESS : SQL_ERROR );
+}
 
 /*!
  * \brief   Gets all key/values for the given 'section'. 

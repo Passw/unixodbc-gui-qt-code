@@ -11,6 +11,7 @@
 #define DOUTPUTLOG_H
 
 #include <QtGui>
+#include <QtWidgets>
 
 class DOutputLog : public QWidget
 {

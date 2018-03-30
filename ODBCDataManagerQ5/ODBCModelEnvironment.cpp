@@ -11,7 +11,7 @@
 
 #include "ODBC64.xpm"
 
-ODBCModelEnvironment::ODBCModelEnvironment( ODBCQGEnvironment *pEnvironment )
+ODBCModelEnvironment::ODBCModelEnvironment( OQGEnvironment *pEnvironment )
     : ODBCModel()
 {
     this->pEnvironment = pEnvironment;
@@ -203,10 +203,10 @@ bool ODBCModelEnvironment::setData( const QModelIndex &index, const QVariant &va
 
 QIcon ODBCModelEnvironment::getIcon()
 {
-    return QIcon( xpmODBC64 );
+    return QIcon( QPixmap( xpmODBC64 ) );
 }
 
-ODBCQGEnvironment *ODBCModelEnvironment::getEnvironment()
+OQGEnvironment *ODBCModelEnvironment::getEnvironment()
 {
     return pEnvironment;
 }

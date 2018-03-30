@@ -130,6 +130,9 @@ public:
         FetchFirstUser      = SQL_FETCH_FIRST_USER
     };
 
+    // setters
+    virtual SQLRETURN                  setDriverAttribute( const QString &stringDriver, const QString &stringKey, const QString &stringValue );
+
     // getters
     virtual OQAttributes               getAttributes( SQLRETURN *pnReturn = NULL);
     virtual OQDriver                   getDriver( const QString &stringDriver, SQLRETURN *pnReturn = NULL );
@@ -151,6 +154,8 @@ signals:
 
 protected:
 //    virtual void eventSystemError();
+
+    virtual SQLRETURN   setAttribute( const QString &stringSection, const QString &stringKey, const QString &stringValue, const QString &stringFile );
 
     virtual OQAttributes getAttributes( const QString &stringFilename, const QString &stringSection, SQLRETURN *pnReturn );
 

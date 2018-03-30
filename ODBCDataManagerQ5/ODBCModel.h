@@ -11,10 +11,12 @@
 #define ODBCMODEL_H
 
 #include <QtGui>
+#include <QtWidgets>
 
-#include <ODBCQGSystem.h>
-#include <ODBCQGEnvironment.h>
-#include <ODBCQGConnection.h>
+#include <OQGSystem.h>
+#include <OQGEnvironment.h>
+#include <OQGConnection.h>
+
 #include "ODBCMetaInfo.h"
 #include "ODBCValueCell.h"
 
@@ -46,13 +48,13 @@ public:
 
     virtual QString             getText();
     virtual QIcon               getIcon() = 0;
-    virtual ODBCQGSystem *      getSystem();
-    virtual ODBCQGEnvironment * getEnvironment();
-    virtual ODBCQGConnection *  getConnection();
+    virtual OQGSystem *      getSystem();
+    virtual OQGEnvironment * getEnvironment();
+    virtual OQGConnection *  getConnection();
 
     virtual bool doLoad() = 0;   // load children    
     virtual bool doClear() = 0;  // clear children (presumably for a refresh/reload)    
-    virtual void doContextMenu( QWidget *pwidgetParent, QPoint pos ) {;}
+    virtual void doContextMenu( QWidget *pwidgetParent, QPoint pos ) { Q_UNUSED(pwidgetParent); Q_UNUSED(pos); }
 
     virtual bool isLoaded() { return bLoaded; }
 
