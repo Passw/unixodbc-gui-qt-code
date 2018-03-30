@@ -65,7 +65,7 @@ QString ODBCModel::getText()
     return objectName();
 }
 
-ODBCQGSystem *ODBCModel::getSystem()
+OQGSystem *ODBCModel::getSystem()
 {
     QObject *pObject = QObject::parent();
     if ( !pObject )
@@ -76,7 +76,7 @@ ODBCQGSystem *ODBCModel::getSystem()
     return pModel->getSystem();
 }
 
-ODBCQGEnvironment *ODBCModel::getEnvironment()
+OQGEnvironment *ODBCModel::getEnvironment()
 {
     QObject *pObject = QObject::parent();
     if ( !pObject )
@@ -87,7 +87,7 @@ ODBCQGEnvironment *ODBCModel::getEnvironment()
     return pModel->getEnvironment();
 }
 
-ODBCQGConnection *ODBCModel::getConnection()
+OQGConnection *ODBCModel::getConnection()
 {
     QObject *pObject = QObject::parent();
     if ( !pObject )

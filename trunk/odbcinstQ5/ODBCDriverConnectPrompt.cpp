@@ -73,8 +73,8 @@ static BOOL QT5DriverConnectPrompt( HWND hWnd, SQLCHAR *pszConnectString, SQLSMA
         /* Convert string to 8-bit ASCII while we copy it.
          * Non ASCII characters will result in character loss.
          */
+        memset( pszConnectString, '\0', nMaxChars ); // in case we are truncating
         strncpy( (char *)pszConnectString, stringConnectString.toLocal8Bit().constData(), nMaxChars );
-        pszConnectString[nMaxChars - 1] = '\0'; // in case we are truncating
         return true;
     }
 

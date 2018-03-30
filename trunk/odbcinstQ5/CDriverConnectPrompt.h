@@ -10,6 +10,7 @@
 #ifndef CDRIVERCONNECTPROMPT_H
 #define CDRIVERCONNECTPROMPT_H
 
+
 #include "CManageDataSourceNames.h"
 
 #include <QDialog>
@@ -34,7 +35,7 @@ public:
     CDriverConnectPrompt( const QString &stringIn, QWidget *pwidgetParent = 0 );
     virtual ~CDriverConnectPrompt();
 
-    QString getConnectString();
+    QString getConnectString() { return stringConnectString; }
 
 protected slots:
     void slotAccept();

@@ -11,11 +11,10 @@
 #define DDIAGNOSTIC_H
 
 #include <QtGui>
+#include <QtWidgets>
 
 #include <sqlext.h>
 #include <odbcinstext.h>
-
-#include <ODBCString.h>
 
 class DDiagnosticRecord
 {

@@ -24,21 +24,21 @@ class ODBCModelSystem : public ODBCModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModelSystem( ODBCQGSystem *pSystem );
+    explicit ODBCModelSystem( OQGSystem *pSystem );
     ~ODBCModelSystem();
 
     QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;
     bool setData( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
 
     QIcon           getIcon();
-    ODBCQGSystem *  getSystem();
+    OQGSystem *  getSystem();
 
     bool doLoad();
     bool doClear();
 
 private:
     ODBCMetaInfoAttr *  pSysAttr;
-    ODBCQGSystem *      pSystem;
+    OQGSystem *      pSystem;
 };
 
 #endif

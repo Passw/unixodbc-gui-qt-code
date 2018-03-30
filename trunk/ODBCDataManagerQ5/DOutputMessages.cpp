@@ -56,14 +56,14 @@ void DOutputMessages::slotDiagnostic( DDiagnostic diagnostic )
         SQLRETURN n = diagnostic.stringReturnCode.toInt();
 
         if ( n == SQL_ERROR )
-            pitemParent->setIcon( 0, QIcon( xpmError48 ) );
+            pitemParent->setIcon( 0, QIcon( QPixmap( xpmError48 ) ) );
         else if ( n == SQL_SUCCESS_WITH_INFO )
-            pitemParent->setIcon( 0, QIcon( xpmWarning48 ) );
+            pitemParent->setIcon( 0, QIcon( QPixmap( xpmWarning48 ) ) );
         else
-            pitemParent->setIcon( 0, QIcon( xpmInformation48 ) );
+            pitemParent->setIcon( 0, QIcon( QPixmap( xpmInformation48 ) ) );
     }
 
-    pitemParent->setText( 0, ODBCStringReturn( diagnostic.stringReturnCode.toInt() ) );
+//    pitemParent->setText( 0, ODBCStringReturn( diagnostic.stringReturnCode.toInt() ) );
     pitemParent->setText( 2, diagnostic.stringCursorRowCount );
     pitemParent->setText( 3, diagnostic.stringDynamicFunction );
     pitemParent->setText( 4, diagnostic.stringDynamicFunctionCode );

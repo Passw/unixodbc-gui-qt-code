@@ -16,9 +16,9 @@ int main( int argc, char **argv )
 {
     // init Qt application...
     QApplication app( argc, argv );
-    QCoreApplication::setOrganizationName("unixODBC");
-    QCoreApplication::setOrganizationDomain("unixodbc.org");
-    QCoreApplication::setApplicationName("ODBC Data Manager");
+    QCoreApplication::setOrganizationName( "unixODBC" );
+    QCoreApplication::setOrganizationDomain( "unixodbc.org" );
+    QCoreApplication::setApplicationName( "ODBC Data Manager" );
 
     DDataManager datamanager;
     datamanager.show();

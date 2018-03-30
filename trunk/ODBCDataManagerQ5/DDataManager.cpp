@@ -9,8 +9,8 @@
  */
 #include "DDataManager.h"
 
-#include "DBrowser.h"
-#include "DPropWidget.h"
+// #include "DBrowser.h"
+// #include "DPropWidget.h"
 #include "DOutputMessages.h"
 #include "DOutputLog.h"
 #include "DEdit.h"
@@ -33,7 +33,7 @@ DDataManager::DDataManager()
     connect( pMdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)) );
 
     setWindowTitle( tr( "ODBC Data Manager" ) );
-    setWindowIcon( QIcon( xpmODBCDataManager64 ) );
+    setWindowIcon( QIcon( QPixmap( xpmODBCDataManager64 ) ) );
 }
 
 DDataManager::~DDataManager()
@@ -89,7 +89,7 @@ void DDataManager::createActions()
      connect( pactionAbout, SIGNAL(triggered()), this, SLOT(slotAbout()) );
 
      // editor actions...
-     pactionSubmit = new QAction( QIcon( xpmRun48 ), tr( "Submit" ), this );
+     pactionSubmit = new QAction( QIcon( QPixmap( xpmRun48 ) ), tr( "Submit" ), this );
      pactionSubmit->setStatusTip( tr( "submit text to the data source for processing - show any results" ) );
      pactionSubmit->setEnabled( false );
 }
@@ -135,7 +135,7 @@ void DDataManager::createDockWindows()
     pDockWindow = new QDockWidget( tr("Browser"), this  );
     pDockWindow->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     pViewBrowser        = new ODBCViewBrowser( pDockWindow );
-    pSystem             = new ODBCQGSystem();
+    pSystem             = new OQGSystem();
     pModelSystem        = new ODBCModelSystem( pSystem );
     pModelBrowser       = new ODBCModelBrowser( pModelSystem );
 

@@ -11,15 +11,17 @@
 #define DDATAMANAGER_H
 
 #include <QtGui>
+#include <QtWidgets>
 
-#include "ODBCQGEnvironment.h"
+#include <OQGEnvironment.h>
+
 #include "ODBCModelSystem.h"
 #include "ODBCModelBrowser.h"
 #include "ODBCViewBrowser.h"
 #include "ODBCDelegateCell.h"
 
-class DBrowser;
-class DPropWidget;
+// class DBrowser;
+// class DPropWidget;
 class DOutputMessages;
 class DOutputLog;
 class DEdit;
@@ -37,7 +39,7 @@ protected slots:
 
 protected:
     ODBCViewBrowser *       pViewBrowser;
-    ODBCQGSystem *          pSystem;
+    OQGSystem *          pSystem;
     ODBCModelSystem *       pModelSystem;
     ODBCModelBrowser *      pModelBrowser;
     QTableView *            ptableviewProperties; // properties

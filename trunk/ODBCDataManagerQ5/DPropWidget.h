@@ -11,6 +11,7 @@
 #define DPROPWIDGET_H
 
 #include <QtGui>
+#include <QtWidgets>
 
 class DNodeWidget;
 

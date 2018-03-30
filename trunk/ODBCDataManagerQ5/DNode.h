@@ -11,12 +11,10 @@
 #define DNODE_H
 
 #include <QtGui>
+#include <QtWidgets>
 
 #include <sqlext.h>
 #include <odbcinstext.h>
-// #include <ini.h>
-
-#include <ODBCString.h>
 
 #include "DDiagnostic.h"
 
@@ -40,10 +38,10 @@ public:
     virtual SQLHENV getEnvironment();
     virtual SQLHDBC getConnection();
 
-    virtual void doLoadToolBar( QToolBar *pToolBar ) {}
-    virtual void doClearToolBar( QToolBar *pToolBar ) {}
-    virtual void doLoadProperties( DPropWidget *pPropWidget ) {}
-    virtual void doClearProperties( DPropWidget *pPropWidget ) {}
+    virtual void doLoadToolBar( QToolBar *pToolBar ) { Q_UNUSED(pToolBar) }
+    virtual void doClearToolBar( QToolBar *pToolBar ) { Q_UNUSED(pToolBar) }
+    virtual void doLoadProperties( DPropWidget *pPropWidget ) { Q_UNUSED(pPropWidget) }
+    virtual void doClearProperties( DPropWidget *pPropWidget ) { Q_UNUSED(pPropWidget) }
     virtual void doLoad() = 0;
     virtual void doClear() = 0;
     virtual void doDiagnosticClearSignal();

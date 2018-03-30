@@ -22,21 +22,21 @@ class ODBCModelEnvironment : public ODBCModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModelEnvironment( ODBCQGEnvironment *pEnvironment );
+    explicit ODBCModelEnvironment( OQGEnvironment *pEnvironment );
     ~ODBCModelEnvironment();
 
     QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;
     bool setData( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
 
     QIcon               getIcon();
-    ODBCQGEnvironment * getEnvironment();
+    OQGEnvironment * getEnvironment();
 
     bool doLoad();
     bool doClear();
 
 private:
     ODBCMetaInfoAttr *  pEnvAttr;
-    ODBCQGEnvironment * pEnvironment;
+    OQGEnvironment * pEnvironment;
 };
 
 #endif

@@ -11,7 +11,7 @@
 
 #include "ODBC64.xpm"
 
-ODBCModelSystem::ODBCModelSystem( ODBCQGSystem *pSystem )
+ODBCModelSystem::ODBCModelSystem( OQGSystem *pSystem )
     : ODBCModel()
 {
     this->pSystem = pSystem;
@@ -49,6 +49,8 @@ QVariant ODBCModelSystem::data( const QModelIndex &index, int nRole ) const
 
 bool ODBCModelSystem::setData( const QModelIndex &index, const QVariant &variantValue, int nRole )
 {
+    Q_UNUSED(variantValue)
+
     if ( !index.isValid() )
         return false;
 
@@ -69,10 +71,10 @@ bool ODBCModelSystem::setData( const QModelIndex &index, const QVariant &variant
 
 QIcon ODBCModelSystem::getIcon()
 {
-    return QIcon( xpmODBC64 );
+    return QIcon( QPixmap(xpmODBC64) );
 }
 
-ODBCQGSystem *ODBCModelSystem::getSystem()
+OQGSystem *ODBCModelSystem::getSystem()
 {
     return pSystem;
 }

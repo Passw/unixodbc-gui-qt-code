@@ -20,6 +20,8 @@ ODBCDelegateCell::ODBCDelegateCell( QObject *pobjectParent )
 
 QWidget *ODBCDelegateCell::createEditor( QWidget *pwidgetParent, const QStyleOptionViewItem &styleoptionviewitem, const QModelIndex &modelindex ) const
 {
+    Q_UNUSED(styleoptionviewitem)
+
     if ( modelindex.column() != 1 )
         return 0;
 
@@ -212,6 +214,8 @@ void ODBCDelegateCell::setModelData( QWidget *pwidgetEditor, QAbstractItemModel 
 
 void ODBCDelegateCell::updateEditorGeometry( QWidget *pwidgetEditor, const QStyleOptionViewItem &styleoptionviewitem, const QModelIndex &modelindex ) const
 {
+    Q_UNUSED(modelindex)
+
     pwidgetEditor->setGeometry( styleoptionviewitem.rect );
 }
 
