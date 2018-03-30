@@ -54,7 +54,7 @@ HEADERS		= \
 	ODBCModelBrowser.h \
 	ODBCModelDriver.h \
 	ODBCModelDrivers.h \
-#	ODBCModelEnvironment.h \
+	ODBCModelEnvironment.h \
 	ODBCModelSystem.h \
 	ODBCValueCell.h \
 	ODBCViewBrowser.h
@@ -92,7 +92,7 @@ SOURCES 	= \
 	ODBCModelBrowser.cpp \
 	ODBCModelDriver.cpp \
 	ODBCModelDrivers.cpp \
-#	ODBCModelEnvironment.cpp \
+	ODBCModelEnvironment.cpp \
 	ODBCModelSystem.cpp \
 	ODBCValueCell.cpp \
 	ODBCViewBrowser.cpp

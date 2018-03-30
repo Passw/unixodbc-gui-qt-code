@@ -53,7 +53,7 @@ void DDataManager::slotAbout()
 {
     QMessageBox MessageBox;
 
-    MessageBox.setText( tr("ODBC Data Manager is a feature-rich utility for all things ODBC - going far beyond the ODBC Administrator.\nIt provides the most complete access to the ODBC system including to data sources for manipulating data via SQL.") );
+    MessageBox.setText( tr("ODBC Data Manager is a feature-rich utility for all things ODBC which has been designed & created for software developers.\n\nUse it to poke & prod your; ODBC Driver Manager, ODBC Drivers and Data Sources - or simply use it to execute SQL and browse result sets.") );
     MessageBox.exec();
 }
 

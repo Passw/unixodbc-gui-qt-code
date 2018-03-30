@@ -9,15 +9,21 @@
  */
 #include "ODBCModelSystem.h"
 
+// children we support
+#include "ODBCModelEnvironment.h"
+
 #include "ODBC64.xpm"
 
-ODBCModelSystem::ODBCModelSystem( OQGSystem *pSystem )
-    : ODBCModel( pSystem )
+ODBCModelSystem::ODBCModelSystem( OQGSystem *pHandle )
+    : ODBCModel( pHandle )
 {
     pSysAttr    = ODBCMetaInfo::getSysAttr();
     nRows       = ODBCMetaInfo::getCount( pSysAttr ); // just attr but perhaps add number of active connections row
 
     setObjectName( "System" );
+
+    pactionNewEnvironment = new QAction( QIcon( QPixmap("") ), "New Environment", 0 );
+    connect( pactionNewEnvironment, SIGNAL(triggered()), this, SLOT(slotNewEnvironment()) );
 }
 
 ODBCModelSystem::~ODBCModelSystem()
@@ -75,17 +81,36 @@ QIcon ODBCModelSystem::getIcon()
 
 bool ODBCModelSystem::doLoad()
 {
-    new ODBCModelDrivers( (OQGSystem*)(getHandle()), this );
+    // create mandatory children (not optional children)
+    // no mandatory children at this time
     bLoaded = true;
     return true;
 }
 
 bool ODBCModelSystem::doClear()
 {
-    //\todo really get rid of children here
-
+    // clear mandatory and optional children here
     bLoaded = false;
     return true;
 }
 
+void ODBCModelSystem::doContextMenu( QWidget *pwidgetParent, QPoint pos )
+{
+    Q_UNUSED(pwidgetParent)
+
+    QList<QAction*> listActions;
+
+    listActions.append( pactionNewEnvironment );
+
+    QAction *pAction = QMenu::exec( listActions, pos );
+
+    Q_UNUSED(pAction)
+}
+
+void ODBCModelSystem::slotNewEnvironment()
+{
+    OQGSystem *pSystem = (OQGSystem*)(getHandle());
+    OQGEnvironment *pEnvironment = new OQGEnvironment( pSystem );
+    new ODBCModelEnvironment( pEnvironment, this );
+}
 

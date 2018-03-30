@@ -11,7 +11,8 @@
 #define ODBCMODELENVIRONMENT_H
 
 #include "ODBCModel.h"
-#include "ODBCModelDrivers.h"
+
+class ODBCModelSystem;
 
 /*!
  * \class   ODBCModelEnvironment
@@ -22,21 +23,32 @@ class ODBCModelEnvironment : public ODBCModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModelEnvironment( OQGEnvironment *pEnvironment );
+    explicit ODBCModelEnvironment( OQGEnvironment *pHandle, ODBCModelSystem *pParent );
     ~ODBCModelEnvironment();
 
     QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;
     bool setData( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
 
-    QIcon               getIcon();
-    OQGEnvironment * getEnvironment();
+    QIcon getIcon();
+
+    OQGEnvironment *getEnvironment() { return (OQGEnvironment*)(getHandle()); }
 
     bool doLoad();
     bool doClear();
+    void doContextMenu( QWidget *pwidgetParent, QPoint pos );
+
+protected slots:
+    void slotAlloc();
+    void slotFree();
+    void slotDelete();
+
+protected:
+    QAction *   pactionAlloc; 
+    QAction *   pactionFree; 
+    QAction *   pactionDelete; 
 
 private:
     ODBCMetaInfoAttr *  pEnvAttr;
-    OQGEnvironment * pEnvironment;
 };
 
 #endif

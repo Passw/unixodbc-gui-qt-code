@@ -4,9 +4,9 @@ Qt MODELS
 Important notes about how we layer Qt model paradigm upon our C++ wrapper for ODBC.
 
 1) QtGui5 provides all ODBC System Data based upon a hierarchy of ODBC handles implemented using QObject's
-2) ODBCModel (Qt Model) derived objects are organized in a hierachy that uses (1) as data. Each object in this hierarchy
-can provide a table view (as ODBCModel is derived from QAbstractTableModel) for viewing/editing properties.
-3) ODBCModelBrowser (derived from QAbstractItemModel) uses (2) as data focusing on the hierarchy so to allow (2) to be viewed in a QTreeView.
+2) ODBCModel (derived from QAbstractTableModel) derived objects are organized in a hierachy that uses (1) as data. Each object in this hierarchy
+can provide a table view for viewing/editing properties.
+3) ODBCModelBrowser (derived from QAbstractItemModel) uses (2) as data focusing on the hierarchy so as to allow (2) to be viewed in a QTreeView.
 
 OBJECT BROWSER
 ==============
