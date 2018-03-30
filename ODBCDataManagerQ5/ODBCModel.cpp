@@ -9,12 +9,13 @@
  */
 #include "ODBCModel.h"
 
-ODBCModel::ODBCModel( ODBCModel *pmodelParent )
+ODBCModel::ODBCModel( OQHandle *pHandle, ODBCModel *pmodelParent )
     : QAbstractTableModel( pmodelParent )
 {
-    bLoaded     = false;
-    nRows       = 0;
-    nColumns    = 2;
+    this->pHandle   = pHandle;
+    bLoaded         = false;
+    nRows           = 0;
+    nColumns        = 2;
 }
 
 ODBCModel::~ODBCModel()
@@ -63,39 +64,6 @@ void ODBCModel::setText( const QString &stringText )
 QString ODBCModel::getText()
 {
     return objectName();
-}
-
-OQGSystem *ODBCModel::getSystem()
-{
-    QObject *pObject = QObject::parent();
-    if ( !pObject )
-        return NULL;
-
-    ODBCModel *pModel = (ODBCModel*)pObject;
-
-    return pModel->getSystem();
-}
-
-OQGEnvironment *ODBCModel::getEnvironment()
-{
-    QObject *pObject = QObject::parent();
-    if ( !pObject )
-        return NULL;
-
-    ODBCModel *pModel = (ODBCModel*)pObject;
-
-    return pModel->getEnvironment();
-}
-
-OQGConnection *ODBCModel::getConnection()
-{
-    QObject *pObject = QObject::parent();
-    if ( !pObject )
-        return NULL;
-
-    ODBCModel *pModel = (ODBCModel*)pObject;
-
-    return pModel->getConnection();
 }
 
 

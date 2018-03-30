@@ -17,7 +17,7 @@ class ODBCModelDrivers : public ODBCModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModelDrivers( ODBCModel *pmodelParent );
+    explicit ODBCModelDrivers( OQGSystem *pSystem, ODBCModel *pmodelParent );
     ~ODBCModelDrivers();
 
     QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;

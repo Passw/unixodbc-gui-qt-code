@@ -49,6 +49,14 @@ DDataManager::~DDataManager()
     delete pactionSubmit;
 }
 
+void DDataManager::slotAbout()
+{
+    QMessageBox MessageBox;
+
+    MessageBox.setText( tr("ODBC Data Manager is a feature-rich utility for all things ODBC - going far beyond the ODBC Administrator.\nIt provides the most complete access to the ODBC system including to data sources for manipulating data via SQL.") );
+    MessageBox.exec();
+}
+
 void DDataManager::slotSubWindowActivated( QMdiSubWindow *pSubWindow )
 {
     if ( pEdit )
@@ -120,7 +128,7 @@ void DDataManager::createDockWindows()
 {
     QDockWidget *pDockWindow;
 
-    // output dock...
+    // output...
     pDockWindow = new QDockWidget( tr("Output"), this );
     pDockWindow->setAllowedAreas( Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea );
     QTabWidget *pTabWidget = new QTabWidget( pDockWindow );
@@ -131,19 +139,20 @@ void DDataManager::createDockWindows()
     pDockWindow->setWidget( pTabWidget );
     addDockWidget( Qt::BottomDockWidgetArea, pDockWindow );
 
-    // 
+    // browser...
     pDockWindow = new QDockWidget( tr("Browser"), this  );
     pDockWindow->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-    pViewBrowser        = new ODBCViewBrowser( pDockWindow );
-    pSystem             = new OQGSystem();
-    pModelSystem        = new ODBCModelSystem( pSystem );
-    pModelBrowser       = new ODBCModelBrowser( pModelSystem );
+    pViewBrowser        = new ODBCViewBrowser( pDockWindow );   // QTreeView widget
+    pSystem             = new OQGSystem();                      // root data for ODBC system
+    pModelSystem        = new ODBCModelSystem( pSystem );       // QAbstractTableModel
+    pModelBrowser       = new ODBCModelBrowser( pModelSystem ); // QAbstractItemModel using ODBC data model itself as data (so we can support QTreeView)
 
     pViewBrowser->setModel( pModelBrowser );
     pDockWindow->setWidget( pViewBrowser );
     addDockWidget( Qt::LeftDockWidgetArea, pDockWindow );
     connect( pViewBrowser, SIGNAL(clicked( const QModelIndex &)), this, SLOT(slotSelected( const QModelIndex &)) );
 
+    // properties...
     pDockWindow = new QDockWidget( tr("Properties"), this );
     pDockWindow->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     ptableviewProperties = new QTableView( pDockWindow );
