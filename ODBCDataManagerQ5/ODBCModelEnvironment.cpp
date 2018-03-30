@@ -8,17 +8,25 @@
  * \license Copyright unixODBC-GUI-Qt Project 2007-2012, See GPL.txt
  */
 #include "ODBCModelEnvironment.h"
+#include "ODBCModelSystem.h"
+#include "ODBCModelDrivers.h"
 
 #include "ODBC64.xpm"
 
-ODBCModelEnvironment::ODBCModelEnvironment( OQGEnvironment *pEnvironment )
-    : ODBCModel()
+ODBCModelEnvironment::ODBCModelEnvironment( OQGEnvironment *pEnvironment, ODBCModelSystem *pParent )
+    : ODBCModel( pEnvironment, pParent )
 {
-    this->pEnvironment = pEnvironment;
     pEnvAttr    = ODBCMetaInfo::getEnvAttr();
     nRows       = ODBCMetaInfo::getCount( pEnvAttr ); // just attr but perhaps add number of active connections row
 
     setObjectName( "Environment" );
+
+    pactionAlloc = new QAction( QIcon( QPixmap("") ), "Alloc", 0 );
+    connect( pactionAlloc, SIGNAL(triggered()), this, SLOT(slotAlloc()) );
+    pactionFree = new QAction( QIcon( QPixmap("") ), "Free", 0 );
+    connect( pactionFree, SIGNAL(triggered()), this, SLOT(slotFree()) );
+    pactionDelete = new QAction( QIcon( QPixmap("") ), "Delete", 0 );
+    connect( pactionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()) );
 }
 
 ODBCModelEnvironment::~ODBCModelEnvironment()
@@ -27,6 +35,8 @@ ODBCModelEnvironment::~ODBCModelEnvironment()
 
 QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
 {
+//    OQGEnvironment *pEnvironment = getEnvironment();
+
     if ( index.row() < 0 || index.row() >= nRows )
         return QVariant();
 
@@ -56,16 +66,16 @@ QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
                 switch ( index.row() )
                 {
                     case 0:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrConnectionPooling() );
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrConnectionPooling() );
                         break;
                     case 1:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrCPMatch() );
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrCPMatch() );
                         break;
                     case 2:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrODBCVersion() );
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrODBCVersion() );
                         break;
                     case 3:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrOutputNTS() );
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrOutputNTS() );
                         break;
                 }
                 if ( p )
@@ -80,20 +90,20 @@ QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
                 switch ( index.row() )
                 {
                     case 0:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrConnectionPooling() );
-                        ValueCell.nPromptType = ODBCValueCell::PromptTypeList;
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrConnectionPooling() );
+//                        ValueCell.nPromptType = ODBCValueCell::PromptTypeList;
                         break;
                     case 1:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrCPMatch() );
-                        ValueCell.nPromptType = ODBCValueCell::PromptTypeList;
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrCPMatch() );
+//                        ValueCell.nPromptType = ODBCValueCell::PromptTypeList;
                         break;
                     case 2:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrODBCVersion() );
-                        ValueCell.nPromptType = ODBCValueCell::PromptTypeList;
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrODBCVersion() );
+//                        ValueCell.nPromptType = ODBCValueCell::PromptTypeList;
                         break;
                     case 3:
-                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrOutputNTS() );
-                        ValueCell.nPromptType = ODBCValueCell::PromptTypeBool;
+//                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrOutputNTS() );
+//                        ValueCell.nPromptType = ODBCValueCell::PromptTypeBool;
                         break;
                 }
                 if ( !p )
@@ -152,6 +162,8 @@ QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
 
 bool ODBCModelEnvironment::setData( const QModelIndex &index, const QVariant &variantValue, int nRole )
 {
+    OQGEnvironment *pEnvironment = (OQGEnvironment*)(getHandle());
+
     if ( !index.isValid() )
         return false;
 
@@ -206,14 +218,11 @@ QIcon ODBCModelEnvironment::getIcon()
     return QIcon( QPixmap( xpmODBC64 ) );
 }
 
-OQGEnvironment *ODBCModelEnvironment::getEnvironment()
-{
-    return pEnvironment;
-}
-
 bool ODBCModelEnvironment::doLoad()
 {
-    new ODBCModelDrivers( this );
+    // lazy load
+    // load mandatory children
+    new ODBCModelDrivers( (OQGEnvironment*)(getHandle()), this );
     bLoaded = true;
     return true;
 }
@@ -224,4 +233,32 @@ bool ODBCModelEnvironment::doClear()
     return true;
 }
 
+void ODBCModelEnvironment::doContextMenu( QWidget *pwidgetParent, QPoint pos ) 
+{ 
+    Q_UNUSED(pwidgetParent); 
+    QList<QAction*> listActions;
+
+    listActions.append( pactionAlloc );
+    listActions.append( pactionFree );
+    listActions.append( pactionDelete );
+
+    QAction *pAction = QMenu::exec( listActions, pos );
+
+    Q_UNUSED(pAction)
+}
+
+void ODBCModelEnvironment::slotAlloc()
+{
+    // alloc underlying (SQLHENV) handle
+}
+
+void ODBCModelEnvironment::slotFree()
+{
+    // free underlying (SQLHENV) handle
+}
+
+void ODBCModelEnvironment::slotDelete()
+{
+    // delete ourself
+}
 

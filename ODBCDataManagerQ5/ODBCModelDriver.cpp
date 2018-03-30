@@ -8,21 +8,22 @@
  * \license Copyright unixODBC-GUI-Qt Project 2007-2012, See GPL.txt
  */
 #include "ODBCModelDriver.h"
+#include "ODBCModelDrivers.h"
 
 #include "Connected48.xpm"
 #include "Remove32.xpm"
 #include "Driver48.xpm"
 
-ODBCModelDriver::ODBCModelDriver( OQGSystem *pSystem, ODBCModel *pmodelParent, const QString &stringDriver )
-    : ODBCModel( pSystem, pmodelParent )
+ODBCModelDriver::ODBCModelDriver( OQGEnvironment *pHandle, ODBCModelDrivers *pParent, const QString &stringDriver )
+    : ODBCModel( pHandle, pParent )
 {
     setObjectName( stringDriver );
 
     pactionConnect = new QAction( QIcon( QPixmap( xpmConnected48 ) ), "Connect", 0 );
     connect( pactionConnect, SIGNAL(triggered()), this, SLOT(slotConnect()) );
 
-    pactionRemove = new QAction( QIcon( QPixmap( xpmRemove32 ) ), "Remove", 0 );
-    connect( pactionRemove, SIGNAL(triggered()), this, SLOT(slotRemove()) );
+    pactionDelete = new QAction( QIcon( QPixmap( xpmRemove32 ) ), "Delete", 0 );
+    connect( pactionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()) );
 
     doLoadProperties();
 }
@@ -126,7 +127,7 @@ void ODBCModelDriver::doContextMenu( QWidget *pwidgetParent, QPoint pos )
     QList<QAction*> listActions;
 
     listActions.append( pactionConnect );
-    listActions.append( pactionRemove );
+    listActions.append( pactionDelete );
 
     QAction *pAction = QMenu::exec( listActions, pos );
 
@@ -140,7 +141,7 @@ void ODBCModelDriver::slotConnect()
 printf( "[PAH][%s][%d][%s]\n", __FILE__, __LINE__, __FUNCTION__ );
 }
 
-void ODBCModelDriver::slotRemove()
+void ODBCModelDriver::slotDelete()
 {
 printf( "[PAH][%s][%d][%s]\n", __FILE__, __LINE__, __FUNCTION__ );
 //    delete this;
@@ -152,10 +153,7 @@ void ODBCModelDriver::doLoadProperties()
     vectorKeys.clear();    
     vectorValues.clear();
 
-    OQGSystem *      pSystem         = getSystem();
-    OQGEnvironment * pEnvironment    = getEnvironment();
-    if ( !pSystem || !pEnvironment )
-        return;
+    OQGSystem *pSystem = (OQGSystem *)(getHandle()->getParent( OQHandle::Sys ));
 
     // get all attributes...
     OQDriver Driver = pSystem->getDriver( getText() );
@@ -174,7 +172,8 @@ void ODBCModelDriver::doLoadProperties()
 
 bool ODBCModelDriver::doSaveProperty( const QString &stringKey, const QString &stringValue )
 {
-    SQLRETURN nReturn = getSystem()->setDriverAttribute( getText(), stringKey, stringValue );
+    OQGSystem *pSystem = (OQGSystem *)(getHandle()->getParent( OQHandle::Sys ));
+    SQLRETURN nReturn = pSystem->setDriverAttribute( getText(), stringKey, stringValue );
 
     return (SQL_SUCCEEDED(nReturn));
 }

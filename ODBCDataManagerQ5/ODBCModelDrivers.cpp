@@ -9,10 +9,12 @@
  */
 #include "ODBCModelDrivers.h"
 
+#include "ODBCModelDriver.h"
+
 #include "Drivers48.xpm"
 
-ODBCModelDrivers::ODBCModelDrivers( OQGSystem *pSystem, ODBCModel *pmodelParent )
-    : ODBCModel( pSystem, pmodelParent )
+ODBCModelDrivers::ODBCModelDrivers( OQGEnvironment *pHandle, ODBCModel *pmodelParent )
+    : ODBCModel( pHandle, pmodelParent )
 {
     setObjectName( "Drivers" );
 }
@@ -47,13 +49,13 @@ QIcon ODBCModelDrivers::getIcon()
 
 bool ODBCModelDrivers::doLoad()
 {
-    OQGSystem *pSystem = (OQGSystem*)(getHandle());
+    OQGEnvironment *pEnvironment = (OQGEnvironment *)(getHandle()->getParent( OQHandle::Env ));
 
-    QVector<QString> vectorDriverNames = pSystem->getDriverNames();
+    QStringList vectorDriverNames = pEnvironment->getDrivers();
 
     for ( int n = 0; n < vectorDriverNames.count(); n++ )
     {
-        new ODBCModelDriver( pSystem, this, vectorDriverNames.at( n ) );
+        new ODBCModelDriver( pEnvironment, this, vectorDriverNames.at( n ) );
     }
 
     bLoaded = true;

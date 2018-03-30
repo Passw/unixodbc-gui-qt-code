@@ -12,11 +12,13 @@
 
 #include "ODBCModel.h"
 
+class ODBCModelDrivers;
+
 class ODBCModelDriver : public ODBCModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModelDriver( OQGSystem *pSystem, ODBCModel *pmodelParent, const QString &stringDriver );
+    explicit ODBCModelDriver( OQGEnvironment *pHandle, ODBCModelDrivers *pParent, const QString &stringDriver );
     ~ODBCModelDriver();
 
     QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;
@@ -32,13 +34,13 @@ public:
 
 protected slots:
     void slotConnect();
-    void slotRemove();
+    void slotDelete();
 
 protected:
     QVector<QString>  vectorKeys;       // property keys...
     QVector<QString>  vectorValues;     // ...and corresponding values (we need to access via index not key)
     QAction *         pactionConnect; 
-    QAction *         pactionRemove;
+    QAction *         pactionDelete;
 
     void doLoadProperties();
     bool doSaveProperty( const QString &stringKey, const QString &stringValue );

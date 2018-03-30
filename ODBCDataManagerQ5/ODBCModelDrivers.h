@@ -11,13 +11,12 @@
 #define ODBCMODELDRIVERS_H
 
 #include "ODBCModel.h"
-#include "ODBCModelDriver.h"
 
 class ODBCModelDrivers : public ODBCModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModelDrivers( OQGSystem *pSystem, ODBCModel *pmodelParent );
+    explicit ODBCModelDrivers( OQGEnvironment *pHandle, ODBCModel *pmodelParent );
     ~ODBCModelDrivers();
 
     QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;

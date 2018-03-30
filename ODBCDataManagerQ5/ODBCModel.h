@@ -48,7 +48,7 @@ public:
 
     virtual QString             getText();
     virtual QIcon               getIcon() = 0;
-    virtual OQHandle *          getHandle() { return pHandle; }
+    OQHandle *          getHandle() { return pHandle; }
 
     virtual bool doLoad() = 0;   // load children    
     virtual bool doClear() = 0;  // clear children (presumably for a refresh/reload)    
@@ -58,7 +58,7 @@ public:
 
 
 protected:
-    OQHandle *  pHandle         // the underlying ODBC handle that this data is derived from 
+    OQHandle *  pHandle;        // the underlying ODBC handle that this data is derived from 
     bool        bLoaded;        // support for lazy loading
     int         nRows;          // default is 0; derived classes need to set to number of properties
     int         nColumns;       // default is 2; 0=Name, 1=Value

@@ -11,7 +11,6 @@
 #define ODBCMODELSYSTEM_H
 
 #include "ODBCModel.h"
-#include "ODBCModelDrivers.h"
 
 /*!
  * \class   ODBCModelSystem
@@ -24,7 +23,7 @@ class ODBCModelSystem : public ODBCModel
 {
     Q_OBJECT
 public:
-    explicit ODBCModelSystem( OQGSystem *pSystem );
+    explicit ODBCModelSystem( OQGSystem *pHandle );
     ~ODBCModelSystem();
 
     QVariant data( const QModelIndex & index, int role = Qt::DisplayRole ) const;
@@ -34,6 +33,13 @@ public:
 
     bool doLoad();
     bool doClear();
+    void doContextMenu( QWidget *pwidgetParent, QPoint pos );
+
+protected slots:
+    void slotNewEnvironment();
+
+protected:
+    QAction *   pactionNewEnvironment; 
 
 private:
     ODBCMetaInfoAttr *  pSysAttr;
