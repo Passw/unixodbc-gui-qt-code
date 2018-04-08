@@ -14,6 +14,18 @@ OQHandle::OQHandle( Types nType, OQHandle *phandleParent )
 {
     this->nType         = nType;
     hHandle             = NULL; // starts off NULL (will always be NULL for Sys type)
+
+    /* Echo up the object hierarchy (unless we are top handle). The idea here is that
+     * signalMessage() and signalDiagnostic() can be connected to ie a message/output 
+     * widget from any handle - and it will get all messages for that handle and its
+     * children. So, typically, a message/output widget would be connected to the Sys
+     * handle and get messages for everything ODBC.
+     */
+    if ( phandleParent && nType != Sys )
+    {
+        connect( this, SIGNAL(signalMessage(OQMessage)), phandleParent, SIGNAL(signalMessage(OQMessage)) );
+        connect( this, SIGNAL(signalDiagnostic(OQDiagnostic)), phandleParent, SIGNAL(signalDiagnostic(OQDiagnostic)) );
+    }
 }
 
 OQHandle::~OQHandle()
@@ -202,9 +214,11 @@ void OQHandle::eventMessage( OQMessage m )
 
 void OQHandle::eventDiagnostic()
 {
+    // this should not happen but just in case...
     if ( getType() == Sys )
         return;
 
+    // 
     emit signalDiagnostic(OQDiagnostic( this ));
 }
 

@@ -13,10 +13,6 @@ OQEnvironment::OQEnvironment( OQSystem *pSystem )
     : OQHandle( Env, pSystem )
 {
     setObjectName( QString::fromLocal8Bit("OQEnvironment") );
-
-    // echo up the object hierarchy
-    connect( this, SIGNAL(signalMessage(OQMessage)), pSystem, SIGNAL(signalMessage(OQMessage)) );
-    connect( this, SIGNAL(signalDiagnostic(OQDiagnostic)), pSystem, SIGNAL(signalDiagnostic(OQDiagnostic)) );
 }
 
 OQEnvironment::~OQEnvironment()

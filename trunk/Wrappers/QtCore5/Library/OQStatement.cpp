@@ -18,10 +18,6 @@ OQStatement::OQStatement( OQConnection *pconnection )
     setObjectName( QString::fromLocal8Bit("OQStatement") );
 
     nElapsedSeconds = 0;
-
-    // echo up the object hierarchy
-    connect( this, SIGNAL(signalMessage(OQMessage)), pconnection, SIGNAL(signalMessage(OQMessage)) );
-    connect( this, SIGNAL(signalDiagnostic(OQDiagnostic)), pconnection, SIGNAL(signalDiagnostic(OQDiagnostic)) );
 }
 
 OQStatement::~OQStatement()

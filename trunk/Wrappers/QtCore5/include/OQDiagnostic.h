@@ -53,17 +53,12 @@ public:
     QString     getSubclassOrigin( SQLRETURN *pnReturn = NULL );
 
 protected:
-    OQDiagnostic *pDiagnostic;
+    OQDiagnostic *  pDiagnostic;
     SQLINTEGER      nRecord;
 
-    SQLWCHAR *  getClassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    SQLWCHAR *  getConnectionName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    SQLWCHAR *  getMessageText( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    SQLWCHAR *  getServerName( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    SQLWCHAR *  getSqlstate( SQLWCHAR *psz /* better be 5 chars */, SQLRETURN *pnReturn = NULL );
-    SQLWCHAR *  getSubclassOrigin( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
-    SQLRETURN   getDiagField( Fields nField, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
-    SQLRETURN   getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
+    QString     getDiagFieldString( Fields nField, SQLRETURN *pnReturn = NULL );
+    SQLINTEGER  getDiagFieldInteger( Fields nField, SQLRETURN *pnReturn = NULL );
+    SQLLEN      getDiagFieldLen( Fields nField, SQLRETURN *pnReturn = NULL );
 };
 
 /*! 
@@ -96,16 +91,19 @@ public:
     explicit OQDiagnostic( OQHandle *pHandle );
 
     SQLLEN      getCursorRowCount( SQLRETURN *pn = NULL );
-    SQLWCHAR *  getDynamicFunction( SQLWCHAR *psz, SQLSMALLINT nMaxBytes, SQLSMALLINT *pnRequiredBytes = NULL, SQLRETURN *pnReturn = NULL );
+    QString     getDynamicFunction( SQLRETURN *pnReturn = NULL );
     SQLINTEGER  getDynamicFunctionCode( SQLRETURN *pn = NULL );
     SQLINTEGER  getNumber( SQLRETURN *pn = NULL );
     SQLRETURN   getReturncode( SQLRETURN *pn = NULL );
     SQLLEN      getRowCount( SQLRETURN *pn = NULL );
-    SQLRETURN   getDiagField( Fields nField, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
-    SQLRETURN   getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
+
+    OQDiagnosticRecord getRecord( SQLINTEGER nRecord, SQLRETURN *pn = NULL );
 
 protected:
     OQHandle *pHandle;
+
+    SQLRETURN   getDiagField( Fields nField, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
+    SQLRETURN   getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
 };
 
 
