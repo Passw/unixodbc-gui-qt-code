@@ -21,10 +21,6 @@ OQConnection::OQConnection( OQEnvironment *penvironment )
     bPromptUserID           = true;
     bPromptPassword         = true;
     bConnected              = false;
-
-    // echo up the object hierarchy
-    connect( this, SIGNAL(signalMessage(OQMessage)), penvironment, SIGNAL(signalMessage(OQMessage)) );
-    connect( this, SIGNAL(signalDiagnostic(OQDiagnostic)), penvironment, SIGNAL(signalDiagnostic(OQDiagnostic)) );
 }
 
 OQConnection::~OQConnection()
