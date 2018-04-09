@@ -138,7 +138,7 @@ void OQGConsole::createClientArea()
 {
     pSplitter           = new QSplitter( Qt::Vertical, this );          
     pTabWidget          = new QTabWidget( pSplitter );
-    pmessageoutput      = new OQGMessageOutput( pSplitter );
+    pmessageoutput      = new OQGTabOutput( pSplitter );
 
     setCentralWidget( pSplitter );
     resize( 450, 600 );
@@ -161,13 +161,8 @@ void OQGConsole::createHandles()
     connect( pConnection, SIGNAL(signalDisconnected()), this, SLOT(slotDisconnected()) );
 
     // messages
-    connect( pSystem, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
-    connect( pEnvironment, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
-    connect( pConnection, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
-
-    connect( pSystem, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
-    connect( pEnvironment, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
-    connect( pConnection, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
+    connect( pSystem, SIGNAL(signalMessage(OQMessage)), pmessageoutput->pMsgOutput, SLOT(slotMessage(OQMessage)) );
+    connect( pSystem, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput->pDiagOutput, SLOT(slotDiagnostic(OQDiagnostic)) );
 }
 
 void OQGConsole::slotConnectToggle()
@@ -196,10 +191,6 @@ void OQGConsole::slotStatementNew()
     }
 
     OQGStatementClient *pStatementClient = new OQGStatementClient( pConnection );
-    OQGStatement *pStatement = pStatementClient->getStatement();
-
-    connect( pStatement, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
-    connect( pStatement, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
 
     pTabWidget->addTab( pStatementClient, QString() );
 }

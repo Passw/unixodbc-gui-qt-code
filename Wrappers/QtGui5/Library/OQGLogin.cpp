@@ -85,20 +85,15 @@ OQGLogin::OQGLogin( QWidget *pwidgetParent, OQGConnection *pconnection )
 
     // messages
     {
-        pmessageoutput = new OQGMessageOutput( this );
+        pmessageoutput = new OQGTabOutput( this );
         playoutTop->addWidget( pmessageoutput );
 //        pmessageoutput->hide();
 //        pmessageoutput->setMinimumHeight( 50 );
 //        setExtension( pmessageoutput );
 //        setOrientation( Qt::Vertical );
 
-        connect( psystem, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
-        connect( penvironment, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
-        connect( pconnection, SIGNAL(signalMessage(OQMessage)), pmessageoutput, SLOT(slotMessage(OQMessage)) );
-
-        connect( psystem, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
-        connect( penvironment, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
-        connect( pconnection, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput, SLOT(slotDiagnostic(OQDiagnostic)) );
+        connect( psystem, SIGNAL(signalMessage(OQMessage)), pmessageoutput->pMsgOutput, SLOT(slotMessage(OQMessage)) );
+        connect( psystem, SIGNAL(signalDiagnostic(OQDiagnostic)), pmessageoutput->pDiagOutput, SLOT(slotDiagnostic(OQDiagnostic)) );
 
     //    connect( pbMessages, SIGNAL(toggled(bool)), this, SLOT(showExtension(bool)) );
     }

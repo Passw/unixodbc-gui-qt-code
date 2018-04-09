@@ -71,7 +71,7 @@ protected:
     // client area
     QSplitter *         pSplitter;
     QTabWidget *        pTabWidget;         // one tab per statement
-    OQGMessageOutput *  pmessageoutput;     // one output shared among all handles
+    OQGTabOutput *      pmessageoutput;     // one output shared among all handles
 
     // init
     void createHandles();

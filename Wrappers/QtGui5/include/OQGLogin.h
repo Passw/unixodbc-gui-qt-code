@@ -29,7 +29,7 @@ class OQGSystem;
 class OQGEnvironment;
 class OQGConnection;
 class OQMessage;
-class OQGMessageOutput;
+class OQGTabOutput;
 
 class OQGLogin: public QDialog
 {
@@ -64,7 +64,7 @@ protected:
 	QLineEdit *             plineeditUserID;
     QLabel *                plabelPassword;
 	QLineEdit *             plineeditPassword;
-    OQGMessageOutput *      pmessageoutput;
+    OQGTabOutput *          pmessageoutput;
 
     virtual void loadDrivers();
     virtual void loadDataSourceNames();
