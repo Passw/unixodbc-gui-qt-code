@@ -1121,7 +1121,7 @@ SQLLEN OQConsole::doWriteBodyNormal()
      * \sa      setWideCharData
      */
 
-    nColumns == vectorColumnWidths.size();
+    nColumns = vectorColumnWidths.size();
     
     /* ROWS */
     nReturn = pStatement->doFetch();

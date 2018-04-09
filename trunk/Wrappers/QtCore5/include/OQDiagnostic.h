@@ -102,8 +102,9 @@ public:
 protected:
     OQHandle *pHandle;
 
-    SQLRETURN   getDiagField( Fields nField, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
-    SQLRETURN   getDiagField( SQLSMALLINT nDiagIdentifier, SQLPOINTER pnDiagInfoPtr, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLengthPtr );
+    QString     getDiagFieldString( Fields nField, SQLRETURN *pnReturn = NULL );
+    SQLINTEGER  getDiagFieldInteger( Fields nField, SQLRETURN *pnReturn = NULL );
+    SQLLEN      getDiagFieldLen( Fields nField, SQLRETURN *pnReturn = NULL );
 };
 
 

@@ -18,12 +18,12 @@
 #include <OQMessage.h>
 #include <OQDiagnostic.h>
 
-class OQGMessageOutput: public QTableWidget
+class OQGMsgOutput: public QTableWidget
 {
 	Q_OBJECT
 public:
-    OQGMessageOutput( QWidget *pwidgetParent );
-    ~OQGMessageOutput();
+    OQGMsgOutput( QWidget *pwidgetParent = NULL );
+    ~OQGMsgOutput();
 
     // SETTERS
     virtual void setWaitingMessages( int n );
@@ -32,15 +32,52 @@ public:
     virtual int getWaitingMessages() { return nWaitingMessages; }
 
 signals:
-    void signalWaitingMessages( OQGMessageOutput * );
+    void signalWaitingMessages( OQGMsgOutput * );
 
 public slots:
     virtual void slotMessage( OQMessage Message );
-    virtual void slotDiagnostic( OQDiagnostic Diagnostic );
+    virtual void slotClear();
 
 protected:
     int nWaitingMessages;
 };
+
+class OQGDiagOutput: public QTreeWidget
+{
+	Q_OBJECT
+public:
+    OQGDiagOutput( QWidget *pwidgetParent = NULL );
+    ~OQGDiagOutput();
+
+    // SETTERS
+    virtual void setWaitingMessages( int n );
+
+    // GETTERS
+    virtual int getWaitingMessages() { return nWaitingMessages; }
+
+signals:
+    void signalWaitingMessages( OQGDiagOutput * );
+
+public slots:
+    virtual void slotDiagnostic( OQDiagnostic Diagnostic );
+    virtual void slotClear();
+
+protected:
+    int nWaitingMessages;
+};
+
+class OQGTabOutput: public QTabWidget
+{
+	Q_OBJECT
+public:
+    OQGDiagOutput *pDiagOutput;
+    OQGMsgOutput * pMsgOutput;
+
+    OQGTabOutput( QWidget *pwidgetParent );
+    ~OQGTabOutput();
+
+};
+
 
 #endif
 
