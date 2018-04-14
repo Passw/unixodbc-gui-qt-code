@@ -69,6 +69,8 @@ public:
     virtual QStringList getDrivers( SQLRETURN *pnReturn = NULL );
     virtual QStringList getDataSources(OQSystem::enumFetch nScope = OQSystem::FetchFirst, SQLRETURN *pnReturn = NULL);
 
+    virtual SQLRETURN doAlloc();        
+
 protected:
     virtual SQLRETURN setEnvAttr( SQLINTEGER nAttribute, SQLPOINTER pValue );
 

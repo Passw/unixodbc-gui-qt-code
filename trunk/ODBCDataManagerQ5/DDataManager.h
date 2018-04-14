@@ -22,8 +22,7 @@
 
 // class DBrowser;
 // class DPropWidget;
-class DOutputMessages;
-class DOutputLog;
+class OQGTabOutput;
 class DEdit;
 
 class DDataManager : public QMainWindow
@@ -42,7 +41,7 @@ protected slots:
 
 protected:
     ODBCViewBrowser *       pViewBrowser;
-    OQGSystem *          pSystem;
+    OQGSystem *             pSystem;
     ODBCModelSystem *       pModelSystem;
     ODBCModelBrowser *      pModelBrowser;
     QTableView *            ptableviewProperties; // properties
@@ -50,8 +49,7 @@ protected:
 
     QToolBar *          ptoolbarEditor;
     QMdiArea *          pMdiArea;
-    DOutputMessages *   pOutputMessages;
-    DOutputLog *        pOutputLog;
+    OQGTabOutput *      pTabOutput;
 
     DEdit *             pEdit; // current editor or NULL
 

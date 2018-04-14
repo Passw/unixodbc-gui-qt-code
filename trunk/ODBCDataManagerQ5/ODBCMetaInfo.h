@@ -15,6 +15,13 @@
 
 #include <QtCore>
 
+/*! 
+ * \struct tODBCMetaInfoAttrValue 
+ * \brief   Describes an attribute value. 
+ *  
+ *          A list of these can be used to present a list of potential values for an attribute.
+ *          ie for a combo/list box
+ */
 typedef struct tODBCMetaInfoAttrValue
 {
     union 
@@ -29,6 +36,12 @@ typedef struct tODBCMetaInfoAttrValue
 
 } ODBCMetaInfoAttrValue;
 
+/*! 
+ * \struct tODBCMetaInfoAttr 
+ * \brief   Describes an attribute. 
+ *  
+ * \sa tODBCMetaInfoAttrValue 
+ */
 typedef struct tODBCMetaInfoAttr
 {
     SQLINTEGER      nNumeric;
@@ -37,10 +50,21 @@ typedef struct tODBCMetaInfoAttr
     const char *    pszDescription;
     int             nValueType;     // SQL_IS_INTEGER, etc
     bool            bReadOnly;
-    ODBCMetaInfoAttrValue *pValues;
+    ODBCMetaInfoAttrValue *pValues; // list of possible values
 
 } ODBCMetaInfoAttr;
 
+/*!
+ * \class ODBCMetaInfo 
+ * \brief Attribute information regarding an ODBC handle. 
+ *  
+ *          The idea here is that info about all ODBC handle attributes are stored in
+ *          static data so that they can be processed using a smaller amount of code. 
+ *  
+ * \sa tODBCMetaInfoAttr
+ *  
+ * \author pharvey (4/11/18)
+ */
 class ODBCMetaInfo
 {
 public:
@@ -54,6 +78,7 @@ public:
 
     static ODBCMetaInfoAttr *       getSysAttr();                                                                   // to get env attr info
     static ODBCMetaInfoAttr *       getEnvAttr();                                                                   // to get env attr info
+                                                                                                                    
     static ODBCMetaInfoAttr *       getAttr( ODBCMetaInfoAttr *pAttr, enumAttrFields nField, QVariant v );          // to lookup an attr from a given field/value to get related info (scans)
     static ODBCMetaInfoAttrValue *  getAttrValue( ODBCMetaInfoAttr *pAttr, enumAttrFields nField, QVariant v );     // to lookup an attr value from a given field/value to get related info  (scans)
     static QVector<QVariant>        getAttrValues( ODBCMetaInfoAttr *pAttr, enumAttrFields nField );                // to load picklists

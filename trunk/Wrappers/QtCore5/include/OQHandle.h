@@ -44,14 +44,18 @@ public:
     explicit OQHandle( Types nType, OQHandle *phandleParent = NULL );
     virtual ~OQHandle();
 
+    void        setImplicitAlloc( bool b ) { bImplicitAlloc = b; }
+
     Types       getType();
     SQLHANDLE   getHandle();
     OQHandle *  getParent( Types nType );
+    bool        getImplicitAlloc() { return bImplicitAlloc; }
 
     virtual SQLRETURN doAlloc();        
     virtual SQLRETURN doFree();         
 
-    bool isAlloc( bool bAlloc = true );
+    bool isAlloc( bool bImplicitAlloc );
+    bool isAlloc();
 
     virtual void eventMessage( OQMessage Message );
     virtual void eventDiagnostic();
@@ -63,5 +67,6 @@ signals:
 protected:
     Types       nType;
     SQLHANDLE   hHandle;
+    bool        bImplicitAlloc = false;
 };
 

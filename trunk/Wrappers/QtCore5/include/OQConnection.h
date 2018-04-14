@@ -81,6 +81,14 @@ public:
         OptTraceOn  = SQL_OPT_TRACE_ON                          /*!< Tracing on. When tracing is on, the Driver Manager writes each ODBC function call to the trace file.                                   */
     };
 
+    enum DriverPromptTypes
+    {
+        DriverPrompt = SQL_DRIVER_PROMPT, 
+        DriverComplete = SQL_DRIVER_COMPLETE, 
+        DriverCompleteRequired = SQL_DRIVER_COMPLETE_REQUIRED, 
+        DriverNoprompt = SQL_DRIVER_NOPROMPT
+    };
+
     OQConnection( OQEnvironment *penvironment );
     virtual ~OQConnection();
 
@@ -100,12 +108,12 @@ public:
     virtual SQLRETURN setAttrTranslateLib( const QString &stringAttrTranslateLib );
     virtual SQLRETURN setAttrTranslateOption( SQLUINTEGER nAttrTranslateOption );
     virtual SQLRETURN setAttrTxnIsolation( SQLUINTEGER nAttrTxnIsolation );
-
+/*
     virtual void setPromptDriver( bool bPrompt )            { bPromptDriver = bPrompt;          }
     virtual void setPromptDataSourceName( bool bPrompt )    { bPromptDataSourceName = bPrompt;  }
     virtual void setPromptUserID( bool bPrompt )            { bPromptUserID = bPrompt;          }
     virtual void setPromptPassword( bool bPrompt )          { bPromptPassword = bPrompt;        }
-
+*/
     // GETTERS
     virtual AttrAccessModeTypes     getAttrAccessMode( SQLRETURN *pn = NULL );
     virtual AttrAsyncEnableTypes    getAttrAsyncEnable( SQLRETURN *pn = NULL ); 
@@ -139,6 +147,9 @@ public:
     virtual OQStatement *getProcedureColumns( const QString &stringProcedure = QString::null, const QString &stringSchema = QString::null, const QString &stringCatalog = QString::null );
     virtual OQStatement *getDataTypes();
 
+    virtual QString   getBrowseConnect( const QString &stringIn, SQLRETURN *pnReturn = NULL );
+    virtual QString   getDriverConnect( QWidget *pwidgetParent, const QString &stringIn, DriverPromptTypes nPrompt, SQLRETURN *pnReturn = NULL );
+/*
     virtual bool        getPromptDriver() { return bPromptDriver; }
     virtual bool        getPromptDataSourceName() { return bPromptDataSourceName; }
     virtual bool        getPromptUserID() { return bPromptUserID; }
@@ -147,11 +158,9 @@ public:
     virtual QString getDSN() { return stringDSN; }
     virtual QString getUID() { return stringUID; }
     virtual QString getPWD() { return stringPWD; }
-
+*/
     // DOERS
     virtual SQLRETURN doConnect( const QString &stringServerName = QString::null, const QString &stringUserName = QString::null, const QString &stringAuthentication = QString::null );
-    virtual SQLRETURN doBrowseConnect( const QString &stringIn, QString *pstringOut );
-    virtual SQLRETURN doDriverConnect( SQLHWND hWnd, const QString &stringIn, QString *pstringOut, SQLUSMALLINT nPrompt );
     virtual SQLRETURN doDisconnect();
 
     virtual bool isConnected();
@@ -162,6 +171,7 @@ signals:
 
 protected:
     bool bConnected;             /*!< cached connect state - need to see if this is needed                   */
+/*
     // Used by doConnect() and doBrowseConnect()
     bool                bPromptDriver;
     bool                bPromptDataSourceName;
@@ -173,7 +183,7 @@ protected:
     QString             stringUID;
     QString             stringPWD;
     QString             stringConnectString;
-
+*/
     // 2 arg calls for setting attributes (they call the 3 arg version)
     // these have extra validation to check data type for attribute
     virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLUINTEGER n );

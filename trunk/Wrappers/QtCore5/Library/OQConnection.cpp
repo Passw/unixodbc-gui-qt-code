@@ -666,13 +666,16 @@ SQLRETURN OQConnection::doConnect( const QString &stringServerName, const QStrin
     
     Connects to the data source. emits signalConnected() if things work out.
 */
-SQLRETURN OQConnection::doDriverConnect( SQLHWND hWnd, const QString &stringIn, QString *pstringOut, SQLUSMALLINT nPrompt )
+QString OQConnection::getDriverConnect( SQLHWND hWnd, const QString &stringIn, DriverPromptTypes nPrompt, SQLRETURN *pnReturn )
 {
     SQLWCHAR        szOut[4096];
     SQLSMALLINT     nCharsOutMax    = 4096;
     SQLSMALLINT     nCharsAvailable = 0;
+    SQLRETURN       nReturn;
+    SQLRETURN *     pnRet = ( pnReturn ? pnReturn : &nReturn );
+
     // we cast away the const in arg2 as spec says its input only
-    SQLRETURN       nReturn         = doDriverConnect( hWnd, (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable, nPrompt );
+    *pnRet = doDriverConnect( hWnd, (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable, (SQLUSMALLINT)nPrompt );
 
     if ( SQL_SUCCEEDED( nReturn ) )
     {
@@ -982,40 +985,6 @@ SQLRETURN OQConnection::getConnectAttr( SQLINTEGER nAttribute, SQLPOINTER pValue
             eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Unexpected SQLRETURN value."), nReturn ) );
             break;
     }
-
-    return nReturn;
-}
-
-SQLRETURN OQConnection::doBrowseConnect( SQLWCHAR *pszInConnectionString, SQLSMALLINT nStringLength1, SQLWCHAR *pszOutConnectionString, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength2Ptr )
-{
-    if ( !isAlloc() )
-        return SQL_ERROR;
-
-    SQLRETURN nReturn = SQLBrowseConnectW( hHandle, pszInConnectionString, nStringLength1, pszOutConnectionString, nBufferLength, pnStringLength2Ptr );
-    switch ( nReturn )
-    {
-        case SQL_SUCCESS:
-            bConnected = true;
-            break;
-        case SQL_SUCCESS_WITH_INFO:
-            bConnected = true;
-            eventDiagnostic();
-            break;
-        case SQL_NEED_DATA:
-            return nReturn;
-        case SQL_ERROR:
-            eventDiagnostic();
-            break;
-        case SQL_INVALID_HANDLE:
-            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), QString::fromLocal8Bit( "SQL_INVALID_HANDLE" ) ) );
-            break;
-        default:
-            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Unexpected SQLRETURN value."), nReturn ) );
-            break;
-    }
-
-    if ( isConnected() )
-        emit signalConnected();
 
     return nReturn;
 }

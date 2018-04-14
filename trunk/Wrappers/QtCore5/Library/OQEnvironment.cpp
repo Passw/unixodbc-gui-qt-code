@@ -264,7 +264,7 @@ QStringList OQEnvironment::getDataSources( OQSystem::enumFetch nScope, SQLRETURN
     SQLWCHAR        szDSN[nDSNChars];
     SQLSMALLINT     nDSNCharsAvail = 0;
 
-    SQLSMALLINT      nDescChars = 200;
+    SQLSMALLINT     nDescChars = 200;
     SQLWCHAR        szDesc[nDescChars];
     SQLSMALLINT     nDescCharsAvail = 0;
 
@@ -280,6 +280,19 @@ QStringList OQEnvironment::getDataSources( OQSystem::enumFetch nScope, SQLRETURN
 
     return stringlistDataSources;
 }
+
+SQLRETURN OQEnvironment::doAlloc()
+{
+    SQLRETURN nReturn = OQHandle::doAlloc();
+    if ( !SQL_SUCCEEDED(nReturn) )
+        return nReturn;
+
+    // set v3 as default
+    setAttrODBCVersion( OVOdbc3 );
+
+    return nReturn;
+}
+
 
 /*! 
  * \brief   Set an environment attribute.
