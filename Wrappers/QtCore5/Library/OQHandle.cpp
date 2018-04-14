@@ -13,7 +13,7 @@ OQHandle::OQHandle( Types nType, OQHandle *phandleParent )
  : QObject( phandleParent )
 {
     this->nType         = nType;
-    hHandle             = NULL; // starts off NULL (will always be NULL for Sys type)
+    hHandle             = SQL_NULL_HANDLE;
 
     /* Echo up the object hierarchy (unless we are top handle). The idea here is that
      * signalMessage() and signalDiagnostic() can be connected to ie a message/output 
@@ -76,21 +76,29 @@ OQHandle *OQHandle::getParent( Types nType )
  */
 SQLRETURN OQHandle::doAlloc()
 {
-    // Sys type is a special case
-    if ( getType() == Sys )
-    {
-        return SQL_SUCCESS;
-    }
-
     if ( isAlloc( false ) )
     {
         eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Already allocated.") ) );
         return SQL_ERROR;
     }
 
-    OQHandle *pParent = (OQHandle*)(parent());
+    // Sys type is a special case
+    // we do not allocate an ODBC handle - we fake it to make other logic work
+    if ( getType() == Sys )
+    {
+        hHandle = (void*)1;
+        return SQL_SUCCESS;
+    }
 
-    SQLRETURN nReturn = SQLAllocHandle( nType, ( pParent ? pParent->getHandle() : SQL_NULL_HANDLE ), &hHandle );
+    // we have ruled out the Sys handle above - for all others - our parent must exist and be a OQHandle
+    OQHandle *pParent = (OQHandle*)(parent());
+    if ( !pParent )
+        return SQL_ERROR;
+
+    // parent ODBC handle for Env is always null
+    SQLHANDLE hParent = ( nType == Env ? SQL_NULL_HANDLE : pParent->getHandle() );
+
+    SQLRETURN nReturn = SQLAllocHandle( nType, hParent, &hHandle );
     switch ( nReturn )
     {
         case SQL_SUCCESS:
@@ -136,16 +144,18 @@ SQLRETURN OQHandle::doAlloc()
  */
 SQLRETURN OQHandle::doFree()
 {
-    // Sys type is a special case
-    if ( getType() == Sys )
-    {
-        return SQL_SUCCESS;
-    }
-
     if ( !isAlloc( false ) )
     {
         eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit(__FUNCTION__), QObject::tr("Already free.") ) );
         return SQL_ERROR;
+    }
+
+    // Sys type is a special case
+    // we do not allocate (or free) an ODBC handle - we fake it to make other logic work
+    if ( getType() == Sys )
+    {
+        hHandle = SQL_NULL_HANDLE;
+        return SQL_SUCCESS;
     }
 
     SQLRETURN nReturn = SQLFreeHandle( nType, hHandle );
@@ -173,13 +183,14 @@ SQLRETURN OQHandle::doFree()
 }
 
 /*! 
- * \brief   Ensure underlying handle is allocated.
+ * \brief   Check if the underlying ODBC handle has been allocated.
  *
- *          We call this at the start of most methods to ensure that we have an allocated
- *          handle to work with.
+ *          The underlying ODBC handle will be allocated, as needed, if ImplicitAlloc is true.
  * 
- * \param   bAlloc  True if we want to silently allocate it as needed. Default is true.
- *
+ * \sa      setImplicitAlloc()
+ * \sa      getImplicitAlloc()
+ * \sa      isAlloc( bool )
+ * 
  * \return  bool
  * \retval  false   Handle was not allocated AND we failed to allocate it.
  * \retval  true    Handle was either allocated OR we succeeded in doing so.
@@ -187,18 +198,49 @@ SQLRETURN OQHandle::doFree()
  * \sa      doAlloc
  *          doFree
  */
-bool OQHandle::isAlloc( bool bAlloc )
+bool OQHandle::isAlloc()
 {
-    // Sys type is a special case
-    if ( getType() == Sys )
+    if ( hHandle == SQL_NULL_HANDLE )
     {
-        return true;
+        if ( !getImplicitAlloc() )
+            return false;
+        // alloc
+        SQLRETURN nReturn = doAlloc();
+        if ( !SQL_SUCCEEDED( nReturn ) )
+            return false;
     }
 
-    if ( hHandle == NULL )
+    return true;
+}
+
+/*! 
+ * \brief   Check if the underlying ODBC handle has been allocated.
+ *
+ *          This works like \sa isAlloc() but in this case we override the ImplicitAlloc setting
+ *          set by the application with a value we pass during the call.
+ * 
+ *          Mostly this is used when we *never* want to implicitly allocate the handle.
+ * 
+ * \param   bImplicitAlloc  True if we want to silently allocate it as needed.
+ *
+ * \sa      setImplicitAlloc()
+ * \sa      getImplicitAlloc()
+ * \sa      isAlloc()
+ * 
+ * \return  bool
+ * \retval  false   Handle was not allocated AND we failed to allocate it.
+ * \retval  true    Handle was either allocated OR we succeeded in doing so (if implicit alloc true).
+ *
+ * \sa      doAlloc
+ *          doFree
+ */
+bool OQHandle::isAlloc( bool bImplicitAlloc )
+{
+    if ( hHandle == SQL_NULL_HANDLE )
     {
-        if ( !bAlloc )
+        if ( !bImplicitAlloc )
             return false;
+        // alloc
         SQLRETURN nReturn = doAlloc();
         if ( !SQL_SUCCEEDED( nReturn ) )
             return false;

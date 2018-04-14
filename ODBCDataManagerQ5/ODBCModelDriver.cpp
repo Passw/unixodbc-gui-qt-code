@@ -8,7 +8,12 @@
  * \license Copyright unixODBC-GUI-Qt Project 2007-2012, See GPL.txt
  */
 #include "ODBCModelDriver.h"
+
+// parents we can have
 #include "ODBCModelDrivers.h"
+
+// children we can create
+#include "ODBCModelConnection.h"
 
 #include "Connected48.xpm"
 #include "Remove32.xpm"
@@ -19,8 +24,8 @@ ODBCModelDriver::ODBCModelDriver( OQGEnvironment *pHandle, ODBCModelDrivers *pPa
 {
     setObjectName( stringDriver );
 
-    pactionConnect = new QAction( QIcon( QPixmap( xpmConnected48 ) ), "Connect", 0 );
-    connect( pactionConnect, SIGNAL(triggered()), this, SLOT(slotConnect()) );
+    pactionNewConnection = new QAction( QIcon( QPixmap( xpmConnected48 ) ), "New Connection", 0 );
+    connect( pactionNewConnection, SIGNAL(triggered()), this, SLOT(slotNewConnection()) );
 
     pactionDelete = new QAction( QIcon( QPixmap( xpmRemove32 ) ), "Delete", 0 );
     connect( pactionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()) );
@@ -126,7 +131,7 @@ void ODBCModelDriver::doContextMenu( QWidget *pwidgetParent, QPoint pos )
 
     QList<QAction*> listActions;
 
-    listActions.append( pactionConnect );
+    listActions.append( pactionNewConnection );
     listActions.append( pactionDelete );
 
     QAction *pAction = QMenu::exec( listActions, pos );
@@ -134,11 +139,14 @@ void ODBCModelDriver::doContextMenu( QWidget *pwidgetParent, QPoint pos )
     Q_UNUSED(pAction)
 }
 
-void ODBCModelDriver::slotConnect()
+void ODBCModelDriver::slotNewConnection()
 {
-//    DNodeConnection *pConnection = new DNodeConnection( pNodeWidget, this );
-//    setExpanded( true );
-printf( "[PAH][%s][%d][%s]\n", __FILE__, __LINE__, __FUNCTION__ );
+    OQHandle *      pHandle         = getHandle();
+    OQGEnvironment *pEnvironment    = (OQGEnvironment*)(pHandle->getParent( OQHandle::Env ));
+
+    OQGConnection *pConnection = new OQGConnection( pEnvironment );
+    pConnection->doAlloc();
+    new ODBCModelConnection( pEnvironment, this );
 }
 
 void ODBCModelDriver::slotDelete()

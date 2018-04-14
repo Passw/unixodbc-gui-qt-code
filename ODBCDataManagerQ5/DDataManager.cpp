@@ -9,9 +9,11 @@
  */
 #include "DDataManager.h"
 
+#include <OQGMessageOutput.h>
+
 // #include "DBrowser.h"
 // #include "DPropWidget.h"
-#include "DOutputMessages.h"
+
 #include "DOutputLog.h"
 #include "DEdit.h"
 
@@ -31,6 +33,9 @@ DDataManager::DDataManager()
     createDockWindows();
 
     connect( pMdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)), SLOT(slotSubWindowActivated(QMdiSubWindow*)) );
+    // messages
+    connect( pSystem, SIGNAL(signalMessage(OQMessage)), pTabOutput->pMsgOutput, SLOT(slotMessage(OQMessage)) );
+    connect( pSystem, SIGNAL(signalDiagnostic(OQDiagnostic)), pTabOutput->pDiagOutput, SLOT(slotDiagnostic(OQDiagnostic)) );
 
     setWindowTitle( tr( "ODBC Data Manager" ) );
     setWindowIcon( QIcon( QPixmap( xpmODBCDataManager64 ) ) );
@@ -131,12 +136,8 @@ void DDataManager::createDockWindows()
     // output...
     pDockWindow = new QDockWidget( tr("Output"), this );
     pDockWindow->setAllowedAreas( Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea );
-    QTabWidget *pTabWidget = new QTabWidget( pDockWindow );
-    pOutputMessages = new DOutputMessages( pTabWidget );
-    pOutputLog = new DOutputLog( pTabWidget );
-    pTabWidget->addTab( pOutputMessages, "Diagnostic Messages" );
-    pTabWidget->addTab( pOutputLog, "Trace" );
-    pDockWindow->setWidget( pTabWidget );
+    pTabOutput = new OQGTabOutput( pDockWindow );
+    pDockWindow->setWidget( pTabOutput );
     addDockWidget( Qt::BottomDockWidgetArea, pDockWindow );
 
     // browser...
@@ -144,6 +145,7 @@ void DDataManager::createDockWindows()
     pDockWindow->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     pViewBrowser        = new ODBCViewBrowser( pDockWindow );   // QTreeView widget
     pSystem             = new OQGSystem();                      // root data for ODBC system
+    pSystem->doAlloc();
     pModelSystem        = new ODBCModelSystem( pSystem );       // QAbstractTableModel
     pModelBrowser       = new ODBCModelBrowser( pModelSystem ); // QAbstractItemModel using ODBC data model itself as data (so we can support QTreeView)
 

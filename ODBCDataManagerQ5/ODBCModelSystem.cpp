@@ -110,7 +110,13 @@ void ODBCModelSystem::doContextMenu( QWidget *pwidgetParent, QPoint pos )
 void ODBCModelSystem::slotNewEnvironment()
 {
     OQGSystem *pSystem = (OQGSystem*)(getHandle());
+    if ( !pSystem->isAlloc() )
+    {
+        return;
+    }
+
     OQGEnvironment *pEnvironment = new OQGEnvironment( pSystem );
+    pEnvironment->doAlloc();
     new ODBCModelEnvironment( pEnvironment, this );
 }
 

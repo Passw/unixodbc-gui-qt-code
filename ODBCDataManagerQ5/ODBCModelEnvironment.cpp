@@ -35,7 +35,7 @@ ODBCModelEnvironment::~ODBCModelEnvironment()
 
 QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
 {
-//    OQGEnvironment *pEnvironment = getEnvironment();
+    OQGEnvironment *pEnvironment = (OQGEnvironment *)pHandle;
 
     if ( index.row() < 0 || index.row() >= nRows )
         return QVariant();
@@ -110,7 +110,7 @@ QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
                     break;
 
                 // describe the value and prompting 
-
+/*
                 ValueCell.stringDescription         = pAttr->pszDescription;
                 ValueCell.vValue                    = p->pszCasualName;
                 ValueCell.vValueOriginal            = p->pszCasualName;
@@ -121,6 +121,7 @@ QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
                     ValueCell.nPromptType = ODBCValueCell::PromptTypeLabel;
 
                 return QVariant::fromValue( ValueCell );
+*/
             }
         }
     }
@@ -196,7 +197,7 @@ bool ODBCModelEnvironment::setData( const QModelIndex &index, const QVariant &va
                 nReturn = pEnvironment->setAttrCPMatch( (OQEnvironment::AttrCPMatchTypes)p->Numeric.nUnsignedInteger );
                 break;
             case 2:
-                nReturn = pEnvironment->setAttrODBCVersion( (OQEnvironment::AttrODBCVersionTypes)p->Numeric.nInteger );
+                nReturn = pEnvironment->setAttrODBCVersion( (OQGEnvironment::AttrODBCVersionTypes)p->Numeric.nInteger );
                 break;
             case 3:
                 nReturn = pEnvironment->setAttrOutputNTS( (bool)p->Numeric.nSmallInteger );
@@ -250,11 +251,21 @@ void ODBCModelEnvironment::doContextMenu( QWidget *pwidgetParent, QPoint pos )
 void ODBCModelEnvironment::slotAlloc()
 {
     // alloc underlying (SQLHENV) handle
+    OQGEnvironment *pEnvironment = getEnvironment();
+    if ( pEnvironment->isAlloc() )
+        return;
+
+    pEnvironment->doAlloc();
 }
 
 void ODBCModelEnvironment::slotFree()
 {
     // free underlying (SQLHENV) handle
+    OQGEnvironment *pEnvironment = getEnvironment();
+    if ( !pEnvironment->isAlloc() )
+        return;
+
+    pEnvironment->doFree();
 }
 
 void ODBCModelEnvironment::slotDelete()

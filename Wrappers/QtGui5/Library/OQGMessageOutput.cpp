@@ -128,13 +128,13 @@ void OQGDiagOutput::slotDiagnostic( OQDiagnostic diagnostic )
         pitemParent->setIcon( 0, QIcon( QPixmap( xpmWarning16 ) ) );
     else
         pitemParent->setIcon( 0, QIcon( QPixmap( xpmInformation16 ) ) );
-
-    pitemParent->setText( 2, QString().arg(diagnostic.getCursorRowCount()) );
+    QString stringValue;
+    pitemParent->setText( 2, stringValue.setNum(diagnostic.getCursorRowCount()) );
     pitemParent->setText( 3, diagnostic.getDynamicFunction() );
-    pitemParent->setText( 4, QString().arg(diagnostic.getDynamicFunctionCode()) );
+    pitemParent->setText( 4, stringValue.setNum(diagnostic.getDynamicFunctionCode()) );
     SQLINTEGER nRecords = diagnostic.getNumber();
-    pitemParent->setText( 5, QString().arg(nRecords) );
-    pitemParent->setText( 6, QString().arg(diagnostic.getRowCount()) );
+    pitemParent->setText( 5, stringValue.setNum(nRecords) );
+    pitemParent->setText( 6, stringValue.setNum(diagnostic.getRowCount()) );
 
     for ( SQLINTEGER nRecord = 1; nRecord <= nRecords; nRecord++ )
     {
@@ -143,10 +143,10 @@ void OQGDiagOutput::slotDiagnostic( OQDiagnostic diagnostic )
 
         pitemChild->setText( 1, record.getMessageText() );
         pitemChild->setText( 7, record.getClassOrigin() );
-        pitemChild->setText( 8, QString().arg(record.getColumnNumber()) );
+        pitemChild->setText( 8, stringValue.setNum(record.getColumnNumber()) );
         pitemChild->setText( 9, record.getConnectionName() );
-        pitemChild->setText( 10, QString().arg(record.getNative()) );
-        pitemChild->setText( 11, QString().arg(record.getRowNumber()) );
+        pitemChild->setText( 10, stringValue.setNum(record.getNative()) );
+        pitemChild->setText( 11, stringValue.setNum(record.getRowNumber()) );
         pitemChild->setText( 12, record.getServerName() );
         pitemChild->setText( 13, record.getSqlstate() );
         pitemChild->setText( 14, record.getSubclassOrigin() );

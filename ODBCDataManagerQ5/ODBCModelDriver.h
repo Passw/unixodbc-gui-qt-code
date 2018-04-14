@@ -33,13 +33,13 @@ public:
     void doContextMenu( QWidget *pwidgetParent, QPoint pos );
 
 protected slots:
-    void slotConnect();
+    void slotNewConnection();
     void slotDelete();
 
 protected:
     QVector<QString>  vectorKeys;       // property keys...
     QVector<QString>  vectorValues;     // ...and corresponding values (we need to access via index not key)
-    QAction *         pactionConnect; 
+    QAction *         pactionNewConnection; 
     QAction *         pactionDelete;
 
     void doLoadProperties();
