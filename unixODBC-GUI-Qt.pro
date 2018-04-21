@@ -22,7 +22,7 @@
 # Get unixODBC-Test (do not build it yet) and set the
 # following environment variable to tell us where it is;
 #
-# export UNIXODBC_TEST_SRC=~/unixodbc-test/trunk
+# export UNIXODBC_TEST_SRC=~/unixodbc-test/
 #
 # Build This
 # 
