@@ -16,10 +16,6 @@
 OQGConnection::OQGConnection( OQGEnvironment *pEnvironment )
     : OQConnection( pEnvironment )
 {
-    bPromptDriver           = true;
-    bPromptDataSourceName   = true;
-    bPromptUserID           = true;
-    bPromptPassword         = true;
 }
 
 /*!
@@ -38,17 +34,16 @@ bool OQGConnection::doConnect( QWidget *pwidgetParent, const QString &stringDSN,
     plogin->setWindowTitle( tr( "Connect..." ) );
     plogin->setShowDriver( false );
 
-    bool bPromptSomething = bPromptDataSourceName || bPromptUserID || bPromptPassword;
-    plogin->setShowDataSourceName( bPromptDataSourceName );
-    plogin->setShowUserID( bPromptUserID );
-    plogin->setShowPassword( bPromptPassword );
+    plogin->setShowDataSourceName( true );
+    plogin->setShowUserID( true );
+    plogin->setShowPassword( true );
     plogin->setDataSourceName( stringDSN );
     plogin->setUserID( stringUID );
     plogin->setPassword( stringPWD );
 
     while ( 1 )
     {
-        if ( !bPromptSomething || (plogin->exec() == QDialog::Accepted) ) 
+        if ( (plogin->exec() == QDialog::Accepted) ) 
         {
             SQLRETURN nReturn = OQConnection::doConnect( plogin->getDataSourceName(), plogin->getUserID(), plogin->getPassword() );
             if ( SQL_SUCCEEDED( nReturn ) )
@@ -58,11 +53,6 @@ bool OQGConnection::doConnect( QWidget *pwidgetParent, const QString &stringDSN,
             }
             else
             {
-                // if login failed - prompt for all
-                plogin->setShowDataSourceName( true );
-                plogin->setShowUserID( true );
-                plogin->setShowPassword( true );
-                bPromptSomething = true;
                 QMessageBox::warning( pwidgetParent, objectName(),  tr( "failed to connect" ) ); 
             }
         }
@@ -101,7 +91,7 @@ bool OQGConnection::doBrowseConnect( QWidget *pwidgetParent, const QString &stri
 
     while ( nReturn == SQL_NEED_DATA )
     {
-        nReturn = OQConnection::doBrowseConnect( stringIn, &stringOut );
+        stringOut = OQConnection::getBrowseConnect( stringIn, &nReturn );
         switch ( nReturn )
         {
             case SQL_SUCCESS:

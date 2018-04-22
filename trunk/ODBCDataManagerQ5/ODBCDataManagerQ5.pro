@@ -4,7 +4,6 @@ DESTDIR          = ../bin
 include( ../common.pri )
 include( ../config.pri )
 include( ../defines.pri )
-include( ../odbc.pri )
 
 #
 # Lets switch Qt implicit char conversion back on as we are no longer
@@ -20,6 +19,8 @@ QT += widgets
 INCLUDEPATH     += ../Wrappers/QtCore5/include  ../Wrappers/QtGui5/include
 
 LIBS += -L../lib -lOQG5 -lOQ5 -lodbcinstQ5
+
+include( ../odbc.pri )
 
 HEADERS		= \
 #	DBrowser.h \
