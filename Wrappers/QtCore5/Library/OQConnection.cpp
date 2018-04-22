@@ -16,10 +16,6 @@ OQConnection::OQConnection( OQEnvironment *penvironment )
 {
     setObjectName( QString::fromLocal8Bit( "OQConnection" ) );
 
-    bPromptDriver           = true;
-    bPromptDataSourceName   = true;
-    bPromptUserID           = true;
-    bPromptPassword         = true;
     bConnected              = false;
 }
 
@@ -627,27 +623,66 @@ OQStatement *OQConnection::getDataTypes()
     
     Connects to the data source. emits signalConnected() if things work out.
 */
-SQLRETURN OQConnection::doBrowseConnect( const QString &stringIn, QString *pstringOut )
+QString OQConnection::getBrowseConnect( const QString &stringIn, SQLRETURN *pnReturn )
 {
+    SQLRETURN       nReturn;
+    SQLRETURN *     pnRet = ( pnReturn ? pnReturn : &nReturn );
+    QString         stringReturn;
     SQLWCHAR        szOut[4096];
     SQLSMALLINT     nCharsOutMax    = 4096;
     SQLSMALLINT     nCharsAvailable = 0;
-    // we cast away const for arg1 as spec says its input only
-    SQLRETURN       nReturn         = doBrowseConnect( (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable );
 
-    if ( SQL_SUCCEEDED( nReturn ) || nReturn == SQL_NEED_DATA )
+    // we cast away const for arg1 as spec says its input only
+    *pnRet = doBrowseConnect( (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable );
+
+    if ( SQL_SUCCEEDED( *pnRet ) || *pnRet == SQL_NEED_DATA )
     {
         // check for truncation
         if ( nCharsAvailable > nCharsOutMax )
         {
-            *pstringOut = QString::fromUtf16( szOut, nCharsOutMax );
+            stringReturn = QString::fromUtf16( szOut, nCharsOutMax );
             eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit( __FUNCTION__ ), tr( "String truncated." ) ) );
         }
         else
-            *pstringOut = QString::fromUtf16( szOut, nCharsAvailable );
+            stringReturn = QString::fromUtf16( szOut, nCharsAvailable );
     }
 
-    return nReturn;
+    return stringReturn;
+}
+
+/*!
+    getDriverConnect
+    
+    Connects to the data source. emits signalConnected() if things work out.
+*/
+QString OQConnection::getDriverConnect( QWidget *pwidgetParent, const QString &stringIn, DriverPromptTypes nPrompt, SQLRETURN *pnReturn )
+{
+    ODBCINSTWND odbcinstwnd;
+    strcpy( odbcinstwnd.szUI, "odbcinstQ5" );
+    odbcinstwnd.hWnd = pwidgetParent;
+    QString         stringReturn;
+    SQLWCHAR        szOut[4096];
+    SQLSMALLINT     nCharsOutMax    = 4096;
+    SQLSMALLINT     nCharsAvailable = 0;
+    SQLRETURN       nReturn;
+    SQLRETURN *     pnRet = ( pnReturn ? pnReturn : &nReturn );
+
+    // we cast away the const in arg2 as spec says its input only
+    *pnRet = doDriverConnect( (HWND)(&odbcinstwnd), (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable, (SQLUSMALLINT)nPrompt );
+
+    if ( SQL_SUCCEEDED( nReturn ) )
+    {
+        // check for truncation
+        if ( nCharsAvailable > nCharsOutMax )
+        {
+            stringReturn = QString::fromUtf16( szOut, nCharsOutMax );
+            eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit( __FUNCTION__ ), tr( "String truncated." ) ) );
+        }
+        else
+            stringReturn = QString::fromUtf16( szOut, nCharsAvailable );
+    }
+
+    return stringReturn;
 }
 
 /*!
@@ -659,37 +694,6 @@ SQLRETURN OQConnection::doConnect( const QString &stringServerName, const QStrin
 {
     // we cast away the const as spec says they are input only
     return doConnect( (SQLWCHAR*)(stringServerName.utf16()), SQL_NTS, (SQLWCHAR*)(stringUserName.utf16()), SQL_NTS, (SQLWCHAR*)(stringAuthentication.utf16()), SQL_NTS );
-}
-
-/*!
-    doDriverConnect
-    
-    Connects to the data source. emits signalConnected() if things work out.
-*/
-QString OQConnection::getDriverConnect( SQLHWND hWnd, const QString &stringIn, DriverPromptTypes nPrompt, SQLRETURN *pnReturn )
-{
-    SQLWCHAR        szOut[4096];
-    SQLSMALLINT     nCharsOutMax    = 4096;
-    SQLSMALLINT     nCharsAvailable = 0;
-    SQLRETURN       nReturn;
-    SQLRETURN *     pnRet = ( pnReturn ? pnReturn : &nReturn );
-
-    // we cast away the const in arg2 as spec says its input only
-    *pnRet = doDriverConnect( hWnd, (SQLWCHAR*)(stringIn.utf16()), SQL_NTS, szOut, nCharsOutMax, &nCharsAvailable, (SQLUSMALLINT)nPrompt );
-
-    if ( SQL_SUCCEEDED( nReturn ) )
-    {
-        // check for truncation
-        if ( nCharsAvailable > nCharsOutMax )
-        {
-            *pstringOut = QString::fromUtf16( szOut, nCharsOutMax );
-            eventMessage( OQMessage( OQMessage::Warning, QString::fromLocal8Bit( __FUNCTION__ ), tr( "String truncated." ) ) );
-        }
-        else
-            *pstringOut = QString::fromUtf16( szOut, nCharsAvailable );
-    }
-
-    return nReturn;
 }
 
 /*!
@@ -739,16 +743,25 @@ SQLRETURN OQConnection::doDisconnect()
 
     if ( !isConnected() )
     {
-        stringDSN           = QString::null;
-        stringUID           = QString::null;
-        stringPWD           = QString::null;
-        stringConnectString = QString::null;
         emit signalDisconnected();
     }
 
     return nReturn;
 }
 
+/*!
+ * \brief Check if we have an ODBC connection. 
+ *  
+ * There are two ways to do this... 
+ *  
+ * 1) we can ask ODBC 
+ * 2) we can check a variable we maintain 
+ * 
+ * 
+ * \author pharvey (4/20/18)
+ * 
+ * \return bool true if connected else false
+ */
 bool OQConnection::isConnected()
 {
 /*
@@ -793,6 +806,12 @@ bool OQConnection::isConnected()
     return bConnected;
 }
 
+/*
+ * protected methods 
+ *  
+ * these are to support the public methods so they are closer to the ODBC CLI 
+ *  
+ */
 SQLRETURN OQConnection::setConnectAttr( SQLINTEGER nAttribute, SQLUINTEGER n )
 {
     switch ( nAttribute )
@@ -1017,13 +1036,7 @@ SQLRETURN OQConnection::doConnect( SQLWCHAR *pszDSN, SQLSMALLINT nLength1, SQLWC
     }
 
     if ( isConnected() )
-    {
-        // cache it - perhaps not needed???
-        stringDSN = QString::fromUtf16( pszDSN );
-        stringUID = QString::fromUtf16( pszUID );
-        stringPWD = QString::fromUtf16( pszPWD );
         emit signalConnected();
-    }
 
     return nReturn;
 }
@@ -1034,6 +1047,40 @@ SQLRETURN OQConnection::doDriverConnect( SQLHWND hWnd, SQLWCHAR *pszIn, SQLSMALL
         return SQL_ERROR;
 
     SQLRETURN nReturn = SQLDriverConnectW( hHandle, hWnd, pszIn, nLengthIn, pszOut, nLengthOut, pnLengthOut, nPrompt );
+    switch ( nReturn )
+    {
+        case SQL_SUCCESS:
+            bConnected = true;
+            break;
+        case SQL_SUCCESS_WITH_INFO:
+            bConnected = true;
+            eventDiagnostic();
+            break;
+        case SQL_NEED_DATA:
+            return nReturn;
+        case SQL_ERROR:
+            eventDiagnostic();
+            break;
+        case SQL_INVALID_HANDLE:
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), QString::fromLocal8Bit( "SQL_INVALID_HANDLE" ) ) );
+            break;
+        default:
+            eventMessage( OQMessage( OQMessage::Error, QString::fromLocal8Bit( __FUNCTION__ ), tr("Unexpected SQLRETURN value."), nReturn ) );
+            break;
+    }
+
+    if ( isConnected() )
+        emit signalConnected();
+
+    return nReturn;
+}
+
+SQLRETURN OQConnection::doBrowseConnect( SQLWCHAR *pszIn, SQLSMALLINT nLengthIn, SQLWCHAR *pszOut, SQLSMALLINT nLengthOut, SQLSMALLINT *pnLengthOut )
+{
+    if ( !isAlloc() )
+        return SQL_ERROR;
+
+    SQLRETURN nReturn = SQLBrowseConnectW( hHandle, pszIn, nLengthIn, pszOut, nLengthOut, pnLengthOut );
     switch ( nReturn )
     {
         case SQL_SUCCESS:

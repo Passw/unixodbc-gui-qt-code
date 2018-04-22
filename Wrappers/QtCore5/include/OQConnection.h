@@ -108,12 +108,7 @@ public:
     virtual SQLRETURN setAttrTranslateLib( const QString &stringAttrTranslateLib );
     virtual SQLRETURN setAttrTranslateOption( SQLUINTEGER nAttrTranslateOption );
     virtual SQLRETURN setAttrTxnIsolation( SQLUINTEGER nAttrTxnIsolation );
-/*
-    virtual void setPromptDriver( bool bPrompt )            { bPromptDriver = bPrompt;          }
-    virtual void setPromptDataSourceName( bool bPrompt )    { bPromptDataSourceName = bPrompt;  }
-    virtual void setPromptUserID( bool bPrompt )            { bPromptUserID = bPrompt;          }
-    virtual void setPromptPassword( bool bPrompt )          { bPromptPassword = bPrompt;        }
-*/
+
     // GETTERS
     virtual AttrAccessModeTypes     getAttrAccessMode( SQLRETURN *pn = NULL );
     virtual AttrAsyncEnableTypes    getAttrAsyncEnable( SQLRETURN *pn = NULL ); 
@@ -149,16 +144,7 @@ public:
 
     virtual QString   getBrowseConnect( const QString &stringIn, SQLRETURN *pnReturn = NULL );
     virtual QString   getDriverConnect( QWidget *pwidgetParent, const QString &stringIn, DriverPromptTypes nPrompt, SQLRETURN *pnReturn = NULL );
-/*
-    virtual bool        getPromptDriver() { return bPromptDriver; }
-    virtual bool        getPromptDataSourceName() { return bPromptDataSourceName; }
-    virtual bool        getPromptUserID() { return bPromptUserID; }
-    virtual bool        getPromptPassword() { return bPromptPassword; }
 
-    virtual QString getDSN() { return stringDSN; }
-    virtual QString getUID() { return stringUID; }
-    virtual QString getPWD() { return stringPWD; }
-*/
     // DOERS
     virtual SQLRETURN doConnect( const QString &stringServerName = QString::null, const QString &stringUserName = QString::null, const QString &stringAuthentication = QString::null );
     virtual SQLRETURN doDisconnect();
@@ -171,21 +157,10 @@ signals:
 
 protected:
     bool bConnected;             /*!< cached connect state - need to see if this is needed                   */
-/*
-    // Used by doConnect() and doBrowseConnect()
-    bool                bPromptDriver;
-    bool                bPromptDataSourceName;
-    // Used by doConnect()
-    bool                bPromptUserID;
-    bool                bPromptPassword;
-    // These reflect the current connection. null if no connection.
-    QString             stringDSN;
-    QString             stringUID;
-    QString             stringPWD;
-    QString             stringConnectString;
-*/
+
     // 2 arg calls for setting attributes (they call the 3 arg version)
     // these have extra validation to check data type for attribute
+    // note: some calls, such as SQL_ATTR_ENLIST_IN_DTC/SQL_ATTR_QUIET_MODE, can not be done by the 2 arg version
     virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLUINTEGER n );
     virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLINTEGER n );
     virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, const QString &stringValue );
@@ -193,11 +168,11 @@ protected:
 
     // 3 arg call for setting attributes
     // does not check data type for attribute
-    // some calls, such as SQL_ATTR_ENLIST_IN_DTC/SQL_ATTR_QUIET_MODE, can not be done by the 2 arg version
     virtual SQLRETURN setConnectAttr( SQLINTEGER nAttribute, SQLPOINTER p, SQLINTEGER n );
 
     // 2 arg calls for getting attribute (they call the 3 arg version)
     // these have extra validation to check data type for attribute
+    // note: some calls, such as SQL_ATTR_ENLIST_IN_DTC/SQL_ATTR_QUIET_MODE, can not be done by the 2 arg version
     virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, SQLUINTEGER *pn );
     virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, SQLINTEGER *pn );
     virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, QString *pValue );
@@ -205,9 +180,10 @@ protected:
 
     // 4 arg call for getting attribute
     // does not check data type for attribute
-    // some calls, such as SQL_ATTR_ENLIST_IN_DTC/SQL_ATTR_QUIET_MODE, can not be done by the 2 arg version
     virtual SQLRETURN getConnectAttr( SQLINTEGER nAttribute, SQLPOINTER pValue, SQLINTEGER nBufferLength, SQLINTEGER *pnStringLength );
 
+    // these have the same args as the corresponding CLI but have some validation/error reporting
+    // used by convenience methods
     virtual SQLRETURN doConnect( SQLWCHAR *pszServerName = NULL, SQLSMALLINT nLength1 = SQL_NTS, SQLWCHAR *pszUserName = NULL, SQLSMALLINT nLength2 = SQL_NTS, SQLWCHAR *pszAuthentication = NULL, SQLSMALLINT nLength3 = SQL_NTS );
     virtual SQLRETURN doDriverConnect( SQLHWND hWnd, SQLWCHAR *pszIn, SQLSMALLINT nLengthIn, SQLWCHAR *pszOut, SQLSMALLINT nLengthOut, SQLSMALLINT *pnLengthOut, SQLUSMALLINT nPrompt );
     virtual SQLRETURN doBrowseConnect( SQLWCHAR *szInConnectionString, SQLSMALLINT nStringLength1, SQLWCHAR *szOutConnectionString, SQLSMALLINT nBufferLength, SQLSMALLINT *pnStringLength2Ptr );
