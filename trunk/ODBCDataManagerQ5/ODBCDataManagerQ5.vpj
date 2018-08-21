@@ -84,6 +84,11 @@
             <F N="ODBCMetaInfo.cpp"/>
             <F N="ODBCModel.cpp"/>
             <F N="ODBCModelBrowser.cpp"/>
+            <F N="ODBCModelConnection.cpp"/>
+            <F N="ODBCModelDataSource.cpp"/>
+            <F N="ODBCModelDataSourcesFile.cpp"/>
+            <F N="ODBCModelDataSourcesSystem.cpp"/>
+            <F N="ODBCModelDataSourcesUser.cpp"/>
             <F N="ODBCModelDriver.cpp"/>
             <F N="ODBCModelDrivers.cpp"/>
             <F N="ODBCModelEnvironment.cpp"/>
@@ -125,6 +130,11 @@
             <F N="ODBCMetaInfo.h"/>
             <F N="ODBCModel.h"/>
             <F N="ODBCModelBrowser.h"/>
+            <F N="ODBCModelConnection.h"/>
+            <F N="ODBCModelDataSource.h"/>
+            <F N="ODBCModelDataSourcesFile.h"/>
+            <F N="ODBCModelDataSourcesSystem.h"/>
+            <F N="ODBCModelDataSourcesUser.h"/>
             <F N="ODBCModelDriver.h"/>
             <F N="ODBCModelDrivers.h"/>
             <F N="ODBCModelEnvironment.h"/>

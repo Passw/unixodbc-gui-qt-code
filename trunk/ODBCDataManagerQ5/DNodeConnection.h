@@ -42,7 +42,7 @@ protected slots:
     void slotConnectToggle();
     void slotNewStatement();
 
-protected:
+protected:File
     SQLHDBC     hDbc;
     bool        bConnected;
     QAction *   pactionConnectToggle; 

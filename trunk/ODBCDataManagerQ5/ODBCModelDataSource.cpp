@@ -7,10 +7,12 @@
  * \date    2007
  * \license Copyright unixODBC-GUI-Qt Project 2007-2012, See GPL.txt
  */
-#include "ODBCModelDriver.h"
+#include "ODBCModelDataSource.h"
 
 // parents we can have
-#include "ODBCModelDrivers.h"
+#include "ODBCModelDataSourcesFile.h"
+#include "ODBCModelDataSourcesSystem.h"
+#include "ODBCModelDataSourcesUser.h"
 
 // children we can create
 #include "ODBCModelConnection.h"
@@ -19,10 +21,10 @@
 #include "Remove32.xpm"
 #include "Driver48.xpm"
 
-ODBCModelDriver::ODBCModelDriver( OQGEnvironment *pHandle, ODBCModelDrivers *pParent, const QString &stringDriver )
+ODBCModelDataSource::ODBCModelDataSource( OQGEnvironment *pHandle, ODBCModelDataSourcesFile *pParent, const QString &stringDataSourceName )
     : ODBCModel( pHandle, pParent )
 {
-    setObjectName( stringDriver );
+    setObjectName( stringDataSourceName );
 
     pactionNewConnection = new QAction( QIcon( QPixmap( xpmConnected48 ) ), "New Connection", 0 );
     connect( pactionNewConnection, SIGNAL(triggered()), this, SLOT(slotNewConnection()) );
@@ -30,14 +32,48 @@ ODBCModelDriver::ODBCModelDriver( OQGEnvironment *pHandle, ODBCModelDrivers *pPa
     pactionDelete = new QAction( QIcon( QPixmap( xpmRemove32 ) ), "Delete", 0 );
     connect( pactionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()) );
 
+    nDataSourceType = DataSourceFile;
+
     doLoadProperties();
 }
 
-ODBCModelDriver::~ODBCModelDriver()
+ODBCModelDataSource::ODBCModelDataSource( OQGEnvironment *pHandle, ODBCModelDataSourcesSystem *pParent, const QString &stringDataSourceName )
+    : ODBCModel( pHandle, pParent )
+{
+    setObjectName( stringDataSourceName );
+
+    pactionNewConnection = new QAction( QIcon( QPixmap( xpmConnected48 ) ), "New Connection", 0 );
+    connect( pactionNewConnection, SIGNAL(triggered()), this, SLOT(slotNewConnection()) );
+
+    pactionDelete = new QAction( QIcon( QPixmap( xpmRemove32 ) ), "Delete", 0 );
+    connect( pactionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()) );
+
+    nDataSourceType = DataSourceSystem;
+
+    doLoadProperties();
+}
+
+ODBCModelDataSource::ODBCModelDataSource( OQGEnvironment *pHandle, ODBCModelDataSourcesUser *pParent, const QString &stringDataSourceName )
+    : ODBCModel( pHandle, pParent )
+{
+    setObjectName( stringDataSourceName );
+
+    pactionNewConnection = new QAction( QIcon( QPixmap( xpmConnected48 ) ), "New Connection", 0 );
+    connect( pactionNewConnection, SIGNAL(triggered()), this, SLOT(slotNewConnection()) );
+
+    pactionDelete = new QAction( QIcon( QPixmap( xpmRemove32 ) ), "Delete", 0 );
+    connect( pactionDelete, SIGNAL(triggered()), this, SLOT(slotDelete()) );
+
+    nDataSourceType = DataSourceUser;
+
+    doLoadProperties();
+}
+
+ODBCModelDataSource::~ODBCModelDataSource()
 {
 }
 
-QVariant ODBCModelDriver::data( const QModelIndex &index, int nRole ) const
+QVariant ODBCModelDataSource::data( const QModelIndex &index, int nRole ) const
 {
     if ( index.row() < 0 || index.row() >= nRows )
         return QVariant();
@@ -75,7 +111,7 @@ QVariant ODBCModelDriver::data( const QModelIndex &index, int nRole ) const
     return QVariant();
 }
 
-bool ODBCModelDriver::setData( const QModelIndex &index, const QVariant &variantValue, int nRole )
+bool ODBCModelDataSource::setData( const QModelIndex &index, const QVariant &variantValue, int nRole )
 {
     if ( !index.isValid() )
         return false;
@@ -106,12 +142,12 @@ bool ODBCModelDriver::setData( const QModelIndex &index, const QVariant &variant
     return false;
 }
 
-QIcon ODBCModelDriver::getIcon()
+QIcon ODBCModelDataSource::getIcon()
 {
     return QIcon( QPixmap( xpmDriver48 ) );
 }
 
-bool ODBCModelDriver::doLoad()
+bool ODBCModelDataSource::doLoad()
 {
     // no children (yet)
     bLoaded = true;
@@ -119,13 +155,13 @@ bool ODBCModelDriver::doLoad()
     return true;
 }
 
-bool ODBCModelDriver::doClear()
+bool ODBCModelDataSource::doClear()
 {
     bLoaded = false;
     return true;
 }
 
-void ODBCModelDriver::doContextMenu( QWidget *pwidgetParent, QPoint pos )
+void ODBCModelDataSource::doContextMenu( QWidget *pwidgetParent, QPoint pos )
 {
     Q_UNUSED(pwidgetParent)
 
@@ -139,26 +175,28 @@ void ODBCModelDriver::doContextMenu( QWidget *pwidgetParent, QPoint pos )
     Q_UNUSED(pAction)
 }
 
-void ODBCModelDriver::slotNewConnection()
+void ODBCModelDataSource::slotNewConnection()
 {
     OQHandle *      pHandle         = getHandle();
     OQGEnvironment *pEnvironment    = (OQGEnvironment*)(pHandle->getParent( OQHandle::Env ));
 
-    new ODBCModelConnection( pEnvironment, this );
+    OQGConnection *pConnection = new OQGConnection( pEnvironment );
+    pConnection->doAlloc();
+    // new ODBCModelConnection( pEnvironment, this );
 }
 
-void ODBCModelDriver::slotDelete()
+void ODBCModelDataSource::slotDelete()
 {
 printf( "[PAH][%s][%d][%s]\n", __FILE__, __LINE__, __FUNCTION__ );
 //    delete this;
 }
 
-void ODBCModelDriver::doLoadProperties()
+void ODBCModelDataSource::doLoadProperties()
 {
     nRows = 0;
     vectorKeys.clear();    
     vectorValues.clear();
-
+/*
     OQGSystem *pSystem = (OQGSystem *)(getHandle()->getParent( OQHandle::Sys ));
 
     // get all attributes...
@@ -174,13 +212,17 @@ void ODBCModelDriver::doLoadProperties()
     }
 
     nRows = vectorKeys.count();
+*/
 }
 
-bool ODBCModelDriver::doSaveProperty( const QString &stringKey, const QString &stringValue )
+bool ODBCModelDataSource::doSaveProperty( const QString &stringKey, const QString &stringValue )
 {
+/*
     OQGSystem *pSystem = (OQGSystem *)(getHandle()->getParent( OQHandle::Sys ));
     SQLRETURN nReturn = pSystem->setDriverAttribute( getText(), stringKey, stringValue );
 
     return (SQL_SUCCEEDED(nReturn));
+*/
+    return false;
 }
 

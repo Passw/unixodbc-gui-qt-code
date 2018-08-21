@@ -1,6 +1,8 @@
 Qt MODELS
 =========
 
+DNode* are for reference and are NOT used.
+
 Important notes about how we layer Qt model paradigm upon our C++ wrapper for ODBC.
 
 1) QtGui5 provides all ODBC System Data based upon a hierarchy of ODBC handles implemented using QObject's
@@ -10,11 +12,12 @@ can provide a table view for viewing/editing properties.
 
 OBJECT BROWSER
 ==============
+ODBCViewBrowser displays a tree view of ODBCModelBrowser. ODBCModelBrowser uses the following hierarchy for data.
 
-System (handle)(1)
-	Environment (handle)(0-n)
-		Drivers (folder)(1)
-			Driver (object)(0-n)
+System (ODBCModelSystem)(1)
+	Environment (ODBCModelEnvironment)(0-n)
+		Drivers (ODBCModelDrivers)(1)
+			Driver (ODBCModelDriver)(0-n)
 				Connection (handle)(0-n) *
 					Statement (handle)(0-n)
 		Data Source Names - System (folder)(1)
