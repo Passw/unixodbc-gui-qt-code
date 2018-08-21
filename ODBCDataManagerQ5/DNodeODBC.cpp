@@ -27,6 +27,7 @@ DNodeODBC::DNodeODBC( DNodeWidget *pNodeWidget )
     pSystem = new OQGSystem();
     pEnvironment = new OQGEnvironment( pSystem );
     pEnvironment->doAlloc();
+printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
 
     new DNodeDrivers( pNodeWidget, this );
     new DNodeDataSourceNames( pNodeWidget, this );

@@ -10,6 +10,9 @@
 #include "ODBCModelEnvironment.h"
 #include "ODBCModelSystem.h"
 #include "ODBCModelDrivers.h"
+#include "ODBCModelDataSourcesSystem.h"
+#include "ODBCModelDataSourcesUser.h"
+#include "ODBCModelDataSourcesFile.h"
 
 #include "ODBC64.xpm"
 
@@ -78,8 +81,9 @@ QVariant ODBCModelEnvironment::data( const QModelIndex &index, int nRole ) const
 //                        p = ODBCMetaInfo::getAttrValue( pAttr, ODBCMetaInfo::AttrFieldNumeric, pEnvironment->getAttrOutputNTS() );
                         break;
                 }
-                if ( p )
+                if ( p ) 
                     return p->pszCasualName;
+                break;
             }
             case Qt::EditRole:      /* called by CPropertiesDelegate:: createEditor & setEditorData to load cell editor */
             {
@@ -223,8 +227,19 @@ bool ODBCModelEnvironment::doLoad()
 {
     // lazy load
     // load mandatory children
+    OQGEnvironment *pEnvironment = getEnvironment();
+    if ( !pEnvironment->isAlloc() )
+    {
+        QMessageBox::information( 0, tr("Load"), tr("Right-Click with mouse to Alloc handle with current properties.") );
+        return false;
+    }
+
     new ODBCModelDrivers( (OQGEnvironment*)(getHandle()), this );
+    new ODBCModelDataSourcesSystem( (OQGEnvironment*)(getHandle()), this );
+    new ODBCModelDataSourcesUser( (OQGEnvironment*)(getHandle()), this );
+    new ODBCModelDataSourcesFile( (OQGEnvironment*)(getHandle()), this );
     bLoaded = true;
+
     return true;
 }
 

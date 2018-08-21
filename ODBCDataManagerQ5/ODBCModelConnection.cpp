@@ -76,18 +76,24 @@ void ODBCModelConnection::doContextMenu( QWidget *pwidgetParent, QPoint pos )
 
 void ODBCModelConnection::slotConnect()
 {
-    ODBCModelDriver *pDriver    = (ODBCModelDriver*)parent();
     OQGConnection * pConnection = (OQGConnection*)getHandle();
+    if ( !pConnection->isAlloc() )
+    {
+        QMessageBox::information( 0, tr("Load"), tr("Right-Click with mouse to Alloc handle with current properties.") );
+        return;
+    }
+
+
+/*
     QString stringIn( "DRIVER=" + pDriver->objectName() );
 
-    /*
-    ODBCINSTWND odbcinstwnd;
-    strcpy( odbcinstwnd.szUI, "odbcinstQ5" );
-    odbcinstwnd.hWnd = (QWidget*)(qApp->desktop());
-    */
+    // ODBCINSTWND odbcinstwnd;
+    // strcpy( odbcinstwnd.szUI, "odbcinstQ5" );
+    // odbcinstwnd.hWnd = (QWidget*)(qApp->desktop());
 
     SQLRETURN nReturn;
     QString stringConnection = pConnection->getDriverConnect( qApp->desktop(), stringIn, OQConnection::PromptDriverComplete, &nReturn );
+*/
 }
 
 void ODBCModelConnection::slotDisconnect()

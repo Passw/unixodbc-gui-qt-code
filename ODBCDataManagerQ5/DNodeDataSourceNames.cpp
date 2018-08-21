@@ -22,6 +22,7 @@ DNodeDataSourceNames::DNodeDataSourceNames( DNodeWidget *pNodeWidget, DNode *pNo
     setIcon( 0, QIcon( xpmDataSourceNames48 ) );
     setText( 0, QObject::tr( "Data Source Names" ) );
     setText( 2, QObject::tr( "preconfigured connection profiles" ) );
+printf( "[PAH][%s][%d]\n", __FILE__, __LINE__ );
 
     pactionAdd = new QAction( QIcon( xpmAdd32 ), "Add", 0 );
     connect( pactionAdd, SIGNAL(triggered()), this, SLOT(slotAdd()) );

@@ -53,6 +53,11 @@ HEADERS		= \
 	ODBCMetaInfo.h \
 	ODBCModel.h \
 	ODBCModelBrowser.h \
+    ODBCModelConnection.h \
+    ODBCModelDataSource.h \
+    ODBCModelDataSourcesFile.h \
+    ODBCModelDataSourcesSystem.h \
+    ODBCModelDataSourcesUser.h \
 	ODBCModelDriver.h \
 	ODBCModelDrivers.h \
 	ODBCModelEnvironment.h \
@@ -91,6 +96,11 @@ SOURCES 	= \
 	ODBCMetaInfo.cpp \
 	ODBCModel.cpp \
 	ODBCModelBrowser.cpp \
+    ODBCModelConnection.cpp \
+    ODBCModelDataSource.cpp \
+    ODBCModelDataSourcesFile.cpp \
+    ODBCModelDataSourcesSystem.cpp \
+    ODBCModelDataSourcesUser.cpp \
 	ODBCModelDriver.cpp \
 	ODBCModelDrivers.cpp \
 	ODBCModelEnvironment.cpp \
