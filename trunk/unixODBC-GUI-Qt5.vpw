@@ -7,8 +7,6 @@
 		<Project File="odbcinstQ5/odbcinstQ5.vpj"/>
 		<Project File="ODBCManageDataSourcesQ5/ODBCManageDataSourcesQ5.vpj"/>
 		<Project File="ODBCTestQ5/ODBCTestQ5.vpj"/>
-		<Project File="Wrappers/QtCore5/QtCore5.vpj"/>
-		<Project File="Wrappers/QtGui5/QtGui5.vpj"/>
 		<Project File="unixODBC-GUI-Qt5.vpj"/>
 	</Projects>
 </Workspace>
