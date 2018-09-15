@@ -1,5 +1,3 @@
-*** THIS NEEDS TO BE UPDATED ***
-
 +-------------------------------------------------------------+
 | unixODBC-GUI-Qt                                             |
 +-------------------------------------------------------------+
@@ -24,6 +22,22 @@ Description:
 
 	Also; at this time, the GNU auto-tools are not a simple
 	solution for OSX, and MS users.
+
+Port To Qt5:
+
+	Ported to Qt5...
+
+	* ini (static library to support odbcinstQ5)
+	* odbcinstQ5 (GUI plugin for unixODBC, installs to same dir as libodbcinst.so)
+	* ODBCCreateDataSourceQ5 (bin simply calls SQLCreateDataSource to invoke GUI)
+	* ODBCManageDataSourcesQ5 (bin simply calls SQLManageDataSources to invoke GUI)
+
+	This will provide all needed functionality for the Qt5 based GUI plugin.
+
+	Optional bits not currently ported to Qt5...
+
+	* gtrtstQ5
+	* ODBCTestQ5
 
 Requirements:
 
