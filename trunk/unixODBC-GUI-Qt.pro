@@ -85,9 +85,7 @@ unix {
 # Resolve when we get to building ODBCTestQ5.
 #            gtrtstQ5 \
             ODBCCreateDataSourceQ5 \
-            ODBCManageDataSourcesQ5 \
-            Wrappers \
-            ODBCDataManagerQ5
+            ODBCManageDataSourcesQ5 
 #            ODBCTestQ5
     }
 }
