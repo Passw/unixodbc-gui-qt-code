@@ -59,7 +59,7 @@ int main( int argc, char **argv )
         RETCODE nRetCode = SQLInstallerError( nError, &nErrorCode, szErrorMsg, SQL_MAX_MESSAGE_LENGTH, NULL );
         if ( !SQL_SUCCEEDED( nRetCode ) )
         {
-            QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  QObject::tr( "failed: no more errors to report" ) );
+            QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  QObject::tr( "Failed: no more errors to report.\n\nThe most likley causes are;\n- failed to find GUI plugin (libodbcinstQ5.so)\n- failed to load it due to unresolved references\n\nCommandLine tools that may help;\n file <path>libodbcinstQ5.so\n dltest <path>libodbcinstQ5.so ODBCManageDataSources\n ldd -r <path>libodbcinstQ5.so\n\nThe most common place to find libodbcinstQ5.so is in /usr/lib64." ) );
             break;
         }
         QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  QString::fromLocal8Bit( szErrorMsg ) );
