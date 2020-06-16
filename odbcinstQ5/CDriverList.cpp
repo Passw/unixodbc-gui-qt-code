@@ -396,7 +396,7 @@ void CDriverList::slotEdit()
     HODBCINSTPROPERTY   hFirstProperty  = NULL;
     HODBCINSTPROPERTY   hCurProperty    = NULL;
     HODBCINSTPROPERTY   hLastProperty;
-    HINI            hIni;
+    HINI                hIni;
     char                szINI[FILENAME_MAX+1];
     char b1[ 256 ];
 //    char b2[ 256 ];

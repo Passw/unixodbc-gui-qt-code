@@ -1,0 +1,12 @@
+<!DOCTYPE Workspace SYSTEM "http://www.slickedit.com/dtd/vse/10.0/vpw.dtd">
+<Workspace Version="10.0" VendorName="SlickEdit">
+	<Projects>
+		<Project File="doc/doc.vpj"/>
+		<Project File="ini/ini.vpj"/>
+		<Project File="ODBCCreateDataSourceQ5/ODBCCreateDataSourceQ5.vpj"/>
+		<Project File="odbcinstQ5/odbcinstQ5.vpj"/>
+		<Project File="ODBCManageDataSourcesQ5/ODBCManageDataSourcesQ5.vpj"/>
+		<Project File="ODBCTestQ5/ODBCTestQ5.vpj"/>
+		<Project File="unixODBC-GUI-Qt.vpj"/>
+	</Projects>
+</Workspace>

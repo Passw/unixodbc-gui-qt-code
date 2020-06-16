@@ -7,6 +7,8 @@
  * \date    2007
  * \license Copyright unixODBC-GUI-Qt Project 2009-2010, LGPL
  */
+#include <ODBCCommon.h>
+
 #include "CDataSourceNameList.h"
 
 #include "CDriverPrompt.h"
@@ -109,7 +111,7 @@ void CDataSourceNameList::slotAdd()
                 sprintf( szINI, "%s/odbc.ini", odbcinst_system_file_path( b1 ));
                 mode = ODBC_ADD_SYS_DSN;
             }
-            if (SQLConfigDataSource((HWND)1, mode, stringDataSourceDriver.toLatin1().constData(), ""))
+            if ( SQLConfigDataSourceW( (HWND)1, mode, (LPCWSTR)stringDataSourceDriver.utf16(), (LPCWSTR)QString( "" ).utf16() ) )
             {
                 slotLoad();
                 return;
@@ -177,11 +179,11 @@ void CDataSourceNameList::slotEdit()
 	QString				stringSetupFile( tr("") );
 	QString				stringError( tr("") );
 
-	CPropertiesDialog *  pProperties;
+	CPropertiesDialog * pProperties;
 	HODBCINSTPROPERTY	hFirstProperty	= NULL;
 	HODBCINSTPROPERTY	hCurProperty	= NULL;
 
-	char				szEntryNames[4096];
+	char   		        szEntryNames[4096];
 	char				szProperty[INI_MAX_PROPERTY_NAME+1];
 	char				szValue[INI_MAX_PROPERTY_VALUE+1];
 	
@@ -270,8 +272,8 @@ void CDataSourceNameList::slotEdit()
      */
 	SQLSetConfigMode( nSource );
     ODBCINSTSetProperty( hFirstProperty, QString( tr( "Name" ) ).toLocal8Bit().data(), stringDataSourceName.toLocal8Bit().data() );
-    memset( szEntryNames, 0, sizeof( szEntryNames ));
-	SQLGetPrivateProfileString( stringDataSourceName.toLocal8Bit().data(), NULL, NULL, szEntryNames, 4090, "odbc.ini" ); // GET ALL ENTRY NAMES FOR THE SELCTED DATA SOURCE
+    szEntryNames[0] = '\0';
+	SQLGetPrivateProfileString( stringDataSourceName.toLatin1().data(), NULL, NULL, szEntryNames, 4090, "odbc.ini" ); // GET ALL ENTRY NAMES FOR THE SELCTED DATA SOURCE
 	for ( nElement = 0; iniElement( szEntryNames, '\0', '\0', nElement, szProperty, 1000 ) == INI_SUCCESS ; nElement++ )
 	{
 		SQLGetPrivateProfileString( stringDataSourceName.toLocal8Bit().data(), szProperty, "", szValue, INI_MAX_PROPERTY_VALUE, szINI ); // GET VALUE FOR EACH ENTRY

@@ -11,54 +11,25 @@
 #define CODBCINST_H
 
 #include <ini.h>
-#include <odbcinstext.h>
+#include <ODBCCommon.h>
 
-#ifndef odbcinst_system_file_path
-    #if defined(__cplusplus)
-             extern  "C" {
-    #endif
+// We *could* get rid of these by defining UNIXODBC_SOURCE but that seems
+// to be an even worse solution to get at these.
+#ifndef odbcinst_system_file_path                                
+    #if defined(__cplusplus)                                     
+             extern  "C" {                                       
+    #endif                                                       
         char * INSTAPI odbcinst_system_file_path( char *buffer );
         char * INSTAPI odbcinst_system_file_name( char *buffer );
-        BOOL _odbcinst_FileINI(	char *pszPath );
-    #ifdef __cplusplus
-             }
-    #endif
-#endif
+        BOOL _odbcinst_FileINI( char *pszPath );                 
+    #ifdef __cplusplus                                           
+             }                                                   
+    #endif                                                       
+#endif                                                           
 
 #ifndef SHLIBEXT
     #define SHLIBEXT ".so"
 #endif
-
-#include <QtGui>
-#include <QWidget>
- 
-#include <QObject>
-#include <QVBoxLayout>
-#include <QMessageBox>
-#include <QWizardPage>
-#include <QTableView>
-#include <QTableWidgetItem>
-#include <QDialog>
-#include <QLabel>
-#include <QDialogButtonBox>
-#include <QHeaderView>
-#include <QGridLayout>
-#include <QToolButton>
-#include <QListView>
-#include <QPushButton>
-#include <QTextBrowser> 
-#include <QTabWidget>
-#include <QSpinBox>
-#include <QCheckBox>
-#include <QRadioButton>
-#include <QGroupBox>
-#include <QFileDialog>
-#include <QIcon>
-#include <QPixmap>
-#include <QListWidget>
-#include <QStackedWidget>
-#include <QComboBox>
-#include <QDesktopWidget>
 
 class CDSNWizardData
 {
