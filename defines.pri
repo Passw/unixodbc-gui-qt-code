@@ -8,7 +8,7 @@
 # \sa		*.pri *.pro 
 #
 
-DEFINES += V_MAJOUR=1 V_MINOR=0 V_RELEASE=1
+DEFINES += V_MAJOUR=1 V_MINOR=0 V_RELEASE=2
 
 #
 # Define for UNICODE, but do not map calls to A/W versions as we will call W versions

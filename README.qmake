@@ -11,17 +11,8 @@ Description:
 	Read this if you want to know how to build things 
 	using Qt qmake.
 
-	Why have qmake enter the picture? Frankly; I find the
-	GNU auto tools to be a great idea - if you never have
-	to figure them out. Unfortunately; many projects, this
-	included, do not have the resources to allocate a GNU
-	auto-tools specialist. This means that development
-	time has to be spent in figuring it out. This is 
-        particularly bad for someone who just wants to configure 
-        the build for his/her own purposes.
-
-	Also; at this time, the GNU auto-tools are not a simple
-	solution for OSX, and MS users.
+	Earlier versions can be built with AutoTools but this
+	version is only built with qmake.
 
 Port To Qt5:
 
@@ -41,10 +32,9 @@ Port To Qt5:
 
 Requirements:
 
-	Guess what? You are going to need qmake. If you have
-	Qt -dev installed then you probably already have qmake
-	installed. If not then get it from your distro or directly
-	from www.qt.io. You need Qt version 4 or better.
+	You will need a Qt5 development environment.
+	All majour Linux distributions will have this as an install option.
+	All others will probably have to get it from www.qt.io
 
 Make & Install:
 

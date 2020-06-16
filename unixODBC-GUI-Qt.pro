@@ -7,10 +7,7 @@
 # UNIX'ism
 # --------
 #
-# NOTE: The gnu auto-tools method is the preferred method 
-# to build on UNIX. This changed with the Qt5 version. The
-# auto-tools build has not been tested on the Qt5 version
-# at least not yet.
+# This is built using qmake - more specifically - qmake-qt5.
 #
 # Install unixODBC-Core and unixODBC-Dev. Set the following
 # environment variables to tell us where unixODBC was
@@ -50,12 +47,6 @@ TEMPLATE	= subdirs
 # WIN32
 # #########################################################
 win32 {
-    equals( QT_MAJOR_VERSION, 4 ) {
-       SUBDIRS	= \
-           gtrtstQ4 \
-           ODBCTestQ4
-    }
-
     equals( QT_MAJOR_VERSION, 5 ) {
     	SUBDIRS	= \
     		gtrtstQ5 \
@@ -66,17 +57,6 @@ win32 {
 # MAC/UNIX shared
 # #########################################################
 unix {
-    equals( QT_MAJOR_VERSION, 4 ) {
-    	SUBDIRS	= \
-    		ini \
-    		odbcinstQ4 \
-    		gtrtstQ4 \
-    		Wrappers \
-    		ODBCCreateDataSourceQ4 \
-    		ODBCManageDataSourcesQ4 \
-    		ODBCTestQ4
-    }
-
     equals( QT_MAJOR_VERSION, 5 ) {
         SUBDIRS	= \
             ini \
