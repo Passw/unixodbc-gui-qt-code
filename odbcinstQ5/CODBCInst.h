@@ -11,7 +11,7 @@
 #define CODBCINST_H
 
 #include <ini.h>
-#include <ODBCCommon.h>
+#include <ODBCInc.h>
 
 // We *could* get rid of these by defining UNIXODBC_SOURCE but that seems
 // to be an even worse solution to get at these.

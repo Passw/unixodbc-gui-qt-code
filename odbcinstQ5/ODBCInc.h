@@ -1,5 +1,5 @@
-#ifndef H_ODBCCommon
-#define H_ODBCCommon
+#ifndef H_ODBCInc
+#define H_ODBCInc
 
 // bring in ODBC stuff...
 #ifdef Q_OS_WIN

@@ -7,7 +7,7 @@
  * \date    2007
  * \license Copyright unixODBC-GUI-Qt Project 2009-2010, LGPL
  */
-#include <ODBCCommon.h>
+#include <ODBCInc.h>
 
 #include "CODBCConfig.h"
 #include "CDSNWizard.h"

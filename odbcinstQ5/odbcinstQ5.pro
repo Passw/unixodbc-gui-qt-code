@@ -13,14 +13,23 @@ TARGET  = odbcinstQ5
 DESTDIR	= ../lib
 CONFIG	+= plugin
 
+QT += gui
+QT += widgets
+
 # One way to get more access to unixODBC internals.
 # But lets just define extern the few things we need. 
 # DEFINES += UNIXODBC_SOURCE
 
-QT += gui
-QT += widgets
+#
+# Turn the function mapping off.
+# We can not include odbcinstext.h (internals) with function mapping on... it
+# will cause an error (duplicate declaration of the functions). But, we need access to
+# HODBCINSTPROPERTY... among other things. So we turn function mapping off and
+# make wide-char calls explicitly.
+#
+DEFINES += SQL_NOUNICODEMAP
 
-INCLUDEPATH	+= ../ini ../include
+INCLUDEPATH	+= ../ini
 LIBS		+= -L../lib -lini
 
 HEADERS = \

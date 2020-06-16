@@ -53,9 +53,7 @@
         <Folder
             Name="Header Files"
             Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.h++;*.inc;*.sh;*.cpy;*.if"
-            GUID="{AE15F4DC-3FC2-437C-B11C-98ECC5441E3D}">
-            <F N="include/ODBCCommon.h"/>
-        </Folder>
+            GUID="{AE15F4DC-3FC2-437C-B11C-98ECC5441E3D}"></Folder>
         <Folder
             Name="Source Files"
             Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.scala;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go;*.groovy;*.gsh"

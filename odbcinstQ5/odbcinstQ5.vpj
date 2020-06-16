@@ -84,6 +84,7 @@
             <F N="CPropertiesModel.h"/>
             <F N="CThreading.h"/>
             <F N="CTracing.h"/>
+            <F N="ODBCInc.h"/>
         </Folder>
         <Folder
             Name="Source Files"
