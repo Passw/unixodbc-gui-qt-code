@@ -19,15 +19,6 @@ DEFINES += ODBCVER=0x0380
 #
 DEFINES += UNICODE
 
-#
-# Turn the function mapping off.
-# We can not include odbcinstext.h (internals) with function mapping on... it
-# will cause an error (duplicate declaration of the functions). But, we need access to
-# HODBCINSTPROPERTY... among other things. So we turn function mapping off and
-# make wide-char calls explicitly.
-#
-DEFINES += SQL_NOUNICODEMAP
-
 # unixODBC-Test sources must be available so we can access 
 # autotest.h. This is needed for, at least, ODBCTestQx.
 
