@@ -13,10 +13,14 @@ TARGET  = odbcinstQ5
 DESTDIR	= ../lib
 CONFIG	+= plugin
 
+# One way to get more access to unixODBC internals.
+# But lets just define extern the few things we need. 
+# DEFINES += UNIXODBC_SOURCE
+
 QT += gui
 QT += widgets
 
-INCLUDEPATH	+= ../ini
+INCLUDEPATH	+= ../ini ../include
 LIBS		+= -L../lib -lini
 
 HEADERS = \

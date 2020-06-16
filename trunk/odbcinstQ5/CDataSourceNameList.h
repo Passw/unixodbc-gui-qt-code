@@ -12,8 +12,6 @@
 
 #include "CODBCInst.h"
 
-#include <QTableWidget>
-
 /*! 
  * \brief   A simple table widget listing Data Source Names (DSN's).
  * 

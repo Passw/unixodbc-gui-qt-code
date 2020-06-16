@@ -50,8 +50,45 @@
     </Config>
     <Files>
         <Folder
+            Name="Header Files"
+            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if"
+            GUID="{3784D154-C776-4B7B-A151-135E41EA6407}">
+            <F N="CAbout.h"/>
+            <F N="CAdvanced.h"/>
+            <F N="CDataSourceNameList.h"/>
+            <F N="CDataSourceNames.h"/>
+            <F N="CDataSourceNamesFile.h"/>
+            <F N="CDataSourceNamesFileModel.h"/>
+            <F N="CDriverConnectPrompt.h"/>
+            <F N="CDriverList.h"/>
+            <F N="CDriverPrompt.h"/>
+            <F N="CDSNWizard.h"/>
+            <F N="CDSNWizardDriver.h"/>
+            <F N="CDSNWizardEntre.h"/>
+            <F N="CDSNWizardFini.h"/>
+            <F N="CDSNWizardProperties.h"/>
+            <F N="CDSNWizardType.h"/>
+            <F N="CFileSelector.h"/>
+            <F N="CHelp.h"/>
+            <F N="CManageDataSourceNames.h"/>
+            <F N="CManageDrivers.h"/>
+            <F N="CMonitor.h"/>
+            <F N="CMonitorHandleCounts.h"/>
+            <F N="CMonitorProcesses.h"/>
+            <F N="CODBCConfig.h"/>
+            <F N="CODBCInst.h"/>
+            <F N="CPage.h"/>
+            <F N="CPooling.h"/>
+            <F N="CPropertiesDelegate.h"/>
+            <F N="CPropertiesDialog.h"/>
+            <F N="CPropertiesModel.h"/>
+            <F N="CThreading.h"/>
+            <F N="CTracing.h"/>
+        </Folder>
+        <Folder
             Name="Source Files"
-            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl">
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl"
+            GUID="{2EE3FFAE-F3EE-4A3A-988D-15FA11986979}">
             <F N="CAbout.cpp"/>
             <F N="CAdvanced.cpp"/>
             <F N="CDataSourceNameList.cpp"/>
@@ -87,49 +124,13 @@
             <F N="SQLManageDataSources.cpp"/>
         </Folder>
         <Folder
-            Name="Header Files"
-            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
-            <F N="CAbout.h"/>
-            <F N="CAdvanced.h"/>
-            <F N="CDataSourceNameList.h"/>
-            <F N="CDataSourceNames.h"/>
-            <F N="CDataSourceNamesFile.h"/>
-            <F N="CDataSourceNamesFileModel.h"/>
-            <F N="CDriverConnectPrompt.h"/>
-            <F N="CDriverList.h"/>
-            <F N="CDriverPrompt.h"/>
-            <F N="CDSNWizard.h"/>
-            <F N="CDSNWizardDriver.h"/>
-            <F N="CDSNWizardEntre.h"/>
-            <F N="CDSNWizardFini.h"/>
-            <F N="CDSNWizardProperties.h"/>
-            <F N="CDSNWizardType.h"/>
-            <F N="CFileSelector.h"/>
-            <F N="CHelp.h"/>
-            <F N="CManageDataSourceNames.h"/>
-            <F N="CManageDrivers.h"/>
-            <F N="CMonitor.h"/>
-            <F N="CMonitorHandleCounts.h"/>
-            <F N="CMonitorProcesses.h"/>
-            <F N="CODBCConfig.h"/>
-            <F N="CODBCInst.h"/>
-            <F N="CPage.h"/>
-            <F N="CPooling.h"/>
-            <F N="CPropertiesDelegate.h"/>
-            <F N="CPropertiesDialog.h"/>
-            <F N="CPropertiesModel.h"/>
-            <F N="CThreading.h"/>
-            <F N="CTracing.h"/>
-        </Folder>
-        <Folder
             Name="Resource Files"
-            Filters="*.ico;*.cur;*.dlg"/>
+            Filters="*.ico;*.cur;*.dlg"
+            GUID="{AE2B883B-41FE-4C88-B934-19E59A62FD40}"/>
         <Folder
             Name="Bitmaps"
-            Filters="*.bmp"/>
-        <Folder
-            Name="Other Files"
-            Filters="">
+            Filters="*.bmp"
+            GUID="{5DFD4988-6E7B-4A96-9F36-FB89FC0BCAF4}">
             <F N="About48.xpm"/>
             <F N="Advanced48.xpm"/>
             <F N="Canada.xpm"/>
@@ -142,11 +143,8 @@
             <F N="GreatBritain.xpm"/>
             <F N="Info16.xpm"/>
             <F N="InfoArrow16.xpm"/>
-            <F N="Makefile.am"/>
             <F N="NoFlag.xpm"/>
             <F N="ODBC.xpm"/>
-            <F N="odbcinstQ5.exp"/>
-            <F N="odbcinstQ5.pro"/>
             <F N="ODBCManageDataSources64.xpm"/>
             <F N="Pooling48.xpm"/>
             <F N="Set.xpm"/>
@@ -154,6 +152,12 @@
             <F N="Threading48.xpm"/>
             <F N="Tracing48.xpm"/>
             <F N="WizardCreateDataSourceName.xpm"/>
+        </Folder>
+        <Folder
+            Name="Other Files"
+            Filters=""
+            GUID="{27328E8C-CF8C-4AA3-9BDA-4102D950AEB3}">
+            <F N="odbcinstQ5.pro"/>
         </Folder>
     </Files>
 </Project>

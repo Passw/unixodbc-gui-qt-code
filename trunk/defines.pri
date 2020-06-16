@@ -15,8 +15,8 @@ DEFINES += V_MAJOUR=1 V_MINOR=0 V_RELEASE=2
 # explicitly. Also; lets not have Qt silently convert to/from ASCII for us... lets do
 # that explicitly as well.
 #
-DEFINES += QT_NO_CAST_FROM_ASCII \
-           QT_NO_CAST_TO_ASCII
+# DEFINES += QT_NO_CAST_FROM_ASCII \
+#           QT_NO_CAST_TO_ASCII
 
 # #########################################################
 # WIN32

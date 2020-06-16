@@ -7,12 +7,9 @@
  * \date    2007
  * \license Copyright unixODBC-GUI-Qt Project 2009-2010, LGPL
  */
-#include <unistd.h>
-
-#include <odbcinstext.h>
+#include <ODBCCommon.h>
 
 #include "CDataSourceNamesFileModel.h"
-
 #include "CDriverPrompt.h"
 #include "CPropertiesDialog.h"
 
