@@ -8,7 +8,7 @@
  * \license Copyright unixODBC-GUI-Qt Project 2007-2018, See GPL.txt
  */
 #include <odbcinst.h>
-#include <odbcinstext.h>
+// #include <odbcinstext.h>
 
 #include <QApplication>
 #include <QMessageBox>
@@ -54,15 +54,15 @@ int main( int argc, char **argv )
     // oops - report any errors we can dig up...
     for ( WORD nError = 1; nError < 10; nError++ )
     {
-        DWORD   nErrorCode;
-        char    szErrorMsg[SQL_MAX_MESSAGE_LENGTH];
-        RETCODE nRetCode = SQLInstallerError( nError, &nErrorCode, szErrorMsg, SQL_MAX_MESSAGE_LENGTH, NULL );
+        DWORD    nErrorCode;
+        WCHAR    szErrorMsg[SQL_MAX_MESSAGE_LENGTH];
+        RETCODE  nRetCode = SQLInstallerErrorW( nError, &nErrorCode, szErrorMsg, SQL_MAX_MESSAGE_LENGTH, NULL );
         if ( !SQL_SUCCEEDED( nRetCode ) )
         {
-            QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  QObject::tr( "Failed: no more errors to report.\n\nThe most likley causes are;\n- failed to find GUI plugin (libodbcinstQ5.so)\n- failed to load it due to unresolved references\n\nCommandLine tools that may help;\n file <path>libodbcinstQ5.so\n dltest <path>libodbcinstQ5.so ODBCManageDataSources\n ldd -r <path>libodbcinstQ5.so\n\nThe most common place to find libodbcinstQ5.so is in /usr/lib64." ) );
+            QMessageBox::critical( 0, QObject::tr( "ODBC Create Data Source" ),  QObject::tr( "Failed: no more errors to report.\n\nThe most likley causes are;\n- failed to find GUI plugin (libodbcinstQ5.so)\n- failed to load it due to unresolved references\n\nCommandLine tools that may help;\n file <path>libodbcinstQ5.so\n dltest <path>libodbcinstQ5.so ODBCCreateDataSource\n ldd -r <path>libodbcinstQ5.so\n\nThe most common place to find libodbcinstQ5.so is in /usr/lib64." ) );
             break;
         }
-        QMessageBox::critical( 0, QObject::tr( "ODBC Administrator" ),  QString::fromLocal8Bit( szErrorMsg ) );
+        QMessageBox::critical( 0, QObject::tr( "ODBC Create Data Source" ),  QString::fromUtf16( (ushort*)szErrorMsg, nErrorCode ) );
     }
 
     // exit with error
