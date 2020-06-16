@@ -5,47 +5,8 @@
 dist (distribution)
 ---------------------------------------------------------------
 
-This readme is for those interested in *making* a 
-unixODBC-GUI-Qt	distribution of some sort.
-
-NOTE: 	This works for the v4 stuff as it has autoconf setup. At
-	this time - the v5 stuff is qmake only. Perhaps a distro
-	Admin could improve this?
-	
-Linux
------
-	
-Create source 'tar-ball':
-
-1. get sources - presumably from sourceforge
-2. $ mv <sources> unixODBC-GUI-Qt-<version>
-3. $ cd <sources>
-4. $ remove the .svn directories and any temp files/dirs
-5. $ cd ../
-6. $ tar -c unixODBC-GUI-Qt-<version> > unixODBC-GUI-Qt-<version>.tar
-7. $ gzip unixODBC-GUI-Qt-<version>.tar
-	
-NOTE:	If you have run the configure script then you should do the
-	following...
-
-	$ make distclean
-
-	...and then follow steps 4 onward.
-
-Create binary & source RPM:
-
-1. $ mv unixODBC-GUI-Qt-<version>.tar.gz <packages>/SOURCES
-2. $ cd <packages>/SOURCES
-3. $ tar zxvf unixODBC-GUI-Qt-<version>.tar.gz
-4. $ rpmbuild -ba unixODBC-GUI-Qt-<version>/unixODBC-GUI-Qt.spec
-
-NOTE: 	On openSuSE <packages> = /usr/src/packages
-	On RedHat   <packages> = /usr/src/redhat
-
-Windows
--------
-
-        ToDo
+The code here is built with qmake so any package maintainer who
+can work with qmake (ie RPM folks) can use this code easily.
 
 ---------------------------------------------------------------
 Peter Harvey

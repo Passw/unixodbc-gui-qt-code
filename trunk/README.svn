@@ -12,13 +12,8 @@ those wanting the very latest changes.
 Repository
 ----------
 	
-The source code can be downloaded using the svn tool from;	
-
-	http://unixodbc-gui-qt.sourceforge.net
-
-WARNING:	This is the 'bleeding edge' code and as such 
-		the trunk may not build and will have some bugs 
-		in it.
+The source code is hosted at sourceforge.net and can be 
+downloaded from there. 
 
 Build
 -----
@@ -43,7 +38,7 @@ code and document changes. This group of users will have
 read/write access to the svn source code.
 
 If you want to contribute you can request 'write'
-permissions using the Source Forge web interface. This
+permissions using the SourceForge web interface. This
 usually means sending an email request to one of the 
 project admins.
 	
