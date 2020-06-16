@@ -14,7 +14,7 @@
 #include "CAbout.h"
 #include "CPage.h"
 
-#include "ODBCManageDataSources64.xpm"
+#include "ODBC.xpm"
 
 CODBCConfig::CODBCConfig( QWidget* pwidgetParent, Qt::WindowFlags nFlags )
     : QDialog( pwidgetParent, nFlags )
@@ -52,7 +52,7 @@ CODBCConfig::CODBCConfig( QWidget* pwidgetParent, Qt::WindowFlags nFlags )
     // 
     setLayout( playout00 );
     setWindowTitle( tr( "ODBC Administrator" ) );
-    setWindowIcon( QPixmap( xpmODBCManageDataSources64 ) );
+    setWindowIcon( QPixmap( xpmODBC ) );
 
     // restore last state...
     loadState();

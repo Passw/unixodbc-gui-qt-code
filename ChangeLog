@@ -1,7 +1,16 @@
+	- a source branch, dedicated to the Qt4 version, has been created and the trunk is now focused upon Qt5 only
+	- some work has been done to prepare for UTF-16 in odbcinstQ5 (the plugin) but this will not proceed further until some internals in unixODBC are made capable
+	- in the meantime it builds and works fine on latest unixODBC/Linux
+
+	Note to linux package makers. At least one of the linux distros is currently using a libodbcinstQ5.so that is built with ODBC stats enabled while the default unixODBC does not have this turned on. In this case the plugin is not going to work due to unresolved references. The default for both should be (and is currently) to have this feature off. Send me an email if you have any questions about this. 
+
+	--
+	Peter
+
 23.02.2010
 2.3.0-1
 
-	* Made the unixODBC Qt bits build in thier own project.
+	* Made the unixODBC Qt bits build in their own project.
 
 
 
